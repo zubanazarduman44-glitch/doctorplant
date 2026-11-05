@@ -1,0 +1,121 @@
+:root {
+  --bg: #f4f1ea;
+  --card: #fffdf8;
+  --ink: #1f2a1f;
+  --muted: #6b7466;
+  --line: #e4ddcf;
+  --green: #2f6b3a;
+  --green-soft: #e3efe0;
+  --amber: #b7791f;
+  --amber-soft: #fbf0dc;
+  --red: #b23b2e;
+  --red-soft: #f9e1dd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141814;
+    --card: #1c221c;
+    --ink: #e8ede4;
+    --muted: #9aa494;
+    --line: #2c352c;
+    --green: #7cc488;
+    --green-soft: #22352486;
+    --amber: #e3b25a;
+    --amber-soft: #3a2f1c;
+    --red: #ec8a7d;
+    --red-soft: #3d2320;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+button { font: inherit; cursor: pointer; }
+button:disabled { opacity: 0.6; cursor: default; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 48px; }
+
+.top { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 4px; }
+.brand { display: flex; gap: 8px; align-items: center; font-weight: 700; font-size: 20px; }
+.logo { font-size: 26px; }
+
+.lang { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.lang button { border: 0; background: transparent; color: var(--muted); padding: 6px 12px; font-size: 13px; font-weight: 600; }
+.lang button.on { background: var(--green); color: var(--card); }
+
+.subtitle { color: var(--muted); margin: 8px 0 20px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.drop {
+  width: 100%;
+  min-height: 200px;
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+}
+.drop:hover { border-color: var(--green); }
+.cam { font-size: 40px; }
+
+.preview { width: 100%; max-height: 380px; object-fit: contain; border-radius: 12px; background: var(--bg); display: block; }
+.hint { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+
+.row { display: flex; gap: 10px; margin-top: 12px; }
+.row button { flex: 1; padding: 12px; border-radius: 12px; font-weight: 600; }
+.primary { background: var(--green); color: var(--card); border: 0; }
+.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+
+.err { background: var(--red-soft); color: var(--red); border-color: transparent; }
+
+.head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.head h2 { margin: 0; font-size: 22px; }
+.latin { color: var(--muted); font-style: italic; }
+.label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.badge { padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.badge.healthy { background: var(--green-soft); color: var(--green); }
+.badge.needs_attention { background: var(--amber-soft); color: var(--amber); }
+.badge.sick { background: var(--red-soft); color: var(--red); }
+.badge.unknown { background: var(--line); color: var(--muted); }
+
+.conf { margin: 16px 0 4px; }
+.bar { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+.bar div { height: 100%; background: var(--green); }
+.warn { color: var(--amber); font-size: 14px; margin: 8px 0 0; }
+
+.block { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+.block h3 { margin: 0 0 6px; font-size: 15px; }
+.block ul, .block ol { margin: 0; padding-left: 20px; }
+.block li { margin-bottom: 4px; }
+.diag { font-weight: 600; margin: 0; }
+.note { margin: 0; }
+
+.care { display: grid; gap: 10px; }
+.care-item { display: flex; gap: 10px; }
+.ci { font-size: 20px; }
+
+.feedback { display: flex; align-items: center; gap: 10px; }
+.feedback button { border: 1px solid var(--line); background: transparent; border-radius: 10px; padding: 4px 12px; font-size: 18px; }
+
+.disclaimer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 24px; }

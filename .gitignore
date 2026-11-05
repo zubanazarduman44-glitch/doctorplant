@@ -1,0 +1,19 @@
+# Тәуелділіктер / Зависимости
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# 🔒 Құпия кілттер — ЕШҚАШАН GitHub-қа жүктемейміз
+# 🔒 Секретные ключи — НИКОГДА не загружаем на GitHub
+.env
+.env.local
+.env*.local
+
+# Vercel
+.vercel/
+
+# Жүйелік файлдар
+.DS_Store
+Thumbs.db
