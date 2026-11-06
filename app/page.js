@@ -191,7 +191,7 @@ function store(key, value) {
 }
 
 // Суретті кішірейтеміз және EXIF/геолокацияны өшіреміз
-function compressImage(file, maxSize = 1280, quality = 0.85) {
+function compressImage(file, maxSize = 1024, quality = 0.82) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -568,7 +568,7 @@ function CameraModal({ t, onClose, onShot }) {
   function shoot() {
     const v = videoRef.current;
     if (!v?.videoWidth) return;
-    const max = 1280;
+    const max = 1024;
     const scale = Math.min(1, max / Math.max(v.videoWidth, v.videoHeight));
     const c = document.createElement("canvas");
     c.width = Math.round(v.videoWidth * scale);

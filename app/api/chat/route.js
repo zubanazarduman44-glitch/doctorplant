@@ -58,6 +58,7 @@ export async function POST(req) {
     const reply = await callGemini(contents, {
       system: systemPrompt(lang, diagnosis),
       temperature: 0.4,
+      fast: true,
     });
     countChatMessage(diagnosisId);
     return Response.json({ reply });
