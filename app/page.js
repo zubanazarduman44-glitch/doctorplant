@@ -6,13 +6,48 @@ import { useEffect, useRef, useState } from "react";
 const T = {
   kk: {
     brand: "Өсімдік дәрігері",
-    nav: { diagnose: "Диагноз", chat: "Кеңесші", history: "Тарих", about: "Туралы" },
+    nav: { diagnose: "Диагноз", plants: "Өсімдіктер", chat: "Кеңесші", history: "Тарих", about: "Туралы" },
     navHint: {
       diagnose: "Суреттен анықтау",
       chat: "Ботаника және экология",
       history: "Бұрынғы талдаулар",
       about: "Қалай жұмыс істейді",
     },
+    plantsTitle: "Менің өсімдіктерім",
+    plantsEmpty: "Өсімдіктеріңізді қосыңыз — суару уақытын еске саламыз.",
+    addPlant: "Өсімдік қосу",
+    saveToPlants: "Өсімдіктеріме қосу",
+    savedToPlants: "Өсімдіктеріңізге қосылды",
+    watered: "Суардым",
+    fertilized: "Тыңайттым",
+    dueToday: "Бүгін суару керек",
+    dueIn: (n) => (n === 1 ? "Ертең суару" : `${n} күннен кейін суару`),
+    overdue: (n) => `Суару ${n} күн кешікті`,
+    fertDue: "Тыңайту уақыты келді",
+    everyN: (n) => `әр ${n} күн сайын`,
+    summaryDue: (n) => `Бүгін ${n} өсімдікті суару керек`,
+    summaryOk: "Бүгін бәрі суарылған",
+    lastWatered: "Соңғы суару",
+    fName: "Атауы",
+    fPhoto: "Сурет",
+    fWater: "Суару жиілігі, күн",
+    fFert: "Тыңайту жиілігі, күн (0 — керек емес)",
+    fLast: "Соңғы рет суарылған күн",
+    fNote: "Ескертпе",
+    fNotePh: "Мысалы: терезе алдында, жазда жиірек",
+    save: "Сақтау",
+    cancel: "Болдырмау",
+    edit: "Өзгерту",
+    del: "Жою",
+    delConfirm: "Иә, жою",
+    calendar: "Күнтізбеге қосу",
+    calendarHint: "Телефон күнтізбесі сағат 9:00-де суару уақытын өзі еске салады — сайт жабық болса да.",
+    notify: "Хабарландыруды қосу",
+    notifyOn: "Хабарландыру қосулы",
+    notifyDenied: "Хабарландыруға браузер баптауларынан рұқсат беріңіз",
+    notifyHint: "Сайтты ашқанда суару керек өсімдіктер туралы хабарлайды.",
+    notifyTitle: "Өсімдіктерді суару уақыты",
+    remindersTitle: "Еске салу",
     heroTitle: "Өсімдігіңізге не болды?",
     heroText: "Жапырақты жақыннан түсіріңіз — түрін, ауруын және не істеу керегін айтамыз.",
     sheetSpecies: "Түрі",
@@ -91,13 +126,48 @@ const T = {
   },
   ru: {
     brand: "Доктор растений",
-    nav: { diagnose: "Диагноз", chat: "Консультант", history: "История", about: "О сервисе" },
+    nav: { diagnose: "Диагноз", plants: "Растения", chat: "Консультант", history: "История", about: "О нас" },
     navHint: {
       diagnose: "Анализ по фото",
       chat: "Ботаника и экология",
       history: "Прошлые анализы",
       about: "Как это работает",
     },
+    plantsTitle: "Мои растения",
+    plantsEmpty: "Добавьте свои растения — напомним, когда поливать.",
+    addPlant: "Добавить растение",
+    saveToPlants: "Добавить в мои растения",
+    savedToPlants: "Добавлено в ваши растения",
+    watered: "Полито",
+    fertilized: "Подкормлено",
+    dueToday: "Пора поливать",
+    dueIn: (n) => (n === 1 ? "Полить завтра" : `Полить через ${n} дн.`),
+    overdue: (n) => `Полив просрочен на ${n} дн.`,
+    fertDue: "Пора подкормить",
+    everyN: (n) => `каждые ${n} дн.`,
+    summaryDue: (n) => `Сегодня нужно полить: ${n}`,
+    summaryOk: "Сегодня всё полито",
+    lastWatered: "Последний полив",
+    fName: "Название",
+    fPhoto: "Фото",
+    fWater: "Полив каждые, дней",
+    fFert: "Подкормка каждые, дней (0 — не нужна)",
+    fLast: "Дата последнего полива",
+    fNote: "Заметка",
+    fNotePh: "Например: на подоконнике, летом чаще",
+    save: "Сохранить",
+    cancel: "Отмена",
+    edit: "Изменить",
+    del: "Удалить",
+    delConfirm: "Да, удалить",
+    calendar: "Добавить в календарь",
+    calendarHint: "Календарь телефона сам напомнит о поливе в 9:00 — даже когда сайт закрыт.",
+    notify: "Включить уведомления",
+    notifyOn: "Уведомления включены",
+    notifyDenied: "Разрешите уведомления в настройках браузера",
+    notifyHint: "Когда вы открываете сайт, он напомнит, какие растения пора полить.",
+    notifyTitle: "Пора полить растения",
+    remindersTitle: "Напоминания",
     heroTitle: "Что с вашим растением?",
     heroText: "Снимите лист крупным планом — определим вид, болезнь и подскажем, что делать.",
     sheetSpecies: "Вид",
@@ -181,6 +251,68 @@ const CLIENT_KEY = "osimdik_client_id";
 const LANG_KEY = "osimdik_lang";
 const THEME_KEY = "osimdik_theme";
 const GENERAL_CHAT_KEY = "osimdik_general_chat";
+const PLANTS_KEY = "osimdik_plants_v1";
+const NOTIFIED_KEY = "osimdik_notified_day";
+
+const DAY = 86_400_000;
+function dayStart(d = new Date()) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x.getTime();
+}
+// Келесі суаруға дейін неше күн қалды (0 — бүгін, теріс — кешікті)
+function daysLeft(lastISO, every) {
+  if (!every) return null;
+  const last = dayStart(new Date(lastISO || Date.now()));
+  return Math.round((last + every * DAY - dayStart()) / DAY);
+}
+function todayISO() {
+  return new Date().toISOString();
+}
+function dateInput(iso) {
+  const d = new Date(iso || Date.now());
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+// Телефон күнтізбесіне қайталанатын оқиға (.ics)
+function downloadICS(plant, t) {
+  const left = Math.max(0, daysLeft(plant.lastWatered, plant.waterEvery) ?? 0);
+  const start = new Date(dayStart() + left * DAY);
+  const ymd = (d) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const esc = (x) => String(x).replace(/[\\,;]/g, (m) => "\\" + m).replace(/\n/g, " ");
+  const title = `${t.watered === "Суардым" ? "Суару" : "Полить"}: ${plant.name}`;
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Osimdik Doctor//KZ",
+    "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:${plant.id}@osimdik-doctor`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART;VALUE=DATE:${ymd(start)}`,
+    `DTEND;VALUE=DATE:${ymd(new Date(start.getTime() + DAY))}`,
+    `RRULE:FREQ=DAILY;INTERVAL=${plant.waterEvery}`,
+    `SUMMARY:${esc(title)}`,
+    `DESCRIPTION:${esc(plant.note || t.everyN(plant.waterEvery))}`,
+    "BEGIN:VALARM",
+    "TRIGGER:PT9H",
+    "ACTION:DISPLAY",
+    `DESCRIPTION:${esc(title)}`,
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${plant.name.replace(/[^\p{L}\p{N}]+/gu, "-") || "plant"}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 // localStorage кейде қолжетімсіз болады — абайлап қолданамыз
 function store(key, value) {
@@ -277,6 +409,13 @@ const ICONS = {
   down: <path d="M17 13V5h2.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5H17Zm0 0-4 7a2 2 0 0 1-2-2v-3.5H6a2 2 0 0 1-2-2.3l1-6A2 2 0 0 1 7 5h10" />,
   alert: <path d="M12 9v4M12 17h.01M10.3 4.2 2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z" />,
   arrow: <path d="M7 17 17 7M9 7h8v8" />,
+  plants: <path d="M7 14h10l-1.2 6.2a1 1 0 0 1-1 .8H9.2a1 1 0 0 1-1-.8L7 14ZM12 14V9m0 0c0-2.5-1.7-4-4.5-4 0 2.5 1.7 4 4.5 4Zm0 0c0-2.8 1.8-4.5 5-4.5 0 2.8-1.8 4.5-5 4.5Z" />,
+  bell: <path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16ZM10 20a2 2 0 0 0 4 0" />,
+  calendar: <path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 17.5v-11ZM5 10h14M9 3v4M15 3v4" />,
+  edit: <path d="M5 19h4L19 9l-4-4L5 15v4ZM13 7l4 4" />,
+  trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />,
+  check: <path d="M5 12.5 10 17l9-10" />,
+  x: <path d="M6 6l12 12M18 6 6 18" />,
 };
 
 function Icon({ name, size = 20 }) {
@@ -297,7 +436,7 @@ function Icon({ name, size = 20 }) {
   );
 }
 
-const TABS = ["diagnose", "chat", "history", "about"];
+const TABS = ["diagnose", "plants", "chat", "history", "about"];
 
 /* ───────────── Басты бет ───────────── */
 export default function Home() {
@@ -312,6 +451,7 @@ export default function Home() {
   const [history, setHistory] = useState([]);
   const [generalChat, setGeneralChat] = useState([]);
   const [clientId, setClientId] = useState(null);
+  const [plants, setPlants] = useState([]);
   const t = T[lang];
 
   useEffect(() => {
@@ -322,6 +462,7 @@ export default function Home() {
     try {
       setHistory(JSON.parse(store(HISTORY_KEY) || "[]"));
       setGeneralChat(JSON.parse(store(GENERAL_CHAT_KEY) || "[]"));
+      setPlants(JSON.parse(store(PLANTS_KEY) || "[]"));
     } catch {}
     let id = store(CLIENT_KEY);
     if (!id) {
@@ -334,6 +475,48 @@ export default function Home() {
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+
+  const dueCount = plants.filter((p) => (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0).length;
+
+  // Сайт ашылғанда — күніне бір рет хабарландыру
+  useEffect(() => {
+    if (!dueCount || typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    const today = dateInput();
+    if (store(NOTIFIED_KEY) === today) return;
+    try {
+      const names = plants
+        .filter((p) => (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0)
+        .map((p) => p.name)
+        .join(", ");
+      new Notification(t.notifyTitle, { body: names, tag: "osimdik-water" });
+      store(NOTIFIED_KEY, today);
+    } catch {}
+  }, [dueCount]);
+
+  function savePlants(list) {
+    setPlants(list);
+    store(PLANTS_KEY, JSON.stringify(list));
+  }
+
+  function addPlantFromEntry(entry) {
+    const r = entry.result || {};
+    const plant = {
+      id: crypto.randomUUID?.() || String(Date.now()),
+      name: r.plant_name || r.latin_name || "—",
+      latin: r.latin_name || "",
+      thumb: entry.thumb || null,
+      waterEvery: Math.min(60, Math.max(1, r.watering_interval_days || 7)),
+      fertEvery: Math.min(180, Math.max(0, r.fertilize_interval_days || 0)),
+      lastWatered: todayISO(),
+      lastFert: todayISO(),
+      note: r.care?.watering || "",
+      diagKey: entry.key,
+      createdAt: todayISO(),
+    };
+    savePlants([plant, ...plants]);
+    patchEntry(entry.key, { plantId: plant.id });
+    return plant;
+  }
 
   function changeLang(l) {
     setLang(l);
@@ -453,7 +636,8 @@ export default function Home() {
           >
             <Icon name={k} size={19} />
             <span>{t.nav[k]}</span>
-            {k === "history" && history.length > 0 && <span className="tab-count">{history.length}</span>}
+            {k === "history" && history.length > 0 && <span className="tab-count muted-count">{history.length}</span>}
+            {k === "plants" && dueCount > 0 && <span className="tab-count">{dueCount}</span>}
           </button>
         ))}
       </nav>
@@ -471,8 +655,11 @@ export default function Home() {
             onAnalyze={analyze}
             onPatch={patchEntry}
             onAsk={askAbout}
+            onSavePlant={addPlantFromEntry}
+            onOpenPlants={() => setTab("plants")}
           />
         )}
+        {tab === "plants" && <MyPlants t={t} plants={plants} onSave={savePlants} />}
         {tab === "chat" && (
           <ChatPage
             t={t}
@@ -616,7 +803,7 @@ function FileInputs({ fileRef, camRef, onPick }) {
   );
 }
 
-function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk }) {
+function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants }) {
   const fileRef = useRef(null);
   const camRef = useRef(null);
   const [drag, setDrag] = useState(false);
@@ -762,14 +949,14 @@ function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze
               </button>
             </div>
           )}
-          <Result t={t} entry={current} onAsk={onAsk} onPatch={onPatch} />
+          <Result t={t} entry={current} onAsk={onAsk} onPatch={onPatch} onSavePlant={onSavePlant} onOpenPlants={onOpenPlants} />
         </>
       )}
     </div>
   );
 }
 
-function Result({ t, entry, onAsk, onPatch }) {
+function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants }) {
   const r = entry.result;
   if (r.is_plant === false) {
     return (
@@ -902,6 +1089,19 @@ function Result({ t, entry, onAsk, onPatch }) {
         </p>
       )}
 
+      {entry.plantId ? (
+        <button className="tile save done" style={n()} onClick={onOpenPlants}>
+          <Icon name="check" size={22} />
+          <span>{t.savedToPlants}</span>
+          <Icon name="arrow" size={20} />
+        </button>
+      ) : (
+        <button className="tile save" style={n()} onClick={() => onSavePlant(entry)}>
+          <Icon name="plants" size={24} />
+          <span>{t.saveToPlants}</span>
+          <Icon name="plus" size={20} />
+        </button>
+      )}
       <button className="tile ask" style={n()} onClick={() => onAsk(entry)}>
         <Icon name="chat" size={24} />
         <span>{t.askAbout}</span>
@@ -955,6 +1155,278 @@ function Feedback({ t, entry, onPatch }) {
           <Icon name="down" size={19} />
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ───────────── Менің өсімдіктерім ───────────── */
+function MyPlants({ t, plants, onSave }) {
+  const [editing, setEditing] = useState(null); // null | "new" | plant
+  const [perm, setPerm] = useState("default");
+
+  useEffect(() => {
+    if (typeof Notification !== "undefined") setPerm(Notification.permission);
+    else setPerm("unsupported");
+  }, []);
+
+  async function askNotify() {
+    try {
+      const r = await Notification.requestPermission();
+      setPerm(r);
+      if (r === "granted") new Notification(t.notifyOn, { body: t.notifyHint });
+    } catch {}
+  }
+
+  function update(id, patch) {
+    onSave(plants.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  }
+
+  // Суару керегі бірінші тұрады
+  const sorted = [...plants].sort(
+    (a, b) => (daysLeft(a.lastWatered, a.waterEvery) ?? 99) - (daysLeft(b.lastWatered, b.waterEvery) ?? 99)
+  );
+  const due = sorted.filter((p) => (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0).length;
+
+  return (
+    <div className="page">
+      <header className="page-head">
+        <h1>{t.plantsTitle}</h1>
+        <button className="btn primary" onClick={() => setEditing("new")}>
+          <Icon name="plus" size={18} /> {t.addPlant}
+        </button>
+      </header>
+
+      {editing && (
+        <PlantForm
+          t={t}
+          plant={editing === "new" ? null : editing}
+          onCancel={() => setEditing(null)}
+          onSubmit={(p) => {
+            if (editing === "new") onSave([p, ...plants]);
+            else update(p.id, p);
+            setEditing(null);
+          }}
+        />
+      )}
+
+      {plants.length === 0 ? (
+        <div className="empty">
+          <Icon name="plants" size={40} />
+          <p>{t.plantsEmpty}</p>
+          <button className="btn primary" onClick={() => setEditing("new")}>
+            {t.addPlant}
+          </button>
+        </div>
+      ) : (
+        <>
+          <section className={`today ${due ? "has-due" : ""}`}>
+            <Icon name={due ? "drop" : "check"} size={26} />
+            <p>{due ? t.summaryDue(due) : t.summaryOk}</p>
+          </section>
+
+          <ul className="plants">
+            {sorted.map((p) => (
+              <PlantCard
+                key={p.id}
+                t={t}
+                plant={p}
+                onWater={() => update(p.id, { lastWatered: todayISO() })}
+                onFert={() => update(p.id, { lastFert: todayISO() })}
+                onEdit={() => setEditing(p)}
+                onDelete={() => onSave(plants.filter((x) => x.id !== p.id))}
+              />
+            ))}
+          </ul>
+
+          <section className="reminders">
+            <h3>{t.remindersTitle}</h3>
+            <div className="rem-row">
+              <Icon name="calendar" size={22} />
+              <p>{t.calendarHint}</p>
+            </div>
+            {perm !== "unsupported" && (
+              <div className="rem-row">
+                <Icon name="bell" size={22} />
+                <p>{perm === "denied" ? t.notifyDenied : t.notifyHint}</p>
+                {perm === "default" && (
+                  <button className="btn ghost small" onClick={askNotify}>
+                    {t.notify}
+                  </button>
+                )}
+                {perm === "granted" && <span className="rem-on">{t.notifyOn}</span>}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete }) {
+  const [confirm, setConfirm] = useState(false);
+  const left = daysLeft(plant.lastWatered, plant.waterEvery) ?? 0;
+  const fertLeft = plant.fertEvery ? daysLeft(plant.lastFert, plant.fertEvery) : null;
+  const state = left < 0 ? "late" : left === 0 ? "due" : "ok";
+  // Сақина: келесі суаруға дейін өткен уақыт үлесі
+  const progress = Math.round(Math.min(1, Math.max(0, 1 - left / plant.waterEvery)) * 100);
+  const label = left < 0 ? t.overdue(-left) : left === 0 ? t.dueToday : t.dueIn(left);
+
+  return (
+    <li className={`plant p-${state}`}>
+      <div className="plant-main">
+        <div className="pring" style={{ "--p": progress }}>
+          {plant.thumb ? <img src={plant.thumb} alt="" /> : <span className="pring-in"><Icon name="plants" size={26} /></span>}
+        </div>
+        <div className="plant-text">
+          <h3>{plant.name}</h3>
+          {plant.latin && <p className="plant-latin">{plant.latin}</p>}
+          <p className="plant-when">
+            <Icon name="drop" size={15} /> {label}
+          </p>
+          <p className="plant-meta">
+            {t.everyN(plant.waterEvery)} · {t.lastWatered}: {new Date(plant.lastWatered).toLocaleDateString()}
+          </p>
+          {fertLeft !== null && fertLeft <= 0 && (
+            <p className="plant-fert">
+              <Icon name="sprout" size={15} /> {t.fertDue}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {plant.note && <p className="plant-note">{plant.note}</p>}
+
+      <div className="plant-actions">
+        <button className={`btn ${state === "ok" ? "ghost" : "primary"} small`} onClick={onWater}>
+          <Icon name="drop" size={16} /> {t.watered}
+        </button>
+        {fertLeft !== null && fertLeft <= 0 && (
+          <button className="btn tonal small" onClick={onFert}>
+            <Icon name="sprout" size={16} /> {t.fertilized}
+          </button>
+        )}
+        <span className="spacer" />
+        <button className="icon-btn sm" onClick={() => downloadICS(plant, t)} aria-label={t.calendar} title={t.calendar}>
+          <Icon name="calendar" size={18} />
+        </button>
+        <button className="icon-btn sm" onClick={onEdit} aria-label={t.edit} title={t.edit}>
+          <Icon name="edit" size={18} />
+        </button>
+        {confirm ? (
+          <button className="btn danger small" onClick={onDelete}>
+            {t.delConfirm}
+          </button>
+        ) : (
+          <button className="icon-btn sm" onClick={() => setConfirm(true)} aria-label={t.del} title={t.del}>
+            <Icon name="trash" size={18} />
+          </button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function PlantForm({ t, plant, onCancel, onSubmit }) {
+  const fileRef = useRef(null);
+  const [f, setF] = useState(() => ({
+    name: plant?.name || "",
+    thumb: plant?.thumb || null,
+    waterEvery: plant?.waterEvery || 7,
+    fertEvery: plant?.fertEvery ?? 0,
+    last: dateInput(plant?.lastWatered),
+    note: plant?.note || "",
+  }));
+  const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.value }));
+
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onCancel();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  async function pickPhoto(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const img = await compressImage(file, 600, 0.8);
+      setF((x) => ({ ...x, thumb: null }));
+      const th = await thumbnail(img);
+      setF((x) => ({ ...x, thumb: th }));
+    } catch {}
+  }
+
+  function submit(e) {
+    e.preventDefault();
+    const name = f.name.trim();
+    if (!name) return;
+    const lastISO = new Date(`${f.last}T12:00:00`).toISOString();
+    onSubmit({
+      ...(plant || {
+        id: crypto.randomUUID?.() || String(Date.now()),
+        latin: "",
+        lastFert: todayISO(),
+        createdAt: todayISO(),
+      }),
+      name,
+      thumb: f.thumb,
+      waterEvery: Math.min(60, Math.max(1, parseInt(f.waterEvery, 10) || 7)),
+      fertEvery: Math.min(180, Math.max(0, parseInt(f.fertEvery, 10) || 0)),
+      lastWatered: lastISO,
+      note: f.note.trim(),
+    });
+  }
+
+  return (
+    <div className="modal" role="dialog" aria-modal="true" aria-label={plant ? t.edit : t.addPlant} onClick={onCancel}>
+      <form className="sheet-form" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
+        <header className="form-head">
+          <h2>{plant ? t.edit : t.addPlant}</h2>
+          <button type="button" className="icon-btn" onClick={onCancel} aria-label={t.cancel}>
+            <Icon name="x" size={18} />
+          </button>
+        </header>
+
+        <div className="form-photo">
+          <button type="button" className="pring big" style={{ "--p": 100 }} onClick={() => fileRef.current?.click()}>
+            {f.thumb ? <img src={f.thumb} alt="" /> : <Icon name="camera" size={26} />}
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickPhoto} />
+          <label className="field grow">
+            <span>{t.fName}</span>
+            <input value={f.name} onChange={set("name")} required maxLength={60} autoFocus />
+          </label>
+        </div>
+
+        <div className="field-row">
+          <label className="field">
+            <span>{t.fWater}</span>
+            <input type="number" inputMode="numeric" min={1} max={60} value={f.waterEvery} onChange={set("waterEvery")} />
+          </label>
+          <label className="field">
+            <span>{t.fLast}</span>
+            <input type="date" value={f.last} max={dateInput()} onChange={set("last")} />
+          </label>
+        </div>
+        <label className="field">
+          <span>{t.fFert}</span>
+          <input type="number" inputMode="numeric" min={0} max={180} value={f.fertEvery} onChange={set("fertEvery")} />
+        </label>
+        <label className="field">
+          <span>{t.fNote}</span>
+          <textarea rows={2} value={f.note} onChange={set("note")} placeholder={t.fNotePh} maxLength={300} />
+        </label>
+
+        <div className="form-actions">
+          <button type="button" className="btn ghost" onClick={onCancel}>
+            {t.cancel}
+          </button>
+          <button type="submit" className="btn primary">
+            {t.save}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

@@ -59,6 +59,14 @@ const SCHEMA = {
         soil_fertilizer: { type: "STRING" },
       },
     },
+    watering_interval_days: {
+      type: "INTEGER",
+      description: "Typical number of days between waterings for this plant now (1-30). For a houseplant assume indoor conditions.",
+    },
+    fertilize_interval_days: {
+      type: "INTEGER",
+      description: "Typical days between feedings in the growing season (7-90), or 0 if not needed now.",
+    },
     toxicity_note: { type: "STRING" },
     photo_tip: { type: "STRING", description: "Empty if photo is good" },
   },
