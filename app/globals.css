@@ -696,6 +696,40 @@ a { color: inherit; }
 .map-tools .ctx select { min-height: 46px; }
 .map-wrap { position: relative; border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 0 0 1px var(--line), var(--shadow); background: var(--paper-2); }
 .map-box { height: min(62vh, 560px); width: 100%; }
+/* Карта ішіндегі басқару */
+.map-fab {
+  position: absolute; right: 16px; bottom: 16px; z-index: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 54px; padding: 0 22px 0 18px; border-radius: 999px;
+  background: var(--primary); color: var(--on-primary);
+  font-weight: 700; font-size: 16px;
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.45);
+  transition: transform 0.15s var(--ease);
+}
+.map-fab:active { transform: scale(0.96); }
+.map-locate {
+  position: absolute; right: 12px; top: 12px; z-index: 600;
+  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+  background: var(--paper); color: var(--ink); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.map-locate:hover { color: var(--primary); }
+.map-pickbar {
+  position: absolute; left: 12px; right: 70px; top: 12px; z-index: 600;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  padding: 10px 12px 10px 16px; border-radius: var(--r-md);
+  background: var(--amber); color: var(--on-amber); font-weight: 700;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+}
+.map-pickbar > span { display: inline-flex; align-items: center; gap: 8px; }
+.pickbar-actions { display: flex; gap: 6px; }
+.map-pickbar .btn.ghost { background: rgba(255, 255, 255, 0.85); color: #1c1203; box-shadow: none; }
+.map-box.picking .leaflet-container, .map-box.picking { cursor: crosshair; }
+.map-toast {
+  position: absolute; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 600;
+  max-width: calc(100% - 32px); padding: 10px 16px; border-radius: var(--r-md);
+  background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; text-align: center;
+}
+
 .map-overlay {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 500;
   max-width: calc(100% - 40px); padding: 14px 20px; border-radius: var(--r-md);
@@ -950,6 +984,9 @@ a { color: inherit; }
   .meds { grid-template-columns: 1fr; }
   .thumb { width: 44px; height: 44px; }
   .map-box { height: 58vh; }
+  .map-fab { position: fixed; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom)); min-height: 54px; z-index: 45; }
+  .map-pickbar { right: 12px; top: 66px; }
+  .map-overlay.soft { bottom: 80px; }
   .map-tools .ctx, .map-tools .ctx select { width: 100%; max-width: none; }
   .mapbtn { flex-wrap: wrap; }
   .mapbtn .btn { width: 100%; }

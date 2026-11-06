@@ -99,6 +99,9 @@ const T = {
     mapPickStatus: "Жағдайы",
     mapSave: "Белгілеу",
     mapHere: "Белгі сіздің қазіргі орныңызға шамамен қойылады.",
+    mapPickHint: "Өсімдік тұрған жерді картадан басыңыз",
+    mapPicked: "Орын картадан таңдалды.",
+    mapLocate: "Мені табу",
     recentTitle: "Соңғы талдаулар",
     showAll: "Барлығын көру",
     showLess: "Жасыру",
@@ -347,6 +350,9 @@ const T = {
     mapPickStatus: "Состояние",
     mapSave: "Отметить",
     mapHere: "Отметка ставится примерно в ваше текущее место.",
+    mapPickHint: "Нажмите на карте место, где растёт растение",
+    mapPicked: "Место выбрано на карте.",
+    mapLocate: "Найти меня",
     recentTitle: "Последние анализы",
     showAll: "Показать все",
     showLess: "Свернуть",
@@ -992,8 +998,8 @@ export default function Home() {
       );
     });
   }
-  async function addToMap({ plant_name, latin_name, health_status, diagnosis, red_book }) {
-    const pos = await getPosition();
+  async function addToMap({ plant_name, latin_name, health_status, diagnosis, red_book }, chosen) {
+    const pos = chosen || (await getPosition());
     await postJSON("/api/observations", {
       ...pos,
       plant_name,
@@ -2702,6 +2708,15 @@ function PlantMap({ t, lang, history, onAdd }) {
   const [q, setQ] = useState("");
   const [adding, setAdding] = useState(false);
   const [reload, setReload] = useState(0);
+  const [picking, setPicking] = useState(false);
+  const [picked, setPicked] = useState(null);
+  const [locErr, setLocErr] = useState("");
+  const pickingRef = useRef(false);
+  const tempRef = useRef(null);
+  useEffect(() => {
+    pickingRef.current = picking;
+  }, [picking]);
+  const coarse = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
 
   useEffect(() => {
     const saved = store(CITY_KEY);
@@ -2717,7 +2732,23 @@ function PlantMap({ t, lang, history, onAdd }) {
     loadLeaflet()
       .then((L) => {
         if (cancelled || !boxRef.current) return;
-        const map = L.map(boxRef.current, { zoomControl: true, attributionControl: true }).setView([center.lat, center.lon], 12);
+        const map = L.map(boxRef.current, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView(
+          [center.lat, center.lon],
+          12
+        );
+        map.on("click", (e) => {
+          if (pickingRef.current) {
+            const pos = { lat: e.latlng.lat, lon: e.latlng.lng };
+            tempRef.current?.remove();
+            tempRef.current = L.circleMarker([pos.lat, pos.lon], { radius: 14, color: "#d97706", weight: 3, fillColor: "#f59e0b", fillOpacity: 0.5 }).addTo(map);
+            setPicked(pos);
+            setPicking(false);
+            setAdding(true);
+          } else {
+            map.scrollWheelZoom.enable();
+          }
+        });
+        map.on("mouseout", () => map.scrollWheelZoom.disable());
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 18,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -2777,7 +2808,7 @@ function PlantMap({ t, lang, history, onAdd }) {
     for (const it of shown) {
       const color = MARK_COLORS[it.health_status] || MARK_COLORS.unknown;
       const m = L.circleMarker([+it.lat + jitter(it.id, "a"), +it.lon + jitter(it.id, "b")], {
-        radius: it.protected ? 16 : 8,
+        radius: it.protected ? 18 : coarse ? 12 : 9,
         color: it.protected ? "#b45309" : "#ffffff",
         weight: it.protected ? 2 : 2,
         dashArray: it.protected ? "4 4" : null,
@@ -2847,20 +2878,23 @@ function PlantMap({ t, lang, history, onAdd }) {
           <h1>{t.mapTitle}</h1>
           <p className="muted page-sub">{t.mapSub}</p>
         </div>
-        <button className="btn primary" onClick={() => setAdding(true)}>
-          <Icon name="plus" size={18} /> {t.mapAdd}
-        </button>
       </header>
 
       {adding && (
         <MapAddForm
           t={t}
           history={history}
-          onCancel={() => setAdding(false)}
-          onSubmit={async (row) => {
-            const pos = await onAdd(row);
+          pos={picked}
+          onCancel={() => {
             setAdding(false);
-            setCity("geo");
+            setPicked(null);
+            tempRef.current?.remove();
+          }}
+          onSubmit={async (row) => {
+            const pos = await onAdd(row, picked);
+            setAdding(false);
+            setPicked(null);
+            tempRef.current?.remove();
             setCenter({ lat: +pos.lat.toFixed(4), lon: +pos.lon.toFixed(4) });
             setReload((x) => x + 1);
           }}
@@ -2894,7 +2928,53 @@ function PlantMap({ t, lang, history, onAdd }) {
       </div>
 
       <section className="map-wrap">
-        <div ref={boxRef} className="map-box" />
+        <div ref={boxRef} className={`map-box ${picking ? "picking" : ""}`} />
+
+        <button
+          className="map-locate"
+          aria-label={t.mapLocate}
+          title={t.mapLocate}
+          onClick={() =>
+            navigator.geolocation?.getCurrentPosition(
+              (p) => {
+                setLocErr("");
+                setCity("geo");
+                setCenter({ lat: +p.coords.latitude.toFixed(4), lon: +p.coords.longitude.toFixed(4) });
+              },
+              () => setLocErr(t.geoDenied)
+            )
+          }
+        >
+          <Icon name="locate" size={20} />
+        </button>
+
+        {picking ? (
+          <div className="map-pickbar" role="status">
+            <span>
+              <Icon name="pin" size={18} /> {t.mapPickHint}
+            </span>
+            <div className="pickbar-actions">
+              <button
+                className="btn ghost small"
+                onClick={() => {
+                  setPicking(false);
+                  setPicked(null);
+                  setAdding(true);
+                }}
+              >
+                <Icon name="locate" size={15} /> {t.myLocation}
+              </button>
+              <button className="btn ghost small" onClick={() => setPicking(false)}>
+                {t.cancel}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button className="map-fab" onClick={() => setPicking(true)}>
+            <Icon name="plus" size={22} /> <span>{t.mapAdd}</span>
+          </button>
+        )}
+        {locErr && <div className="map-toast">{locErr}</div>}
         {state === "loading" && <div className="map-overlay">{t.mapLoading}</div>}
         {state === "error" && <div className="map-overlay">{t.mapError}</div>}
         {state === "notcfg" && <div className="map-overlay">{t.mapNotConfigured}</div>}
@@ -2924,7 +3004,7 @@ function PlantMap({ t, lang, history, onAdd }) {
   );
 }
 
-function MapAddForm({ t, history, onCancel, onSubmit }) {
+function MapAddForm({ t, history, pos, onCancel, onSubmit }) {
   const [pick, setPick] = useState("");
   const [name, setName] = useState("");
   const [status, setStatus] = useState("healthy");
@@ -2997,7 +3077,7 @@ function MapAddForm({ t, history, onCancel, onSubmit }) {
           </select>
         </label>
         <p className="muted small">
-          <Icon name="locate" size={14} /> {t.mapHere} {t.mapPrivacy}
+          <Icon name={pos ? "pin" : "locate"} size={14} /> {pos ? t.mapPicked : t.mapHere} {t.mapPrivacy}
         </p>
         {err && (
           <p className="alert small">
