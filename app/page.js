@@ -18,6 +18,10 @@ const T = {
     upload: "Сурет жүктеу",
     uploadSub: "немесе осында сүйреп әкеліңіз",
     camera: "Камера",
+    shoot: "Түсіру",
+    close: "Жабу",
+    camError: "Камераны ашу мүмкін болмады. Браузерге камераға рұқсат беріңіз немесе суретті файлмен жүктеңіз.",
+    camHint: "Жапырақты жақтауға орналастырыңыз",
     change: "Басқа сурет",
     analyze: "Талдау",
     analyzing: "Жапырақты қарап жатырмыз…",
@@ -90,6 +94,10 @@ const T = {
     upload: "Загрузить фото",
     uploadSub: "или перетащите его сюда",
     camera: "Камера",
+    shoot: "Снять",
+    close: "Закрыть",
+    camError: "Не удалось открыть камеру. Разрешите браузеру доступ к камере или загрузите фото файлом.",
+    camHint: "Поместите лист в рамку",
     change: "Другое фото",
     analyze: "Анализировать",
     analyzing: "Рассматриваем лист…",
@@ -337,6 +345,12 @@ export default function Home() {
     }
   }
 
+  function pickDataUrl(url) {
+    setCurrent(null);
+    setError("");
+    setImage(url);
+  }
+
   async function analyze() {
     if (!image) return;
     setLoading(true);
@@ -380,6 +394,7 @@ export default function Home() {
 
   return (
     <div className="app">
+      <Backdrop />
       <aside className="side">
         <button className="brand" onClick={() => setTab("diagnose")}>
           <span className="brand-mark">
@@ -429,6 +444,7 @@ export default function Home() {
             error={error}
             current={current}
             onPick={pickFile}
+            onShot={pickDataUrl}
             onAnalyze={analyze}
             onPatch={patchEntry}
             onAsk={askAbout}
@@ -468,15 +484,130 @@ export default function Home() {
   );
 }
 
+/* ───────────── Фон: «жылыжай» ───────────── */
+function Backdrop() {
+  return (
+    <div className="backdrop" aria-hidden="true">
+      <span className="orb o1" />
+      <span className="orb o2" />
+      <span className="orb o3" />
+      <svg className="leaves" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+        <g fill="currentColor">
+          <path d="M-40 760 C 120 520 330 470 520 520 C 360 640 170 760 -40 760Z" />
+          <path d="M1240 120 C 1050 140 900 260 860 430 C 1020 380 1160 270 1240 120Z" />
+          <path d="M980 900 C 960 720 1040 600 1180 540 C 1190 700 1110 820 980 900Z" />
+          <path d="M80 40 C 200 70 270 160 280 280 C 170 250 100 160 80 40Z" />
+        </g>
+        <g fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M-40 760 C 180 640 340 560 520 520" />
+          <path d="M1240 120 C 1080 220 960 320 860 430" />
+          <path d="M980 900 C 1040 760 1100 640 1180 540" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+/* ───────────── Веб-камера терезесі ───────────── */
+function CameraModal({ t, onClose, onShot }) {
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const [err, setErr] = useState("");
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function start() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false,
+        });
+        if (cancelled) {
+          stream.getTracks().forEach((tr) => tr.stop());
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play().catch(() => {});
+        }
+      } catch {
+        setErr(t.camError);
+      }
+    }
+    start();
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("keydown", onKey);
+      streamRef.current?.getTracks().forEach((tr) => tr.stop());
+    };
+  }, []);
+
+  function shoot() {
+    const v = videoRef.current;
+    if (!v?.videoWidth) return;
+    const max = 1280;
+    const scale = Math.min(1, max / Math.max(v.videoWidth, v.videoHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(v.videoWidth * scale);
+    c.height = Math.round(v.videoHeight * scale);
+    c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+    onShot(c.toDataURL("image/jpeg", 0.88));
+  }
+
+  return (
+    <div className="modal" role="dialog" aria-modal="true" aria-label={t.camera} onClick={onClose}>
+      <div className="cam glass" onClick={(e) => e.stopPropagation()}>
+        <div className="cam-view">
+          <video ref={videoRef} playsInline muted onLoadedData={() => setReady(true)} />
+          {!err && <span className="cam-frame" aria-hidden="true" />}
+          {!err && ready && <span className="cam-hint">{t.camHint}</span>}
+          {err && <p className="cam-err">{err}</p>}
+        </div>
+        <div className="cam-bar">
+          <button className="btn ghost" onClick={onClose}>
+            {t.close}
+          </button>
+          <button className="shutter" onClick={shoot} disabled={!ready || !!err} aria-label={t.shoot}>
+            <span />
+          </button>
+          <span className="cam-spacer" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ───────────── Диагноз ───────────── */
-function Diagnose({ t, image, loading, error, current, onPick, onAnalyze, onPatch, onAsk }) {
+function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk }) {
   const fileRef = useRef(null);
   const camRef = useRef(null);
   const [drag, setDrag] = useState(false);
+  const [webcam, setWebcam] = useState(false);
+
+  // Телефонда — жүйелік камера (сапасы жақсы), ноутбукта — веб-камера терезесі
+  function openCamera() {
+    const touch = window.matchMedia("(pointer: coarse)").matches;
+    if (touch) camRef.current?.click();
+    else setWebcam(true);
+  }
   const showUpload = !current || image;
 
   return (
     <div className="page">
+      {webcam && (
+        <CameraModal
+          t={t}
+          onClose={() => setWebcam(false)}
+          onShot={(url) => {
+            setWebcam(false);
+            onShot(url);
+          }}
+        />
+      )}
       {!current && !image && (
         <header className="hero">
           <h1>{t.heroTitle}</h1>
@@ -534,7 +665,7 @@ function Diagnose({ t, image, loading, error, current, onPick, onAnalyze, onPatc
                 <button className="btn primary" onClick={() => fileRef.current?.click()}>
                   {t.upload}
                 </button>
-                <button className="btn tonal only-touch" onClick={() => camRef.current?.click()}>
+                <button className="btn tonal" onClick={openCamera}>
                   <Icon name="camera" size={18} /> {t.camera}
                 </button>
               </div>
@@ -552,6 +683,9 @@ function Diagnose({ t, image, loading, error, current, onPick, onAnalyze, onPatc
             <div className="drop-bar">
               <button className="btn ghost" onClick={() => fileRef.current?.click()} disabled={loading}>
                 {t.change}
+              </button>
+              <button className="btn ghost icon-only" onClick={openCamera} disabled={loading} aria-label={t.camera}>
+                <Icon name="camera" size={18} />
               </button>
               <button className="btn primary grow" onClick={onAnalyze} disabled={loading}>
                 {loading ? t.analyzing : t.analyze}
