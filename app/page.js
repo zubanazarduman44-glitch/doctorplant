@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CITIES, PLANTS, ACTIVES, REGISTRY_URL } from "./data";
 
 // Барлық мәтіндер екі тілде / Все тексты на двух языках
 const T = {
   kk: {
     brand: "Өсімдік дәрігері",
-    nav: { diagnose: "Диагноз", plants: "Өсімдіктер", chat: "Кеңесші", history: "Тарих", about: "Нұсқаулық" },
+    nav: { diagnose: "Диагноз", plants: "Өсімдіктер", chat: "Кеңесші", history: "Тарих", about: "Анықтамалық" },
     navHint: {
       diagnose: "Суреттен анықтау",
       chat: "Ботаника және экология",
@@ -74,6 +75,60 @@ const T = {
       "Зиянкес шабуыл жасағанда көптеген өсімдіктер ұшпа заттар бөліп, көршілерін «ескертеді».",
       "Әлемдегі ең көне ағаштардың бірі — қылқанды қарағай (bristlecone pine), жасы 4 800 жылдан асады.",
     ],
+    addPhoto: "Тағы сурет",
+    photosHint: "3 суретке дейін: жалпы көрінісі, жапырақтың үсті мен асты",
+    progressTitle: "Емдеу барысы",
+    progressHint: "Бірнеше күннен кейін сол өсімдікті қайта түсіріңіз — ЖИ өзгерісті бағалайды.",
+    progressBtn: "Қайта тексеру",
+    progressChecking: "Салыстырып жатырмыз…",
+    verdicts: { improved: "Жақсарды", same: "Өзгеріс жоқ", worse: "Нашарлады", unclear: "Анық емес" },
+    dayN: (n) => (n === 0 ? "Бүгін" : `${n}-күн`),
+    progressStart: "Бастапқы диагноз",
+    weatherTitle: "Ауа райы және ескертулер",
+    myLocation: "Менің орным",
+    weatherLoading: "Ауа райы жүктелуде…",
+    weatherError: "Ауа райын жүктеу мүмкін болмады",
+    weatherSource: "Деректер: Open-Meteo",
+    wFrost: (x) => `Аяз ${x}°C дейін: көшеттер мен бақша өсімдіктерін жабыңыз, гүлдерді салқын терезе алдынан алыңыз.`,
+    wCold: (x) => `Түнде ${x}°C: жылу сүйгіш өсімдіктерді үйге кіргізіңіз.`,
+    wHeat: (x) => `Аптап ${x}°C: таңертең немесе кешке суарыңыз, күннен көлеңкелеңіз.`,
+    wRain: (x) => `Жаңбыр ${x} мм: бақшаны суаруды кейінге қалдырыңыз.`,
+    wWind: (x) => `Қатты жел ${x} км/сағ: биік өсімдіктерді байлаңыз.`,
+    wDry: "Алдағы күндері жаңбыр жоқ және ыстық: бақшаны жиірек суарыңыз.",
+    wOk: "Алдағы күндері ауа райы өсімдіктерге қолайлы.",
+    refTitle: "Анықтамалық",
+    refTabs: { enc: "Энциклопедия", meds: "Препараттар", guide: "Нұсқаулық" },
+    encSearch: "Өсімдікті іздеу немесе ЖИ-ден сұрау…",
+    encGroups: { all: "Барлығы", home: "Үй гүлдері", garden: "Бақша", kz: "Қазақстан флорасы" },
+    encAskAI: (q) => `«${q}» туралы ЖИ карточкасын жасау`,
+    encLoading: "Карточка жасалуда…",
+    encNotFound: "Мұндай өсімдік табылмады",
+    encAIBadge: "ЖИ жасаған карточка — сын көзбен оқыңыз",
+    lightLabels: ["Көлеңке", "Шашыраңқы жарық", "Күн"],
+    diffLabels: ["Оңай", "Орташа", "Қиын"],
+    fLightE: "Жарық",
+    fWaterE: "Суару",
+    fTempE: "Температура",
+    fDiffE: "Күтім",
+    fToxicE: "Уыттылығы",
+    fKzE: "Қазақстанда",
+    fFactE: "Қызықты дерек",
+    fTipE: "Басты кеңес",
+    daysRange: (a, b) => (a === b ? `${a} күнде бір` : `${a}–${b} күнде бір`),
+    encAdd: "Өсімдіктеріме қосу",
+    encAdded: "Қосылды",
+    encAsk: "Кеңесшіден сұрау",
+    encAskQ: (n) => `${n} туралы толығырақ айтып бер: күтімі, аурулары, көбейтуі`,
+    encBack: "Барлық өсімдіктер",
+    medsIntro:
+      "Препараттар әсер етуші зат бойынша топталған, сауда атаулары — тек мысал. Сатып алмас бұрын препараттың Қазақстанда тіркелгенін ресми тізімнен тексеріңіз, мөлшерді қаптамадан алыңыз.",
+    medsRegistry: "Рұқсат етілген пестицидтер тізімі (2025–2035)",
+    medsCats: { all: "Барлығы", fungicide: "Фунгицидтер", insecticide: "Инсектицидтер", bio: "Биопрепараттар", fertilizer: "Тыңайтқыштар" },
+    medsSearch: "Мәселе бойынша іздеу: бітелер, ақұнтақ, хлороз…",
+    medsFor: "Неден көмектеседі",
+    medsHow: "Әсері",
+    medsSafety: "Қауіпсіздік",
+    medsEmpty: "Ештеңе табылмады",
     quickTitle: "Танымал өсімдіктерді бір басумен қосыңыз",
     quick: [
       ["Монстера", "Monstera deliciosa", 7, 14],
@@ -173,7 +228,7 @@ const T = {
   },
   ru: {
     brand: "Доктор растений",
-    nav: { diagnose: "Диагноз", plants: "Растения", chat: "Консультант", history: "История", about: "Инструкция" },
+    nav: { diagnose: "Диагноз", plants: "Растения", chat: "Консультант", history: "История", about: "Справочник" },
     navHint: {
       diagnose: "Анализ по фото",
       chat: "Ботаника и экология",
@@ -241,6 +296,60 @@ const T = {
       "Когда растение атакуют вредители, многие виды выделяют летучие вещества и «предупреждают» соседей.",
       "Одни из старейших деревьев на Земле — остистые сосны (bristlecone pine), их возраст превышает 4 800 лет.",
     ],
+    addPhoto: "Ещё фото",
+    photosHint: "До 3 фото: общий вид, лист сверху и снизу",
+    progressTitle: "Ход лечения",
+    progressHint: "Через несколько дней сфотографируйте растение снова — ИИ оценит изменения.",
+    progressBtn: "Проверить снова",
+    progressChecking: "Сравниваем…",
+    verdicts: { improved: "Стало лучше", same: "Без изменений", worse: "Стало хуже", unclear: "Неясно" },
+    dayN: (n) => (n === 0 ? "Сегодня" : `День ${n}`),
+    progressStart: "Исходный диагноз",
+    weatherTitle: "Погода и предупреждения",
+    myLocation: "Моё местоположение",
+    weatherLoading: "Загружаем погоду…",
+    weatherError: "Не удалось загрузить погоду",
+    weatherSource: "Данные: Open-Meteo",
+    wFrost: (x) => `Заморозок до ${x}°C: укройте рассаду и садовые растения, уберите цветы от холодного окна.`,
+    wCold: (x) => `Ночью ${x}°C: занесите теплолюбивые растения в дом.`,
+    wHeat: (x) => `Жара ${x}°C: поливайте утром или вечером, притеняйте от солнца.`,
+    wRain: (x) => `Дождь ${x} мм: отложите полив сада.`,
+    wWind: (x) => `Сильный ветер ${x} км/ч: подвяжите высокие растения.`,
+    wDry: "В ближайшие дни без дождя и жарко: поливайте сад чаще.",
+    wOk: "В ближайшие дни погода благоприятна для растений.",
+    refTitle: "Справочник",
+    refTabs: { enc: "Энциклопедия", meds: "Препараты", guide: "Инструкция" },
+    encSearch: "Найти растение или спросить ИИ…",
+    encGroups: { all: "Все", home: "Комнатные", garden: "Огород", kz: "Флора Казахстана" },
+    encAskAI: (q) => `Создать карточку ИИ: «${q}»`,
+    encLoading: "Создаём карточку…",
+    encNotFound: "Такое растение не найдено",
+    encAIBadge: "Карточка создана ИИ — читайте критически",
+    lightLabels: ["Тень", "Рассеянный свет", "Солнце"],
+    diffLabels: ["Легко", "Средне", "Сложно"],
+    fLightE: "Свет",
+    fWaterE: "Полив",
+    fTempE: "Температура",
+    fDiffE: "Уход",
+    fToxicE: "Токсичность",
+    fKzE: "В Казахстане",
+    fFactE: "Интересный факт",
+    fTipE: "Главный совет",
+    daysRange: (a, b) => (a === b ? `раз в ${a} дн.` : `раз в ${a}–${b} дн.`),
+    encAdd: "В мои растения",
+    encAdded: "Добавлено",
+    encAsk: "Спросить консультанта",
+    encAskQ: (n) => `Расскажи подробнее про ${n}: уход, болезни, размножение`,
+    encBack: "Все растения",
+    medsIntro:
+      "Препараты сгруппированы по действующему веществу, торговые названия — только примеры. Перед покупкой проверьте регистрацию препарата в Казахстане по официальному списку, дозировку берите с упаковки.",
+    medsRegistry: "Список разрешённых пестицидов (2025–2035)",
+    medsCats: { all: "Все", fungicide: "Фунгициды", insecticide: "Инсектициды", bio: "Биопрепараты", fertilizer: "Удобрения" },
+    medsSearch: "Поиск по проблеме: тля, мучнистая роса, хлороз…",
+    medsFor: "От чего помогает",
+    medsHow: "Действие",
+    medsSafety: "Безопасность",
+    medsEmpty: "Ничего не найдено",
     quickTitle: "Добавьте популярные растения в один клик",
     quick: [
       ["Монстера", "Monstera deliciosa", 7, 14],
@@ -629,6 +738,15 @@ const ICONS = {
   trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />,
   check: <path d="M5 12.5 10 17l9-10" />,
   copy: <path d="M9 9h10v10H9V9ZM5 15V5h10" />,
+  cloud: <path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18Z" />,
+  rain: <path d="M7 15h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 15ZM8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5" />,
+  snow: <path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5 12 6l2.5-1.5M9.5 19.5 12 18l2.5 1.5" />,
+  wind: <path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h7" />,
+  pin: <path d="M12 21s7-6.2 7-11.5a7 7 0 1 0-14 0C5 14.8 12 21 12 21ZM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />,
+  book: <path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5v-15ZM5 19.5A1.5 1.5 0 0 0 6.5 21H19M9 7h6" />,
+  pill: <path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7ZM7 10l7 7" />,
+  back: <path d="M15 6l-6 6 6 6" />,
+  trend: <path d="M4 16l5-5 4 4 7-7M15 8h5v5" />,
   refresh: <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />,
   image: <path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11ZM4 15l4.5-4.5L13 15m-1.5-1.5L14 11l6 6M15.5 9h.01" />,
   bulb: <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" />,
@@ -662,7 +780,9 @@ export default function Home() {
   const [lang, setLang] = useState("kk");
   const [theme, setTheme] = useState(null);
   const [tab, setTab] = useState("diagnose");
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
+  const image = images[0] || null;
+  const [pendingQ, setPendingQ] = useState(null);
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(null); // соңғы/ашылған талдау
   const [chatKey, setChatKey] = useState(null); // қай талдау туралы чат (null = жалпы)
@@ -764,21 +884,52 @@ export default function Home() {
     });
   }
 
-  async function pickFile(file) {
+  async function pickFile(file, append = false) {
     if (!file || !file.type?.startsWith("image/")) return;
     setCurrent(null);
     setError("");
     try {
-      setImage(await compressImage(file));
+      const img = await compressImage(file);
+      setImages((prev) => (append ? [...prev, img].slice(0, 3) : [img]));
     } catch {
       setError("Error reading image");
     }
   }
 
-  function pickDataUrl(url) {
+  function pickDataUrl(url, append = false) {
     setCurrent(null);
     setError("");
-    setImage(url);
+    setImages((prev) => (append ? [...prev, url].slice(0, 3) : [url]));
+  }
+
+  function removeImage(i) {
+    setImages((prev) => prev.filter((_, k) => k !== i));
+  }
+
+  // Анықтамалықтан: өсімдікті қосу және кеңесшіге сұрақ
+  function addPlantSimple({ name, latin, waterEvery, fertEvery = 0, note = "" }) {
+    savePlants([
+      {
+        id: crypto.randomUUID?.() || String(Date.now()),
+        name,
+        latin: latin || "",
+        thumb: null,
+        waterEvery: Math.min(60, Math.max(1, waterEvery || 7)),
+        fertEvery,
+        lastWatered: todayISO(),
+        log: [todayISO()],
+        lastFert: todayISO(),
+        note,
+        createdAt: todayISO(),
+      },
+      ...plants,
+    ]);
+  }
+  function askQuestion(q) {
+    setChatKey(null);
+    setPendingQ(q);
+    setTab("chat");
+    window.scrollTo({ top: 0 });
   }
 
   async function analyze() {
@@ -787,7 +938,7 @@ export default function Home() {
     setError("");
     setCurrent(null);
     try {
-      const data = await postJSON("/api/diagnose", { image, lang, clientId });
+      const data = await postJSON("/api/diagnose", { images, lang, clientId });
       const entry = {
         key: data.id || String(Date.now()),
         date: new Date().toISOString(),
@@ -808,7 +959,7 @@ export default function Home() {
 
   function openEntry(entry) {
     setCurrent(entry);
-    setImage(null);
+    setImages([]);
     setError("");
     setTab("diagnose");
     window.scrollTo({ top: 0 });
@@ -865,6 +1016,8 @@ export default function Home() {
           <Diagnose
             t={t}
             image={image}
+            images={images}
+            onRemove={removeImage}
             loading={loading}
             error={error}
             current={current}
@@ -877,7 +1030,7 @@ export default function Home() {
             onOpenPlants={() => setTab("plants")}
           />
         )}
-        {tab === "plants" && <MyPlants t={t} plants={plants} onSave={savePlants} />}
+        {tab === "plants" && <MyPlants t={t} lang={lang} plants={plants} onSave={savePlants} />}
         {tab === "chat" && (
           <ChatPage
             t={t}
@@ -886,6 +1039,8 @@ export default function Home() {
             entry={chatEntry}
             onSelect={setChatKey}
             messages={chatEntry ? chatEntry.chat || [] : generalChat}
+            initialQuestion={pendingQ}
+            onConsumed={() => setPendingQ(null)}
             setMessages={(msgs) => {
               if (chatEntry) patchEntry(chatEntry.key, { chat: msgs });
               else {
@@ -904,7 +1059,9 @@ export default function Home() {
             onStart={() => setTab("diagnose")}
           />
         )}
-        {tab === "about" && <About t={t} />}
+        {tab === "about" && (
+          <Reference t={t} lang={lang} plants={plants} onAddPlant={addPlantSimple} onAsk={askQuestion} />
+        )}
 
         {tab !== "chat" && <footer className="disclaimer">{t.disclaimer}</footer>}
       </main>
@@ -1053,11 +1210,12 @@ function FileInputs({ fileRef, camRef, onPick }) {
   );
 }
 
-function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants }) {
+function Diagnose({ t, image, images = [], onRemove, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants }) {
   const fileRef = useRef(null);
   const camRef = useRef(null);
   const [drag, setDrag] = useState(false);
   const [webcam, setWebcam] = useState(false);
+  const extraRef = useRef(null);
 
   // Телефонда — жүйелік камера (сапасы жақсы), ноутбукта — веб-камера терезесі
   function openCamera() {
@@ -1078,10 +1236,20 @@ function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze
           onClose={() => setWebcam(false)}
           onShot={(url) => {
             setWebcam(false);
-            onShot(url);
+            onShot(url, Boolean(image));
           }}
         />
       )}
+      <input
+        ref={extraRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          onPick(e.target.files?.[0], true);
+          e.target.value = "";
+        }}
+      />
 
       {showSheet && (
         <section className={`hero ${image ? "has-image" : ""}`}>
@@ -1097,6 +1265,11 @@ function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze
                   <button className="btn ghost" onClick={() => fileRef.current?.click()} disabled={loading}>
                     {t.change}
                   </button>
+                  {images.length < 3 && (
+                    <p className="photos-hint">
+                      <Icon name="image" size={15} /> {t.photosHint}
+                    </p>
+                  )}
                 </>
               ) : (
                 <>
@@ -1133,6 +1306,23 @@ function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze
               <div className={`specimen ${loading ? "scanning" : ""}`}>
                 <img src={image} alt="" />
                 {loading && <span className="scan-line" aria-hidden="true" />}
+                <div className="thumbs">
+                  {images.map((src, i) => (
+                    <span key={i} className={`thumb ${i === 0 ? "main" : ""}`}>
+                      <img src={src} alt="" />
+                      {!loading && (
+                        <button onClick={() => onRemove(i)} aria-label={t.removePhoto}>
+                          <Icon name="x" size={12} />
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                  {images.length < 3 && !loading && (
+                    <button className="thumb add" onClick={() => extraRef.current?.click()} aria-label={t.addPhoto} title={t.photosHint}>
+                      <Icon name="plus" size={18} />
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <button className="sheet-empty" onClick={() => fileRef.current?.click()}>
@@ -1339,6 +1529,10 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants }) {
         </p>
       )}
 
+      {(status === "sick" || status === "needs_attention" || entry.followups?.length > 0) && (
+        <Progress t={t} entry={entry} onPatch={onPatch} style={n()} />
+      )}
+
       {entry.plantId ? (
         <button className="tile save done" style={n()} onClick={onOpenPlants}>
           <Icon name="check" size={22} />
@@ -1410,7 +1604,7 @@ function Feedback({ t, entry, onPatch }) {
 }
 
 /* ───────────── Менің өсімдіктерім ───────────── */
-function MyPlants({ t, plants, onSave }) {
+function MyPlants({ t, lang, plants, onSave }) {
   const [editing, setEditing] = useState(null); // null | "new" | plant
   const [perm, setPerm] = useState("default");
 
@@ -1454,6 +1648,8 @@ function MyPlants({ t, plants, onSave }) {
           <Icon name="plus" size={18} /> {t.addPlant}
         </button>
       </header>
+
+      <Weather t={t} lang={lang} />
 
       {editing && (
         <PlantForm
@@ -1775,8 +1971,567 @@ function PlantForm({ t, plant, onCancel, onSubmit }) {
   );
 }
 
+/* ───────────── Емдеу барысы ───────────── */
+function Progress({ t, entry, onPatch, style }) {
+  const fileRef = useRef(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const list = entry.followups || [];
+  const startDay = dayStart(new Date(entry.date));
+  const lang = entry.lang || "kk";
+
+  async function check(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setBusy(true);
+    setErr("");
+    try {
+      const img = await compressImage(file);
+      const days = Math.max(0, Math.round((dayStart() - startDay) / DAY));
+      const data = await postJSON("/api/progress", { image: img, diagnosis: entry.result, days, lang });
+      const item = { date: todayISO(), thumb: await thumbnail(img), ...data };
+      onPatch(entry.key, { followups: [...list, item] });
+    } catch (e2) {
+      setErr(e2.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="tile wide progress" style={style}>
+      <div className="progress-head">
+        <div>
+          <h3 className="tile-title">{t.progressTitle}</h3>
+          <p className="muted small">{t.progressHint}</p>
+        </div>
+        <input ref={fileRef} type="file" accept="image/*" hidden onChange={check} />
+        <button className="btn primary small" onClick={() => fileRef.current?.click()} disabled={busy}>
+          <Icon name="camera" size={16} /> {busy ? t.progressChecking : t.progressBtn}
+        </button>
+      </div>
+      <ol className="timeline">
+        <li className="tl s-start">
+          {entry.thumb ? <img src={entry.thumb} alt="" /> : <span className="tl-dot" />}
+          <div>
+            <strong>{t.progressStart}</strong>
+            <span className="muted small">{new Date(entry.date).toLocaleDateString()}</span>
+            <p>{entry.result?.diagnosis}</p>
+          </div>
+        </li>
+        {list.map((f, i) => {
+          const d = Math.max(0, Math.round((dayStart(new Date(f.date)) - startDay) / DAY));
+          return (
+            <li key={i} className={`tl v-${f.verdict}`}>
+              {f.thumb ? <img src={f.thumb} alt="" /> : <span className="tl-dot" />}
+              <div>
+                <strong>
+                  <span className="verdict">{t.verdicts[f.verdict] || f.verdict}</span> · {t.dayN(d)}
+                </strong>
+                <p>{f.summary}</p>
+                {f.next_steps?.length > 0 && (
+                  <ul className="bullets small">
+                    {f.next_steps.map((x, k) => (
+                      <li key={k}>{x}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      {err && (
+        <p className="alert small">
+          <Icon name="alert" size={16} /> {err}
+        </p>
+      )}
+    </section>
+  );
+}
+
+/* ───────────── Ауа райы ───────────── */
+const CITY_KEY = "osimdik_city";
+function weatherIcon(code) {
+  if (code >= 71 && code <= 77) return "snow";
+  if (code === 85 || code === 86) return "snow";
+  if (code >= 51) return "rain";
+  if (code >= 2) return "cloud";
+  return "sun";
+}
+function weatherAlerts(d, t) {
+  const out = [];
+  const n = Math.min(3, d.time.length);
+  const mins = d.temperature_2m_min.slice(0, n);
+  const maxs = d.temperature_2m_max.slice(0, n);
+  const rain = d.precipitation_sum.slice(0, n);
+  const wind = d.wind_speed_10m_max.slice(0, n);
+  const minT = Math.round(Math.min(...mins));
+  const maxT = Math.round(Math.max(...maxs));
+  if (minT <= 0) out.push({ level: "danger", icon: "snow", text: t.wFrost(minT) });
+  else if (minT <= 4) out.push({ level: "warn", icon: "thermo", text: t.wCold(minT) });
+  if (maxT >= 35) out.push({ level: "warn", icon: "sun", text: t.wHeat(maxT) });
+  const maxRain = Math.max(...rain);
+  if (maxRain >= 10) out.push({ level: "info", icon: "rain", text: t.wRain(Math.round(maxRain)) });
+  const maxWind = Math.max(...wind);
+  if (maxWind >= 40) out.push({ level: "warn", icon: "wind", text: t.wWind(Math.round(maxWind)) });
+  const rain5 = d.precipitation_sum.slice(0, 5).reduce((a, b) => a + b, 0);
+  if (rain5 < 1 && Math.max(...d.temperature_2m_max.slice(0, 5)) >= 28) out.push({ level: "info", icon: "drop", text: t.wDry });
+  if (!out.length) out.push({ level: "ok", icon: "check", text: t.wOk });
+  return out;
+}
+
+function Weather({ t, lang }) {
+  const [city, setCity] = useState("almaty");
+  const [geo, setGeo] = useState(null);
+  const [data, setData] = useState(null);
+  const [state, setState] = useState("loading");
+
+  useEffect(() => {
+    const saved = store(CITY_KEY);
+    if (saved && CITIES.some((c) => c.id === saved)) setCity(saved);
+  }, []);
+
+  const place = city === "geo" && geo ? geo : CITIES.find((c) => c.id === city) || CITIES[0];
+
+  useEffect(() => {
+    let cancelled = false;
+    setState("loading");
+    const url =
+      `https://api.open-meteo.com/v1/forecast?latitude=${place.lat}&longitude=${place.lon}` +
+      "&current=temperature_2m,weather_code" +
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max" +
+      "&timezone=auto&forecast_days=6";
+    fetch(url)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((j) => {
+        if (!cancelled) {
+          setData(j);
+          setState("ok");
+        }
+      })
+      .catch(() => !cancelled && setState("error"));
+    return () => {
+      cancelled = true;
+    };
+  }, [place.lat, place.lon]);
+
+  function choose(v) {
+    if (v === "geo") {
+      navigator.geolocation?.getCurrentPosition(
+        (pos) => {
+          setGeo({ lat: +pos.coords.latitude.toFixed(2), lon: +pos.coords.longitude.toFixed(2) });
+          setCity("geo");
+        },
+        () => {}
+      );
+      return;
+    }
+    setCity(v);
+    store(CITY_KEY, v);
+  }
+
+  const d = data?.daily;
+  const alerts = d ? weatherAlerts(d, t) : [];
+
+  return (
+    <section className="weather">
+      <header className="weather-head">
+        <h3>{t.weatherTitle}</h3>
+        <label className="ctx">
+          <span className="sr-only">{t.weatherTitle}</span>
+          <select value={city} onChange={(e) => choose(e.target.value)}>
+            {CITIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c[lang] || c.ru}
+              </option>
+            ))}
+            <option value="geo">{t.myLocation}</option>
+          </select>
+        </label>
+      </header>
+
+      {state === "loading" && <p className="muted">{t.weatherLoading}</p>}
+      {state === "error" && <p className="muted">{t.weatherError}</p>}
+      {state === "ok" && d && (
+        <div className="weather-body">
+          <div className="now">
+            <Icon name={weatherIcon(data.current?.weather_code ?? d.weather_code[0])} size={40} />
+            <strong>{Math.round(data.current?.temperature_2m ?? d.temperature_2m_max[0])}°</strong>
+          </div>
+          <ol className="forecast">
+            {d.time.map((day, i) => (
+              <li key={day}>
+                <span className="f-dow">{new Date(day + "T12:00").toLocaleDateString(t.locale, { weekday: "short" })}</span>
+                <Icon name={weatherIcon(d.weather_code[i])} size={20} />
+                <span className="f-t">
+                  {Math.round(d.temperature_2m_max[i])}° <em>{Math.round(d.temperature_2m_min[i])}°</em>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <ul className="alerts">
+            {alerts.map((a, i) => (
+              <li key={i} className={`al al-${a.level}`}>
+                <Icon name={a.icon} size={18} />
+                <span>{a.text}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="w-src">{t.weatherSource}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ───────────── Анықтамалық ───────────── */
+function Reference({ t, lang, plants, onAddPlant, onAsk }) {
+  const [sub, setSub] = useState("enc");
+  return (
+    <div className="page">
+      <header className="page-head">
+        <h1>{t.refTitle}</h1>
+      </header>
+      <div className="subtabs" role="tablist">
+        {[
+          ["enc", "book"],
+          ["meds", "pill"],
+          ["guide", "about"],
+        ].map(([k, icon]) => (
+          <button key={k} role="tab" aria-selected={sub === k} className={`subtab ${sub === k ? "on" : ""}`} onClick={() => setSub(k)}>
+            <Icon name={icon} size={18} /> {t.refTabs[k]}
+          </button>
+        ))}
+      </div>
+      {sub === "enc" && <Encyclopedia t={t} lang={lang} plants={plants} onAddPlant={onAddPlant} onAsk={onAsk} />}
+      {sub === "meds" && <Meds t={t} lang={lang} />}
+      {sub === "guide" && <About t={t} embedded />}
+    </div>
+  );
+}
+
+const ENC_CACHE = "osimdik_enc_cache";
+function fromStatic(p, lang) {
+  const L = p[lang] || p.ru;
+  return {
+    id: p.id,
+    name: L.name,
+    latin: p.latin,
+    family: p.family,
+    type: L.type,
+    light: p.light,
+    water_min: p.water[0],
+    water_max: p.water[1],
+    temp_min: p.temp[0],
+    temp_max: p.temp[1],
+    difficulty: p.difficulty,
+    tip: L.tip,
+    fact: L.fact,
+    toxic: L.toxic,
+    kz: L.kz,
+    group: p.group,
+  };
+}
+
+function Encyclopedia({ t, lang, plants, onAddPlant, onAsk }) {
+  const [q, setQ] = useState("");
+  const [group, setGroup] = useState("all");
+  const [open, setOpen] = useState(null);
+  const [aiState, setAiState] = useState("");
+  const [aiErr, setAiErr] = useState("");
+
+  const all = PLANTS.map((p) => fromStatic(p, lang));
+  const needle = q.trim().toLowerCase();
+  const list = all.filter(
+    (p) =>
+      (group === "all" || p.group === group) &&
+      (!needle || p.name.toLowerCase().includes(needle) || p.latin.toLowerCase().includes(needle))
+  );
+
+  async function askAI() {
+    const query = q.trim();
+    if (!query) return;
+    const key = `${lang}:${query.toLowerCase()}`;
+    let cache = {};
+    try {
+      cache = JSON.parse(store(ENC_CACHE) || "{}");
+    } catch {}
+    if (cache[key]) return setOpen({ ...cache[key], ai: true });
+    setAiState("loading");
+    setAiErr("");
+    try {
+      const card = await postJSON("/api/plantinfo", { query, lang });
+      if (card.found === false) {
+        setAiErr(t.encNotFound);
+      } else {
+        cache[key] = card;
+        const keys = Object.keys(cache);
+        if (keys.length > 30) delete cache[keys[0]];
+        store(ENC_CACHE, JSON.stringify(cache));
+        setOpen({ ...card, ai: true });
+      }
+    } catch (e) {
+      setAiErr(e.message);
+    } finally {
+      setAiState("");
+    }
+  }
+
+  if (open) {
+    return <PlantCardFull t={t} p={open} plants={plants} onBack={() => setOpen(null)} onAddPlant={onAddPlant} onAsk={onAsk} />;
+  }
+
+  return (
+    <>
+      <form
+        className="search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!list.length) askAI();
+        }}
+      >
+        <Icon name="search" size={18} />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.encSearch} aria-label={t.encSearch} />
+      </form>
+      <div className="chips">
+        {Object.entries(t.encGroups).map(([k, label]) => (
+          <button key={k} className={`chip ${group === k ? "on" : ""}`} onClick={() => setGroup(k)}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {needle && (
+        <button className="ai-ask" onClick={askAI} disabled={aiState === "loading"}>
+          <Icon name="bulb" size={20} />
+          <span>{aiState === "loading" ? t.encLoading : t.encAskAI(q.trim())}</span>
+          <Icon name="arrow" size={18} />
+        </button>
+      )}
+      {aiErr && (
+        <p className="alert small">
+          <Icon name="alert" size={16} /> {aiErr}
+        </p>
+      )}
+
+      <ul className="enc-grid">
+        {list.map((p) => (
+          <li key={p.id}>
+            <button className={`enc-card g-${p.group}`} onClick={() => setOpen(p)}>
+              <span className="enc-mark">
+                <Icon name={p.group === "garden" ? "sprout" : p.group === "kz" ? "shield" : "plants"} size={22} />
+              </span>
+              <strong>{p.name}</strong>
+              <em>{p.latin}</em>
+              <span className="enc-tags">
+                <span>
+                  <Icon name="sun" size={13} /> {t.lightLabels[p.light - 1]}
+                </span>
+                <span>
+                  <Icon name="drop" size={13} /> {t.daysRange(p.water_min, p.water_max)}
+                </span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function PlantCardFull({ t, p, plants, onBack, onAddPlant, onAsk }) {
+  const [added, setAdded] = useState(plants.some((x) => x.latin && x.latin === p.latin));
+  const light = Math.min(3, Math.max(1, p.light || 2));
+  const diff = Math.min(3, Math.max(1, p.difficulty || 2));
+  return (
+    <article className="enc-full">
+      <button className="link back" onClick={onBack}>
+        <Icon name="back" size={18} /> {t.encBack}
+      </button>
+      <header className="tile enc-head">
+        <div>
+          <p className="latin">{p.latin}</p>
+          <h2>{p.name}</h2>
+          <p className="muted">
+            {p.type}
+            {p.family ? ` · ${p.family}` : ""}
+          </p>
+        </div>
+        {p.ai && <span className="ai-badge">{t.encAIBadge}</span>}
+      </header>
+
+      <div className="bento">
+        <section className="tile care">
+          <span className="care-icon">
+            <Icon name="sun" size={20} />
+          </span>
+          <h3>{t.fLightE}</h3>
+          <p>{t.lightLabels[light - 1]}</p>
+        </section>
+        <section className="tile care">
+          <span className="care-icon">
+            <Icon name="drop" size={20} />
+          </span>
+          <h3>{t.fWaterE}</h3>
+          <p>{t.daysRange(p.water_min, p.water_max)}</p>
+        </section>
+        <section className="tile care">
+          <span className="care-icon">
+            <Icon name="thermo" size={20} />
+          </span>
+          <h3>{t.fTempE}</h3>
+          <p>
+            {p.temp_min}…{p.temp_max} °C
+          </p>
+        </section>
+        <section className="tile care">
+          <span className="care-icon">
+            <Icon name="sprout" size={20} />
+          </span>
+          <h3>{t.fDiffE}</h3>
+          <p>
+            <span className="meter" aria-hidden="true">
+              {[1, 2, 3].map((k) => (
+                <i key={k} className={k <= diff ? "on" : ""} />
+              ))}
+            </span>{" "}
+            {t.diffLabels[diff - 1]}
+          </p>
+        </section>
+
+        <section className="tile half">
+          <h3 className="tile-title">{t.fTipE}</h3>
+          <p>{p.tip}</p>
+        </section>
+        <section className="tile half fact-tile">
+          <h3 className="tile-title">{t.fFactE}</h3>
+          <p>{p.fact}</p>
+        </section>
+        {p.kz && (
+          <section className="tile wide kz-tile">
+            <Icon name="pin" size={20} />
+            <div>
+              <h3 className="tile-title">{t.fKzE}</h3>
+              <p>{p.kz}</p>
+            </div>
+          </section>
+        )}
+        {p.toxic && (
+          <p className="tile wide note warn">
+            <Icon name="alert" size={18} /> <strong>{t.fToxicE}:</strong>&nbsp;{p.toxic}
+          </p>
+        )}
+        <button
+          className={`tile save ${added ? "done" : ""}`}
+          onClick={() => {
+            if (added) return;
+            onAddPlant({
+              name: p.name,
+              latin: p.latin,
+              waterEvery: Math.round(((p.water_min || 7) + (p.water_max || 7)) / 2),
+              note: p.tip,
+            });
+            setAdded(true);
+          }}
+        >
+          <Icon name={added ? "check" : "plants"} size={22} />
+          <span>{added ? t.encAdded : t.encAdd}</span>
+          <Icon name={added ? "check" : "plus"} size={20} />
+        </button>
+        <button className="tile ask" onClick={() => onAsk(t.encAskQ(p.name))}>
+          <Icon name="chat" size={22} />
+          <span>{t.encAsk}</span>
+          <Icon name="arrow" size={20} />
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function Meds({ t, lang }) {
+  const [cat, setCat] = useState("all");
+  const [q, setQ] = useState("");
+  const needle = q.trim().toLowerCase();
+  const list = ACTIVES.filter((a) => {
+    const L = a[lang] || a.ru;
+    return (
+      (cat === "all" || a.cat === cat) &&
+      (!needle || [L.name, L.for, L.how, ...a.brands].join(" ").toLowerCase().includes(needle))
+    );
+  });
+  return (
+    <>
+      <div className="meds-intro">
+        <Icon name="shield" size={22} />
+        <div>
+          <p>{t.medsIntro}</p>
+          <a href={REGISTRY_URL} target="_blank" rel="noopener noreferrer">
+            {t.medsRegistry} <Icon name="arrow" size={15} />
+          </a>
+        </div>
+      </div>
+      <div className="search">
+        <Icon name="search" size={18} />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.medsSearch} aria-label={t.medsSearch} />
+      </div>
+      <div className="chips">
+        {Object.entries(t.medsCats).map(([k, label]) => (
+          <button key={k} className={`chip ${cat === k ? "on" : ""}`} onClick={() => setCat(k)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {list.length === 0 ? (
+        <p className="empty">{t.medsEmpty}</p>
+      ) : (
+        <ul className="meds">
+          {list.map((a) => {
+            const L = a[lang] || a.ru;
+            return (
+              <li key={a.id} className={`med c-${a.cat}`}>
+                <div className="med-head">
+                  <span className="med-cat">{t.medsCats[a.cat]}</span>
+                  <h3>{L.name}</h3>
+                </div>
+                <dl>
+                  <div>
+                    <dt>{t.medsFor}</dt>
+                    <dd>{L.for}</dd>
+                  </div>
+                  <div>
+                    <dt>{t.medsHow}</dt>
+                    <dd>{L.how}</dd>
+                  </div>
+                </dl>
+                <p className="p-safety">
+                  <Icon name="alert" size={14} /> {L.safety}
+                </p>
+                {a.brands.length > 0 && (
+                  <p className="p-line">
+                    <span>{t.brands}</span> {a.brands.join(", ")}
+                  </p>
+                )}
+                <a
+                  className="kaspi"
+                  href={`https://kaspi.kz/shop/search/?text=${encodeURIComponent(a.query)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.searchKaspi} <Icon name="arrow" size={16} />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </>
+  );
+}
+
 /* ───────────── Кеңесші (чат) ───────────── */
-function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) {
+function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, initialQuestion, onConsumed }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -1797,6 +2552,14 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) 
   useEffect(() => {
     setErr("");
   }, [entry?.key]);
+
+  // Анықтамалықтан келген сұрақты бірден жібереміз
+  useEffect(() => {
+    if (initialQuestion) {
+      onConsumed?.();
+      ask(initialQuestion);
+    }
+  }, [initialQuestion]);
 
   async function pickPhoto(e) {
     const file = e.target.files?.[0];
@@ -2093,20 +2856,24 @@ function HistoryPage({ t, history, onOpen, onClear, onStart }) {
 }
 
 /* ───────────── Туралы ───────────── */
-function About({ t }) {
+function About({ t, embedded }) {
+  const flow = (
+    <ol className="flow">
+      {t.about.map(([title, text]) => (
+        <li key={title}>
+          <h3>{title}</h3>
+          <p>{text}</p>
+        </li>
+      ))}
+    </ol>
+  );
+  if (embedded) return flow;
   return (
     <div className="page">
       <header className="page-head">
         <h1>{t.aboutTitle}</h1>
       </header>
-      <ol className="flow">
-        {t.about.map(([title, text]) => (
-          <li key={title}>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </li>
-        ))}
-      </ol>
+      {flow}
     </div>
   );
 }

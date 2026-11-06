@@ -8,10 +8,11 @@ import { saveDiagnosis } from "../../../lib/db";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-function buildPrompt(lang) {
+function buildPrompt(lang, count = 1) {
   return `Сен — Қазақстанда жұмыс істейтін тәжірибелі агроном және ботаниксің. Пайдаланушы өсімдіктің суретін жіберді.
 You are an experienced agronomist and botanist working in Kazakhstan. Analyze the plant photo.
 
+${count > 1 ? `The user sent ${count} photos of the SAME plant (e.g. whole plant, leaf top, leaf underside). Use all of them together for one diagnosis.\n` : ""}
 Rules:
 - Answer ONLY ${LANG_NAMES[lang] || LANG_NAMES.ru}. Plant latin name and product brand names may stay in Latin/original.
 - If the image does not show a plant, set "is_plant": false and explain briefly in "photo_tip".
@@ -81,24 +82,25 @@ export async function POST(req) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
 
-  const { image, lang = "kk", clientId } = body || {};
-  if (!image || typeof image !== "string" || !image.startsWith("data:image/")) {
+  const { image, images, lang = "kk", clientId } = body || {};
+  // Бір немесе бірнеше сурет (ең көбі 3)
+  const list = (Array.isArray(images) ? images : [image]).filter(
+    (x) => typeof x === "string" && x.startsWith("data:image/")
+  );
+  if (!list.length) {
     return Response.json({ error: "Сурет табылмады / Фото не найдено" }, { status: 400 });
   }
-
-  // data:image/jpeg;base64,XXXX → mime + base64
-  const [meta, base64] = image.split(",");
-  const mimeType = meta.slice(5, meta.indexOf(";"));
-  if (!base64 || base64.length > 6_000_000) {
-    return Response.json({ error: "Сурет тым үлкен / Фото слишком большое" }, { status: 413 });
+  const parts = [{ text: buildPrompt(lang, Math.min(list.length, 3)) }];
+  let total = 0;
+  for (const img of list.slice(0, 3)) {
+    const [meta, base64] = img.split(",");
+    total += base64?.length || 0;
+    if (!base64 || total > 9_000_000) {
+      return Response.json({ error: "Сурет тым үлкен / Фото слишком большое" }, { status: 413 });
+    }
+    parts.push({ inline_data: { mime_type: meta.slice(5, meta.indexOf(";")), data: base64 } });
   }
-
-  const contents = [
-    {
-      role: "user",
-      parts: [{ text: buildPrompt(lang) }, { inline_data: { mime_type: mimeType, data: base64 } }],
-    },
-  ];
+  const contents = [{ role: "user", parts }];
 
   let text;
   try {
