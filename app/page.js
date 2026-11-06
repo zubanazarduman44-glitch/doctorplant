@@ -15,6 +15,14 @@ const T = {
     },
     heroTitle: "Өсімдігіңізге не болды?",
     heroText: "Жапырақты жақыннан түсіріңіз — түрін, ауруын және не істеу керегін айтамыз.",
+    sheetSpecies: "Түрі",
+    sheetDate: "Күні",
+    sheetPending: "анықталмаған",
+    fShootTitle: "Қалай түсіру керек",
+    fFindTitle: "Не анықтаймыз",
+    fFind: ["Өсімдік түрі", "Ауру және себебі", "Емдеу қадамдары", "ҚР-дағы препараттар"],
+    fPrivTitle: "Сурет сақталмайды",
+    fPrivText: "Сурет браузерде кішірейтіледі, геолокация өшіріледі. Серверге тек талдау үшін жіберіледі.",
     upload: "Сурет жүктеу",
     uploadSub: "немесе осында сүйреп әкеліңіз",
     camera: "Камера",
@@ -72,7 +80,7 @@ const T = {
       ["Сурет", "Сурет браузерде кішірейтіледі, геолокация өшіріледі. Серверде сурет сақталмайды."],
       ["Талдау", "Google Gemini моделі түрін, жағдайын және ықтимал ауруын анықтайды."],
       ["Кеңес", "Күтім, емдеу қадамдары және Қазақстанда сатылатын препарат түрлері."],
-      ["Сіздің пікіріңіз", "👍/👎 арқылы жауаптардың дәлдігін жақсартамыз."],
+      ["Сіздің пікіріңіз", "Жауапты бағалау арқылы дәлдікті жақсартамыз."],
     ],
     disclaimer:
       "ЖИ қателесуі мүмкін. Кеңестер ақпараттық сипатта. Химиялық препараттарды қолданбас бұрын нұсқаулықты оқыңыз және маманмен ақылдасыңыз.",
@@ -91,6 +99,14 @@ const T = {
     },
     heroTitle: "Что с вашим растением?",
     heroText: "Снимите лист крупным планом — определим вид, болезнь и подскажем, что делать.",
+    sheetSpecies: "Вид",
+    sheetDate: "Дата",
+    sheetPending: "не определён",
+    fShootTitle: "Как снимать",
+    fFindTitle: "Что определяем",
+    fFind: ["Вид растения", "Болезнь и причину", "Шаги лечения", "Препараты в Казахстане"],
+    fPrivTitle: "Фото не сохраняется",
+    fPrivText: "Фото уменьшается в браузере, геолокация удаляется. На сервер оно уходит только для анализа.",
     upload: "Загрузить фото",
     uploadSub: "или перетащите его сюда",
     camera: "Камера",
@@ -148,7 +164,7 @@ const T = {
       ["Фото", "Фото уменьшается в браузере, геолокация удаляется. На сервере фото не хранится."],
       ["Анализ", "Модель Google Gemini определяет вид, состояние и вероятную болезнь."],
       ["Совет", "Уход, шаги лечения и типы препаратов, которые продаются в Казахстане."],
-      ["Ваш отзыв", "Оценки 👍/👎 помогают сделать ответы точнее."],
+      ["Ваш отзыв", "Оценки ответов помогают сделать их точнее."],
     ],
     disclaimer:
       "ИИ может ошибаться. Советы носят информационный характер. Перед применением химических препаратов прочитайте инструкцию и проконсультируйтесь со специалистом.",
@@ -250,6 +266,15 @@ const ICONS = {
   moon: <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />,
   plus: <path d="M12 5v14M5 12h14" />,
   leaf: <path d="M6 18c0-7 4.5-12 13-12 0 8.5-5 13-12 13Zm0 0 4-4" />,
+  drop: <path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5Z" />,
+  thermo: <path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0ZM12 16.5v-6" />,
+  sprout: <path d="M12 20v-8m0 0c0-3-2-5-6-5 0 3 2 5 6 5Zm0 0c0-3.5 2.5-6 7-6 0 3.5-2.5 6-7 6ZM6 20h12" />,
+  shield: <path d="M12 3 5 6v5.5c0 4.3 3 7.7 7 9.5 4-1.8 7-5.2 7-9.5V6l-7-3ZM9 12l2 2 4-4" />,
+  search: <path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM20 20l-4-4" />,
+  up: <path d="M7 11v8H4.5a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5H7Zm0 0 4-7a2 2 0 0 1 2 2v3.5h5a2 2 0 0 1 2 2.3l-1 6A2 2 0 0 1 17 19H7" />,
+  down: <path d="M17 13V5h2.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5H17Zm0 0-4 7a2 2 0 0 1-2-2v-3.5H6a2 2 0 0 1-2-2.3l1-6A2 2 0 0 1 7 5h10" />,
+  alert: <path d="M12 9v4M12 17h.01M10.3 4.2 2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z" />,
+  arrow: <path d="M7 17 17 7M9 7h8v8" />,
 };
 
 function Icon({ name, size = 20 }) {
@@ -395,33 +420,14 @@ export default function Home() {
   return (
     <div className="app">
       <Backdrop />
-      <aside className="side">
+      <header className="topbar">
         <button className="brand" onClick={() => setTab("diagnose")}>
           <span className="brand-mark">
             <Icon name="leaf" size={18} />
           </span>
           <span className="brand-name">{t.brand}</span>
         </button>
-
-        <nav className="nav" aria-label="Menu">
-          {TABS.map((k) => (
-            <button
-              key={k}
-              className={`nav-item ${tab === k ? "active" : ""}`}
-              onClick={() => setTab(k)}
-              aria-current={tab === k ? "page" : undefined}
-            >
-              <Icon name={k} />
-              <span className="nav-text">
-                <span>{t.nav[k]}</span>
-                <small>{t.navHint[k]}</small>
-              </span>
-              {k === "history" && history.length > 0 && <span className="nav-count">{history.length}</span>}
-            </button>
-          ))}
-        </nav>
-
-        <div className="side-foot">
+        <div className="top-actions">
           <div className="seg" role="group" aria-label="Language">
             {["kk", "ru"].map((l) => (
               <button key={l} className={lang === l ? "on" : ""} onClick={() => changeLang(l)}>
@@ -433,7 +439,22 @@ export default function Home() {
             <Icon name={theme === "light" ? "moon" : "sun"} size={18} />
           </button>
         </div>
-      </aside>
+      </header>
+
+      <nav className="tabs" aria-label="Menu">
+        {TABS.map((k) => (
+          <button
+            key={k}
+            className={`tab ${tab === k ? "active" : ""}`}
+            onClick={() => setTab(k)}
+            aria-current={tab === k ? "page" : undefined}
+          >
+            <Icon name={k} size={19} />
+            <span>{t.nav[k]}</span>
+            {k === "history" && history.length > 0 && <span className="tab-count">{history.length}</span>}
+          </button>
+        ))}
+      </nav>
 
       <main className="main">
         {tab === "diagnose" && (
@@ -484,25 +505,23 @@ export default function Home() {
   );
 }
 
-/* ───────────── Фон: «жылыжай» ───────────── */
+/* ───────────── Фон: гербарий торы ───────────── */
 function Backdrop() {
   return (
     <div className="backdrop" aria-hidden="true">
-      <span className="orb o1" />
-      <span className="orb o2" />
-      <span className="orb o3" />
-      <svg className="leaves" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
-        <g fill="currentColor">
-          <path d="M-40 760 C 120 520 330 470 520 520 C 360 640 170 760 -40 760Z" />
-          <path d="M1240 120 C 1050 140 900 260 860 430 C 1020 380 1160 270 1240 120Z" />
-          <path d="M980 900 C 960 720 1040 600 1180 540 C 1190 700 1110 820 980 900Z" />
-          <path d="M80 40 C 200 70 270 160 280 280 C 170 250 100 160 80 40Z" />
-        </g>
-        <g fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M-40 760 C 180 640 340 560 520 520" />
-          <path d="M1240 120 C 1080 220 960 320 860 430" />
-          <path d="M980 900 C 1040 760 1100 640 1180 540" />
-        </g>
+      <span className="sun" />
+      <svg className="frond" viewBox="0 0 400 600">
+        <path d="M200 590 C 196 420 204 220 200 10" />
+        {Array.from({ length: 11 }).map((_, i) => {
+          const y = 540 - i * 48;
+          const w = 170 - i * 12;
+          return (
+            <g key={i}>
+              <path d={`M200 ${y} C ${200 - w * 0.5} ${y - 30} ${200 - w} ${y - 70} ${200 - w} ${y - 70} C ${200 - w * 0.7} ${y - 20} ${200 - w * 0.3} ${y - 4} 200 ${y}`} />
+              <path d={`M200 ${y} C ${200 + w * 0.5} ${y - 30} ${200 + w} ${y - 70} ${200 + w} ${y - 70} C ${200 + w * 0.7} ${y - 20} ${200 + w * 0.3} ${y - 4} 200 ${y}`} />
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
@@ -582,6 +601,19 @@ function CameraModal({ t, onClose, onShot }) {
 }
 
 /* ───────────── Диагноз ───────────── */
+function FileInputs({ fileRef, camRef, onPick }) {
+  const handle = (e) => {
+    onPick(e.target.files?.[0]);
+    e.target.value = "";
+  };
+  return (
+    <>
+      <input ref={fileRef} type="file" accept="image/*" hidden onChange={handle} />
+      <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={handle} />
+    </>
+  );
+}
+
 function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk }) {
   const fileRef = useRef(null);
   const camRef = useRef(null);
@@ -594,10 +626,13 @@ function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze
     if (touch) camRef.current?.click();
     else setWebcam(true);
   }
-  const showUpload = !current || image;
+
+  const today = new Date().toLocaleDateString();
+  const showSheet = !current || image;
 
   return (
     <div className="page">
+      <FileInputs fileRef={fileRef} camRef={camRef} onPick={onPick} />
       {webcam && (
         <CameraModal
           t={t}
@@ -608,186 +643,223 @@ function Diagnose({ t, image, loading, error, current, onPick, onShot, onAnalyze
           }}
         />
       )}
-      {!current && !image && (
-        <header className="hero">
-          <h1>{t.heroTitle}</h1>
-          <p>{t.heroText}</p>
-        </header>
-      )}
 
-      {showUpload && (
-        <section
-          className={`drop ${drag ? "drag" : ""} ${image ? "has-image" : ""}`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDrag(true);
-          }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDrag(false);
-            onPick(e.dataTransfer.files?.[0]);
-          }}
-        >
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => {
-              onPick(e.target.files?.[0]);
-              e.target.value = "";
-            }}
-          />
-          <input
-            ref={camRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden
-            onChange={(e) => {
-              onPick(e.target.files?.[0]);
-              e.target.value = "";
-            }}
-          />
-
-          {image ? (
-            <div className={`specimen ${loading ? "scanning" : ""}`}>
-              <img src={image} alt="" />
-              {loading && <span className="scan-line" aria-hidden="true" />}
+      {showSheet && (
+        <section className={`hero ${image ? "has-image" : ""}`}>
+          <div className="hero-copy">
+            <h1>{t.heroTitle}</h1>
+            <p>{t.heroText}</p>
+            <div className="hero-actions">
+              {image ? (
+                <>
+                  <button className="btn primary big" onClick={onAnalyze} disabled={loading}>
+                    {loading ? t.analyzing : t.analyze}
+                  </button>
+                  <button className="btn ghost" onClick={() => fileRef.current?.click()} disabled={loading}>
+                    {t.change}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="btn primary big" onClick={() => fileRef.current?.click()}>
+                    <Icon name="upload" size={19} /> {t.upload}
+                  </button>
+                  <button className="btn ghost" onClick={openCamera}>
+                    <Icon name="camera" size={19} /> {t.camera}
+                  </button>
+                </>
+              )}
             </div>
-          ) : (
-            <div className="drop-empty">
-              <span className="drop-icon">
-                <Icon name="upload" size={26} />
-              </span>
-              <div className="drop-actions">
-                <button className="btn primary" onClick={() => fileRef.current?.click()}>
-                  {t.upload}
-                </button>
-                <button className="btn tonal" onClick={openCamera}>
-                  <Icon name="camera" size={18} /> {t.camera}
-                </button>
+          </div>
+
+          {/* Гербарий парағы — сурет жүктелетін орын */}
+          <div
+            className={`sheet ${drag ? "drag" : ""}`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDrag(true);
+            }}
+            onDragLeave={() => setDrag(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDrag(false);
+              onPick(e.dataTransfer.files?.[0]);
+            }}
+          >
+            <span className="crop tl" />
+            <span className="crop tr" />
+            <span className="crop bl" />
+            <span className="crop br" />
+            {image ? (
+              <div className={`specimen ${loading ? "scanning" : ""}`}>
+                <img src={image} alt="" />
+                {loading && <span className="scan-line" aria-hidden="true" />}
               </div>
-              <span className="drop-sub">{t.uploadSub}</span>
+            ) : (
+              <button className="sheet-empty" onClick={() => fileRef.current?.click()}>
+                <Icon name="leaf" size={44} />
+                <span>{t.uploadSub}</span>
+              </button>
+            )}
+            <div className="tag">
+              <span>
+                <em>{t.sheetSpecies}</em> {loading ? "…" : t.sheetPending}
+              </span>
+              <span>
+                <em>{t.sheetDate}</em> {today}
+              </span>
             </div>
-          )}
-
-          <ul className="tips" aria-label="Tips">
-            {t.tips.map((x) => (
-              <li key={x}>{x}</li>
-            ))}
-          </ul>
-
-          {image && (
-            <div className="drop-bar">
-              <button className="btn ghost" onClick={() => fileRef.current?.click()} disabled={loading}>
-                {t.change}
-              </button>
-              <button className="btn ghost icon-only" onClick={openCamera} disabled={loading} aria-label={t.camera}>
-                <Icon name="camera" size={18} />
-              </button>
-              <button className="btn primary grow" onClick={onAnalyze} disabled={loading}>
-                {loading ? t.analyzing : t.analyze}
-              </button>
-            </div>
-          )}
+          </div>
         </section>
       )}
 
       {error && (
         <div className="alert" role="alert">
-          {error}
+          <Icon name="alert" size={18} /> {error}
         </div>
+      )}
+
+      {!current && !image && (
+        <section className="bento intro">
+          <div className="tile t-shoot">
+            <h3>{t.fShootTitle}</h3>
+            <ul className="ticks">
+              {t.tips.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="tile t-find">
+            <h3>{t.fFindTitle}</h3>
+            <ul className="find">
+              {t.fFind.map((x, i) => (
+                <li key={x}>
+                  <Icon name={["leaf", "search", "sprout", "shield"][i]} size={18} />
+                  {x}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="tile t-priv">
+            <Icon name="shield" size={26} />
+            <h3>{t.fPrivTitle}</h3>
+            <p>{t.fPrivText}</p>
+          </div>
+        </section>
       )}
 
       {current && (
         <>
           {!image && (
-            <>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => {
-                  onPick(e.target.files?.[0]);
-                  e.target.value = "";
-                }}
-              />
-              <button className="btn ghost back-new" onClick={() => fileRef.current?.click()}>
+            <div className="result-top">
+              <button className="btn ghost" onClick={() => fileRef.current?.click()}>
                 <Icon name="plus" size={18} /> {t.upload}
               </button>
-            </>
+              <button className="btn ghost" onClick={openCamera}>
+                <Icon name="camera" size={18} /> {t.camera}
+              </button>
+            </div>
           )}
-          <Result t={t} entry={current} onAsk={onAsk} />
-          {current.result.is_plant !== false && (
-            <Feedback t={t} entry={current} onPatch={onPatch} />
-          )}
+          <Result t={t} entry={current} onAsk={onAsk} onPatch={onPatch} />
         </>
       )}
     </div>
   );
 }
 
-function Result({ t, entry, onAsk }) {
+function Result({ t, entry, onAsk, onPatch }) {
   const r = entry.result;
   if (r.is_plant === false) {
     return (
-      <section className="panel">
-        <h2 className="panel-title">{t.notPlant}</h2>
+      <section className="tile">
+        <h2 className="tile-title">{t.notPlant}</h2>
         {r.photo_tip && <p className="muted">{r.photo_tip}</p>}
       </section>
     );
   }
   const status = r.health_status || "unknown";
   const conf = Math.max(0, Math.min(100, r.confidence ?? 0));
+  let i = 0;
+  const n = () => ({ "--i": i++ });
+
+  const care = [
+    ["drop", t.watering, r.care?.watering],
+    ["sun", t.light, r.care?.light],
+    ["thermo", t.temperature, r.care?.temperature],
+    ["sprout", t.soil, r.care?.soil_fertilizer],
+  ].filter((c) => c[2]);
 
   return (
-    <article className="result">
-      <header className={`verdict s-${status}`}>
+    <article className={`bento result s-${status}`} key={entry.key}>
+      {/* Гербарий этикеткасы */}
+      <header className="tile label" style={n()}>
         <div className="ring" style={{ "--p": conf }}>
-          {entry.thumb ? <img src={entry.thumb} alt="" /> : <Icon name="leaf" size={28} />}
+          {entry.thumb ? <img src={entry.thumb} alt="" /> : <Icon name="leaf" size={30} />}
         </div>
-        <div className="verdict-text">
-          <span className={`status s-${status}`}>{t.statuses[status]}</span>
-          <h2>{r.plant_name || "—"}</h2>
-          {r.latin_name && <p className="latin">{r.latin_name}</p>}
+        <div className="label-text">
+          <p className="latin">{r.latin_name || r.plant_name || "—"}</p>
+          {r.latin_name && <h2>{r.plant_name}</h2>}
           <p className="conf">
-            {t.confidence} {conf}%
+            {t.confidence} <strong>{conf}%</strong>
           </p>
         </div>
+        <span className="stamp">{t.statuses[status]}</span>
       </header>
 
-      {conf < 60 && <p className="note warn">{t.lowConf}</p>}
-
-      <section className="diag">
+      <section className="tile diag" style={n()}>
         <h3>{t.diagnosis}</h3>
         <p>{r.diagnosis}</p>
+        {conf < 60 && <small>{t.lowConf}</small>}
       </section>
 
-      <div className="cols">
-        <List title={t.symptoms} items={r.symptoms} />
-        <List title={t.causes} items={r.causes} />
-      </div>
-
       {r.treatment?.length > 0 && (
-        <section className="panel">
-          <h3 className="panel-title">{t.treatment}</h3>
+        <section className="tile treat" style={n()}>
+          <h3 className="tile-title">{t.treatment}</h3>
           <ol className="steps">
-            {r.treatment.map((x, i) => (
-              <li key={i}>{x}</li>
+            {r.treatment.map((x, k) => (
+              <li key={k}>{x}</li>
             ))}
           </ol>
         </section>
       )}
 
+      {r.symptoms?.length > 0 && (
+        <section className="tile half" style={n()}>
+          <h3 className="tile-title">{t.symptoms}</h3>
+          <ul className="bullets">
+            {r.symptoms.map((x, k) => (
+              <li key={k}>{x}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {r.causes?.length > 0 && (
+        <section className="tile half" style={n()}>
+          <h3 className="tile-title">{t.causes}</h3>
+          <ul className="bullets">
+            {r.causes.map((x, k) => (
+              <li key={k}>{x}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {care.map(([icon, k, v]) => (
+        <section key={k} className="tile care" style={n()}>
+          <span className="care-icon">
+            <Icon name={icon} size={20} />
+          </span>
+          <h3>{k}</h3>
+          <p>{v}</p>
+        </section>
+      ))}
+
       {r.products?.length > 0 && (
-        <section className="panel">
-          <h3 className="panel-title">{t.products}</h3>
-          <div className="products">
-            {r.products.map((p, i) => (
-              <div key={i} className="product">
+        <section className="tile wide products" style={n()}>
+          <h3 className="tile-title">{t.products}</h3>
+          <div className="prod-grid">
+            {r.products.map((p, k) => (
+              <div key={k} className="product">
                 <p className="p-type">{p.product_type}</p>
                 {p.active_ingredient && (
                   <p className="p-line">
@@ -801,14 +873,14 @@ function Result({ t, entry, onAsk }) {
                 )}
                 {p.safety && <p className="p-safety">{p.safety}</p>}
                 <a
-                  className="btn tonal small"
+                  className="kaspi"
                   href={`https://kaspi.kz/shop/search/?text=${encodeURIComponent(
                     p.search_query || p.active_ingredient || p.product_type
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {t.searchKaspi}
+                  {t.searchKaspi} <Icon name="arrow" size={16} />
                 </a>
               </div>
             ))}
@@ -817,49 +889,26 @@ function Result({ t, entry, onAsk }) {
         </section>
       )}
 
-      {r.care && (
-        <section className="panel">
-          <h3 className="panel-title">{t.care}</h3>
-          <dl className="care">
-            <Care k={t.watering} v={r.care.watering} />
-            <Care k={t.light} v={r.care.light} />
-            <Care k={t.temperature} v={r.care.temperature} />
-            <Care k={t.soil} v={r.care.soil_fertilizer} />
-          </dl>
-        </section>
+      {r.toxicity_note && (
+        <p className="tile wide note warn" style={n()}>
+          <Icon name="alert" size={18} /> {r.toxicity_note}
+        </p>
+      )}
+      {r.photo_tip && (
+        <p className="tile wide note" style={n()}>
+          <Icon name="camera" size={18} /> {r.photo_tip}
+        </p>
       )}
 
-      {r.toxicity_note && <p className="note warn">{r.toxicity_note}</p>}
-      {r.photo_tip && <p className="note">{r.photo_tip}</p>}
-
-      <button className="btn primary ask" onClick={() => onAsk(entry)}>
-        <Icon name="chat" size={18} /> {t.askAbout}
+      <button className="tile ask" style={n()} onClick={() => onAsk(entry)}>
+        <Icon name="chat" size={24} />
+        <span>{t.askAbout}</span>
+        <Icon name="arrow" size={20} />
       </button>
+      <div className="tile fb" style={n()}>
+        <Feedback t={t} entry={entry} onPatch={onPatch} />
+      </div>
     </article>
-  );
-}
-
-function List({ title, items }) {
-  if (!items?.length) return null;
-  return (
-    <section className="panel">
-      <h3 className="panel-title">{title}</h3>
-      <ul className="bullets">
-        {items.map((x, i) => (
-          <li key={i}>{x}</li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function Care({ k, v }) {
-  if (!v) return null;
-  return (
-    <div>
-      <dt>{k}</dt>
-      <dd>{v}</dd>
-    </div>
   );
 }
 
@@ -874,11 +923,11 @@ function Feedback({ t, entry, onPatch }) {
   }
 
   if (entry.feedback === "up" || (entry.feedback === "down" && sent)) {
-    return <div className="feedback done">{t.thanks}</div>;
+    return <p className="fb-done">{t.thanks}</p>;
   }
   if (entry.feedback === "down") {
     return (
-      <div className="feedback col">
+      <div className="fb-col">
         <label htmlFor="fb">{t.whatWrong}</label>
         <textarea id="fb" value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={500} />
         <button className="btn primary" onClick={() => send("down", comment)}>
@@ -888,20 +937,20 @@ function Feedback({ t, entry, onPatch }) {
     );
   }
   return (
-    <div className="feedback">
+    <div className="fb-row">
       <span>{t.helpful}</span>
       <div className="fb-btns">
         <button
-          aria-label="👍"
+          aria-label="Yes"
           onClick={() => {
             onPatch(entry.key, { feedback: "up" });
             send("up", "");
           }}
         >
-          👍
+          <Icon name="up" size={19} />
         </button>
-        <button aria-label="👎" onClick={() => onPatch(entry.key, { feedback: "down" })}>
-          👎
+        <button aria-label="No" onClick={() => onPatch(entry.key, { feedback: "down" })}>
+          <Icon name="down" size={19} />
         </button>
       </div>
     </div>

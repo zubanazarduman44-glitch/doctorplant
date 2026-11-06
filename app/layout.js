@@ -10,8 +10,8 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#121a16" },
-    { media: "(prefers-color-scheme: light)", color: "#f3f6f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1610" },
+    { media: "(prefers-color-scheme: light)", color: "#eef3ec" },
   ],
 };
 
@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Raleway:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext"
           rel="stylesheet"
         />
         {/* Тақырыпты бет жүктелмей тұрып қоямыз — жыпылықтамауы үшін */}
