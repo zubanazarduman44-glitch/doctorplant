@@ -5,7 +5,14 @@
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const MODEL = "gemini-2.5-flash";
+// Vercel-де GEMINI_MODEL айнымалысы арқылы өзгертуге болады
+const MODELS = [
+  process.env.GEMINI_MODEL,
+  "gemini-flash-latest",
+  "gemini-3.8-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-2.5-flash",
+].filter(Boolean);
 
 const LANG_NAMES = { kk: "қазақ тілінде (Kazakh)", ru: "на русском языке (Russian)" };
 
@@ -79,39 +86,68 @@ export async function POST(req) {
     return Response.json({ error: "Сурет тым үлкен / Фото слишком большое" }, { status: 413 });
   }
 
-  const geminiRes = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+  const contents = [
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: buildPrompt(lang) }, { inline_data: { mime_type: mimeType, data: base64 } }],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-          responseSchema: SCHEMA,
-        },
-      }),
-    }
-  );
+      role: "user",
+      parts: [{ text: buildPrompt(lang) }, { inline_data: { mime_type: mimeType, data: base64 } }],
+    },
+  ];
 
-  if (!geminiRes.ok) {
-    const text = await geminiRes.text();
-    console.error("Gemini error", geminiRes.status, text);
-    const status = geminiRes.status === 429 ? 429 : 502;
+  // Модельдерді кезекпен көреміз: біреуі қолжетімсіз болса — келесісі.
+  // Пробуем модели по очереди: если одна недоступна — берём следующую.
+  let geminiRes;
+  let lastError = "";
+  for (const model of MODELS) {
+    for (const useSchema of [true, false]) {
+      const generationConfig = { temperature: 0.2, responseMimeType: "application/json" };
+      if (useSchema) generationConfig.responseSchema = SCHEMA;
+      try {
+        geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify({ contents, generationConfig }),
+          }
+        );
+      } catch (e) {
+        lastError = `${model}: ${e.message}`;
+        geminiRes = null;
+        break;
+      }
+      if (geminiRes.ok) break;
+
+      const errText = await geminiRes.text();
+      let msg = errText;
+      try {
+        msg = JSON.parse(errText)?.error?.message || errText;
+      } catch {}
+      lastError = `${model} (${geminiRes.status}): ${msg}`.slice(0, 300);
+      console.error("Gemini error", lastError);
+
+      // Кілт қате немесе лимит бітті — басқа модель көмектеспейді
+      if (geminiRes.status === 429) {
+        return Response.json(
+          { error: "Сұраныс көп, бір минуттан кейін қайталаңыз / Слишком много запросов, повторите через минуту" },
+          { status: 429 }
+        );
+      }
+      if (/API key not valid|API_KEY_INVALID/i.test(msg)) {
+        return Response.json(
+          { error: "Gemini кілті жарамсыз / Ключ Gemini недействителен — проверьте GEMINI_API_KEY в Vercel" },
+          { status: 502 }
+        );
+      }
+      // 400 болса — схемасыз қайталап көреміз; басқа қате болса — келесі модель
+      if (geminiRes.status !== 400) break;
+    }
+    if (geminiRes?.ok) break;
+  }
+
+  if (!geminiRes?.ok) {
     return Response.json(
-      {
-        error:
-          status === 429
-            ? "Сұраныс көп, бір минуттан кейін қайталаңыз / Слишком много запросов, повторите через минуту"
-            : "ЖИ жауап бермеді / ИИ не ответил",
-      },
-      { status }
+      { error: `ЖИ жауап бермеді / ИИ не ответил — ${lastError}` },
+      { status: 502 }
     );
   }
 
