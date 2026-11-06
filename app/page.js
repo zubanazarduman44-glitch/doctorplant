@@ -107,9 +107,6 @@ const T = {
     micDenied: "Микрофонға рұқсат жоқ. Браузер баптауларынан рұқсат беріңіз.",
     voiceUnsupported: "Бұл браузер дауыс жазуды қолдамайды.",
     noSpeech: "Сөз естілмеді, қайталап көріңіз.",
-    listen: "Тыңдау",
-    stopListen: "Тоқтату",
-    noKkVoice: "Құрылғыда қазақ дауысы табылмады — орыс дауысымен оқылады.",
     mapPickHint: "Өсімдік тұрған жерді картадан басыңыз",
     mapPicked: "Орын картадан таңдалды.",
     mapLocate: "Мені табу",
@@ -369,9 +366,6 @@ const T = {
     micDenied: "Нет доступа к микрофону. Разрешите его в настройках браузера.",
     voiceUnsupported: "Этот браузер не поддерживает запись голоса.",
     noSpeech: "Речь не распознана, попробуйте ещё раз.",
-    listen: "Озвучить",
-    stopListen: "Остановить",
-    noKkVoice: "На устройстве нет казахского голоса — читаем русским.",
     mapPickHint: "Нажмите на карте место, где растёт растение",
     mapPicked: "Место выбрано на карте.",
     mapLocate: "Найти меня",
@@ -787,7 +781,7 @@ function Logo({ size = 36 }) {
   );
 }
 
-/* ───────────── Дауыс: жазу → WAV, оқу ───────────── */
+/* ───────────── Дауыс: жазу → WAV ───────────── */
 async function blobToWavDataUrl(blob) {
   const AC = window.AudioContext || window.webkitAudioContext;
   const ctx = new AC();
@@ -824,29 +818,6 @@ async function blobToWavDataUrl(blob) {
   const bytes = new Uint8Array(buf);
   for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   return `data:audio/wav;base64,${btoa(bin)}`;
-}
-
-// Дауыстап оқу: қазақ дауысы болмаса — орыс дауысы
-function speakText(text, lang, onEnd) {
-  const synth = window.speechSynthesis;
-  if (!synth) return { ok: false };
-  synth.cancel();
-  const clean = String(text).replace(/\*\*/g, "").replace(/^\s*[-•*]\s+/gm, "").replace(/^\s*\d+[.)]\s+/gm, "");
-  const voices = synth.getVoices();
-  const want = lang === "kk" ? "kk" : "ru";
-  let voice = voices.find((v) => v.lang?.toLowerCase().startsWith(want));
-  let fallback = false;
-  if (!voice && want === "kk") {
-    voice = voices.find((v) => v.lang?.toLowerCase().startsWith("ru"));
-    fallback = true;
-  }
-  const u = new SpeechSynthesisUtterance(clean);
-  u.lang = voice?.lang || (want === "kk" ? "kk-KZ" : "ru-RU");
-  if (voice) u.voice = voice;
-  u.rate = 0.95;
-  u.onend = u.onerror = () => onEnd?.();
-  synth.speak(u);
-  return { ok: true, fallback };
 }
 
 /* ───────────── Иконкалар ───────────── */
@@ -3194,14 +3165,11 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
   const [copied, setCopied] = useState(-1);
   const [rec, setRec] = useState("idle"); // idle | recording | transcribing
   const [secs, setSecs] = useState(0);
-  const [speaking, setSpeaking] = useState(-1);
-  const [voiceNote, setVoiceNote] = useState("");
   const recRef = useRef(null);
   const timerRef = useRef(null);
 
   useEffect(
     () => () => {
-      window.speechSynthesis?.cancel();
       recRef.current?.stream?.getTracks().forEach((tr) => tr.stop());
       clearInterval(timerRef.current);
     },
@@ -3221,8 +3189,6 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
       setErr(t.micDenied);
       return;
     }
-    window.speechSynthesis?.cancel();
-    setSpeaking(-1);
     const mr = new MediaRecorder(stream);
     const chunks = [];
     mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
@@ -3263,17 +3229,7 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
     if (recRef.current.mr.state === "recording") recRef.current.mr.stop();
   }
 
-  function toggleSpeak(textToRead, i) {
-    if (speaking === i) {
-      window.speechSynthesis?.cancel();
-      setSpeaking(-1);
-      return;
-    }
-    const r = speakText(textToRead, lang, () => setSpeaking(-1));
-    if (!r.ok) return;
-    setSpeaking(i);
-    setVoiceNote(r.fallback ? t.noKkVoice : "");
-  }
+
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const fileRef = useRef(null);
@@ -3308,7 +3264,7 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
     } catch {}
   }
 
-  async function send(list, image, autoSpeak = false) {
+  async function send(list, image) {
     setBusy(true);
     setErr("");
     try {
@@ -3319,15 +3275,7 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
         diagnosisId: entry?.result?.id,
         lang,
       });
-      const done = [...list, { role: "assistant", text: data.reply }];
-      setMessages(done);
-      if (autoSpeak) {
-        const r = speakText(data.reply, lang, () => setSpeaking(-1));
-        if (r.ok) {
-          setSpeaking(done.length - 1);
-          setVoiceNote(r.fallback ? t.noKkVoice : "");
-        }
-      }
+      setMessages([...list, { role: "assistant", text: data.reply }]);
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -3344,7 +3292,7 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
     setMessages(next);
     setText("");
     setPhoto(null);
-    send(next, image, voice);
+    send(next, image);
   }
 
   // Соңғы сұрақты қайта жіберу (қате болса немесе жаңа жауап керек болса)
@@ -3480,9 +3428,6 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
               )}
               {m.role === "assistant" && (
                 <div className="msg-tools">
-                  <button className={speaking === i ? "on" : ""} onClick={() => toggleSpeak(m.text, i)} aria-label={t.listen}>
-                    <Icon name={speaking === i ? "stop" : "speaker"} size={15} /> {speaking === i ? t.stopListen : t.listen}
-                  </button>
                   <button onClick={() => copy(m.text, i)} aria-label={t.copy}>
                     <Icon name={copied === i ? "check" : "copy"} size={15} /> {copied === i ? t.copied : t.copy}
                   </button>
@@ -3595,7 +3540,7 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
           </button>
         )}
       </form>
-      {voiceNote && <p className="voice-note">{voiceNote}</p>}
+
       <p className="composer-fine">{t.disclaimer}</p>
     </div>
   );
