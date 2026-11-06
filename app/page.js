@@ -74,6 +74,17 @@ const T = {
       "Зиянкес шабуыл жасағанда көптеген өсімдіктер ұшпа заттар бөліп, көршілерін «ескертеді».",
       "Әлемдегі ең көне ағаштардың бірі — қылқанды қарағай (bristlecone pine), жасы 4 800 жылдан асады.",
     ],
+    quickTitle: "Танымал өсімдіктерді бір басумен қосыңыз",
+    quick: [
+      ["Монстера", "Monstera deliciosa", 7, 14],
+      ["Фикус", "Ficus elastica", 10, 30],
+      ["Алоэ", "Aloe vera", 21, 0],
+      ["Спатифиллум", "Spathiphyllum", 5, 14],
+      ["Сансевиерия", "Sansevieria", 14, 30],
+      ["Орхидея", "Phalaenopsis", 7, 14],
+      ["Қызанақ", "Solanum lycopersicum", 3, 14],
+      ["Кактус", "Cactaceae", 21, 0],
+    ],
     weekTitle: "Апта жоспары",
     weekRest: "суару жоқ",
     statPlants: "Өсімдік",
@@ -229,6 +240,17 @@ const T = {
       "Около половины кислорода в атмосфере Земли производят микроскопические водоросли океана — фитопланктон.",
       "Когда растение атакуют вредители, многие виды выделяют летучие вещества и «предупреждают» соседей.",
       "Одни из старейших деревьев на Земле — остистые сосны (bristlecone pine), их возраст превышает 4 800 лет.",
+    ],
+    quickTitle: "Добавьте популярные растения в один клик",
+    quick: [
+      ["Монстера", "Monstera deliciosa", 7, 14],
+      ["Фикус", "Ficus elastica", 10, 30],
+      ["Алоэ", "Aloe vera", 21, 0],
+      ["Спатифиллум", "Spathiphyllum", 5, 14],
+      ["Сансевиерия", "Sansevieria", 14, 30],
+      ["Орхидея", "Phalaenopsis", 7, 14],
+      ["Томат", "Solanum lycopersicum", 3, 14],
+      ["Кактус", "Cactaceae", 21, 0],
     ],
     weekTitle: "План на неделю",
     weekRest: "без полива",
@@ -1446,63 +1468,97 @@ function MyPlants({ t, plants, onSave }) {
         />
       )}
 
+        <section className="stats">
+          <div className="stat">
+            <Icon name="plants" size={20} />
+            <strong>{plants.length}</strong>
+            <span>{t.statPlants}</span>
+          </div>
+          <div className="stat">
+            <Icon name="drop" size={20} />
+            <strong>{t.nTimes(wateredThisWeek(plants))}</strong>
+            <span>{t.statWeek}</span>
+          </div>
+          <div className={`stat streak ${streak > 0 ? "on" : ""}`} title={t.streakHint}>
+            <Icon name="flame" size={20} />
+            <strong>{t.nDays(streak)}</strong>
+            <span>{t.statStreak}</span>
+          </div>
+          <div className="stat" title={t.streakHint}>
+            <Icon name="trophy" size={20} />
+            <strong>{t.nDays(best)}</strong>
+            <span>{t.statBest}</span>
+          </div>
+        </section>
+        <p className="streak-hint">{t.streakHint}</p>
+
+        <section className="week">
+          <h3>{t.weekTitle}</h3>
+          <ol className="days">
+            {week.map((d, i) => (
+              <li key={i} className={`day ${i === 0 ? "today-day" : ""} ${d.items.length ? "busy" : ""}`}>
+                <span className="dow">{d.date.toLocaleDateString(t.locale, { weekday: "short" })}</span>
+                <span className="dnum">{d.date.getDate()}</span>
+                <span className="dots">
+                  {d.items.slice(0, 3).map(({ plant, late }) => (
+                    <span key={plant.id} className={`dot ${late ? "late" : ""}`} title={plant.name}>
+                      {plant.thumb ? <img src={plant.thumb} alt={plant.name} /> : plant.name.slice(0, 1)}
+                    </span>
+                  ))}
+                  {d.items.length > 3 && <span className="dot more">+{d.items.length - 3}</span>}
+                </span>
+                <span className="dnames">
+                  {d.items.length ? d.items.map((x) => x.plant.name).join(", ") : t.weekRest}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
       {plants.length === 0 ? (
-        <div className="empty">
-          <Icon name="plants" size={40} />
+        <section className="empty quick">
+          <Icon name="plants" size={36} />
           <p>{t.plantsEmpty}</p>
-          <button className="btn primary" onClick={() => setEditing("new")}>
-            {t.addPlant}
+          <h3>{t.quickTitle}</h3>
+          <div className="quick-grid">
+            {t.quick.map(([name, latin, water, fert]) => (
+              <button
+                key={latin}
+                className="quick-add"
+                onClick={() =>
+                  onSave([
+                    ...plants,
+                    {
+                      id: crypto.randomUUID?.() || String(Date.now() + Math.random()),
+                      name,
+                      latin,
+                      thumb: null,
+                      waterEvery: water,
+                      fertEvery: fert,
+                      lastWatered: todayISO(),
+                      log: [todayISO()],
+                      lastFert: todayISO(),
+                      note: "",
+                      createdAt: todayISO(),
+                    },
+                  ])
+                }
+              >
+                <span className="qa-name">{name}</span>
+                <span className="qa-latin">{latin}</span>
+                <span className="qa-meta">
+                  <Icon name="drop" size={13} /> {t.everyN(water)}
+                </span>
+                <Icon name="plus" size={18} />
+              </button>
+            ))}
+          </div>
+          <button className="btn ghost" onClick={() => setEditing("new")}>
+            <Icon name="edit" size={16} /> {t.addPlant}
           </button>
-        </div>
+        </section>
       ) : (
         <>
-          <section className="stats">
-            <div className="stat">
-              <Icon name="plants" size={20} />
-              <strong>{plants.length}</strong>
-              <span>{t.statPlants}</span>
-            </div>
-            <div className="stat">
-              <Icon name="drop" size={20} />
-              <strong>{t.nTimes(wateredThisWeek(plants))}</strong>
-              <span>{t.statWeek}</span>
-            </div>
-            <div className={`stat streak ${streak > 0 ? "on" : ""}`} title={t.streakHint}>
-              <Icon name="flame" size={20} />
-              <strong>{t.nDays(streak)}</strong>
-              <span>{t.statStreak}</span>
-            </div>
-            <div className="stat" title={t.streakHint}>
-              <Icon name="trophy" size={20} />
-              <strong>{t.nDays(best)}</strong>
-              <span>{t.statBest}</span>
-            </div>
-          </section>
-          <p className="streak-hint">{t.streakHint}</p>
-
-          <section className="week">
-            <h3>{t.weekTitle}</h3>
-            <ol className="days">
-              {week.map((d, i) => (
-                <li key={i} className={`day ${i === 0 ? "today-day" : ""} ${d.items.length ? "busy" : ""}`}>
-                  <span className="dow">{d.date.toLocaleDateString(t.locale, { weekday: "short" })}</span>
-                  <span className="dnum">{d.date.getDate()}</span>
-                  <span className="dots">
-                    {d.items.slice(0, 3).map(({ plant, late }) => (
-                      <span key={plant.id} className={`dot ${late ? "late" : ""}`} title={plant.name}>
-                        {plant.thumb ? <img src={plant.thumb} alt={plant.name} /> : plant.name.slice(0, 1)}
-                      </span>
-                    ))}
-                    {d.items.length > 3 && <span className="dot more">+{d.items.length - 3}</span>}
-                  </span>
-                  <span className="dnames">
-                    {d.items.length ? d.items.map((x) => x.plant.name).join(", ") : t.weekRest}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </section>
-
           <section className={`today ${due ? "has-due" : ""}`}>
             <Icon name={due ? "drop" : "check"} size={26} />
             <p>{due ? t.summaryDue(due) : t.summaryOk}</p>
