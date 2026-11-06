@@ -14,11 +14,14 @@ function systemPrompt(lang, diagnosis) {
   return `You are "Өсімдік дәрігері" (Plant Doctor), a friendly agronomist assistant for users in Kazakhstan.
 Answer ONLY ${LANG_NAMES[lang] || LANG_NAMES.ru}. Be short and practical (max ~120 words), use simple words.
 
-The user already received this diagnosis of their plant (JSON):
-${JSON.stringify(diagnosis).slice(0, 4000)}
+${
+    diagnosis
+      ? `The user already received this diagnosis of their plant (JSON):\n${JSON.stringify(diagnosis).slice(0, 4000)}`
+      : "The user has no diagnosis yet. If they describe a sick plant, help with questions and suggest uploading a photo in the Diagnosis tab for a precise answer."
+  }
 
 Rules:
-- Answer questions about this plant, its care, the disease, treatment, prevention, repotting, buying products in Kazakhstan.
+- Answer questions about plants, their care, the disease, treatment, prevention, repotting, buying products in Kazakhstan.
 - If the question is unrelated to plants or gardening, politely say you only help with plants.
 - If unsure, say so and suggest sending a clearer photo or asking a local agronomist.
 - NEVER give exact chemical doses — tell the user to follow the product label.
@@ -35,7 +38,7 @@ export async function POST(req) {
   }
 
   const { messages, diagnosis, lang = "kk", diagnosisId } = body || {};
-  if (!Array.isArray(messages) || !messages.length || !diagnosis) {
+  if (!Array.isArray(messages) || !messages.length) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
 
