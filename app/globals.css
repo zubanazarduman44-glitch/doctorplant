@@ -846,6 +846,29 @@ a { color: inherit; }
 .fact p { margin-top: 4px; font-size: 15px; color: color-mix(in srgb, var(--bg) 82%, var(--ink)); max-width: 62ch; }
 .fact-ask { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--amber); }
 
+/* Дауыс */
+.voice-cta {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 12px;
+  padding: 8px 18px 8px 8px; border-radius: 999px;
+  background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--line);
+  font-weight: 600; font-size: 15px; text-align: left;
+  transition: box-shadow 0.2s;
+}
+.voice-cta:hover { box-shadow: inset 0 0 0 1.5px var(--primary); }
+.voice-cta-icon { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--amber); color: var(--on-amber); flex-shrink: 0; }
+.send.mic { background: var(--amber); color: var(--on-amber); }
+.send.rec { background: var(--danger); color: #fff; animation: recpulse 1.2s ease-in-out infinite; }
+@keyframes recpulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--danger) 25%, transparent); } }
+.rec-bar { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 700; color: var(--danger); }
+.rec-bar.transcribing { color: var(--muted); }
+.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); animation: blink 1s infinite; }
+.rec-cancel { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--muted); }
+.rec-cancel:hover { background: var(--paper-2); color: var(--ink); }
+.composer-body:has(.rec-bar) textarea { display: none; }
+.msg-tools button.on { background: var(--primary-soft); color: var(--primary); }
+.msg.user .bubble svg { vertical-align: -2px; opacity: 0.8; }
+.voice-note { text-align: center; font-size: 12px; color: var(--warn); padding-top: 6px; }
+
 /* Хабарламалар */
 .msg-photo { width: 160px; height: 160px; border-radius: 14px; object-fit: cover; margin-bottom: 8px; }
 .rich { display: flex; flex-direction: column; gap: 8px; white-space: normal; }

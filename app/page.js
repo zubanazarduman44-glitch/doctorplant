@@ -99,6 +99,17 @@ const T = {
     mapPickStatus: "Жағдайы",
     mapSave: "Белгілеу",
     mapHere: "Белгі сіздің қазіргі орныңызға шамамен қойылады.",
+    voiceAsk: "Дауыспен сұрау",
+    voiceHint: "Микрофонды басып, қазақша немесе орысша сұраңыз",
+    listening: "Тыңдап тұрмын…",
+    voiceStop: "Жіберу",
+    transcribing: "Дауысты мәтінге айналдырып жатырмын…",
+    micDenied: "Микрофонға рұқсат жоқ. Браузер баптауларынан рұқсат беріңіз.",
+    voiceUnsupported: "Бұл браузер дауыс жазуды қолдамайды.",
+    noSpeech: "Сөз естілмеді, қайталап көріңіз.",
+    listen: "Тыңдау",
+    stopListen: "Тоқтату",
+    noKkVoice: "Құрылғыда қазақ дауысы табылмады — орыс дауысымен оқылады.",
     mapPickHint: "Өсімдік тұрған жерді картадан басыңыз",
     mapPicked: "Орын картадан таңдалды.",
     mapLocate: "Мені табу",
@@ -350,6 +361,17 @@ const T = {
     mapPickStatus: "Состояние",
     mapSave: "Отметить",
     mapHere: "Отметка ставится примерно в ваше текущее место.",
+    voiceAsk: "Спросить голосом",
+    voiceHint: "Нажмите на микрофон и спросите по-казахски или по-русски",
+    listening: "Слушаю…",
+    voiceStop: "Отправить",
+    transcribing: "Распознаём речь…",
+    micDenied: "Нет доступа к микрофону. Разрешите его в настройках браузера.",
+    voiceUnsupported: "Этот браузер не поддерживает запись голоса.",
+    noSpeech: "Речь не распознана, попробуйте ещё раз.",
+    listen: "Озвучить",
+    stopListen: "Остановить",
+    noKkVoice: "На устройстве нет казахского голоса — читаем русским.",
     mapPickHint: "Нажмите на карте место, где растёт растение",
     mapPicked: "Место выбрано на карте.",
     mapLocate: "Найти меня",
@@ -765,6 +787,68 @@ function Logo({ size = 36 }) {
   );
 }
 
+/* ───────────── Дауыс: жазу → WAV, оқу ───────────── */
+async function blobToWavDataUrl(blob) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC();
+  const audio = await ctx.decodeAudioData(await blob.arrayBuffer());
+  ctx.close?.();
+  const rate = 16000;
+  const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(audio.duration * rate)), rate);
+  const src = off.createBufferSource();
+  src.buffer = audio;
+  src.connect(off.destination);
+  src.start();
+  const data = (await off.startRendering()).getChannelData(0);
+  const buf = new ArrayBuffer(44 + data.length * 2);
+  const v = new DataView(buf);
+  const w = (o, str) => [...str].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  w(0, "RIFF");
+  v.setUint32(4, 36 + data.length * 2, true);
+  w(8, "WAVE");
+  w(12, "fmt ");
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 2, true);
+  v.setUint16(32, 2, true);
+  v.setUint16(34, 16, true);
+  w(36, "data");
+  v.setUint32(40, data.length * 2, true);
+  for (let i = 0; i < data.length; i++) {
+    const x = Math.max(-1, Math.min(1, data[i]));
+    v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true);
+  }
+  let bin = "";
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return `data:audio/wav;base64,${btoa(bin)}`;
+}
+
+// Дауыстап оқу: қазақ дауысы болмаса — орыс дауысы
+function speakText(text, lang, onEnd) {
+  const synth = window.speechSynthesis;
+  if (!synth) return { ok: false };
+  synth.cancel();
+  const clean = String(text).replace(/\*\*/g, "").replace(/^\s*[-•*]\s+/gm, "").replace(/^\s*\d+[.)]\s+/gm, "");
+  const voices = synth.getVoices();
+  const want = lang === "kk" ? "kk" : "ru";
+  let voice = voices.find((v) => v.lang?.toLowerCase().startsWith(want));
+  let fallback = false;
+  if (!voice && want === "kk") {
+    voice = voices.find((v) => v.lang?.toLowerCase().startsWith("ru"));
+    fallback = true;
+  }
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = voice?.lang || (want === "kk" ? "kk-KZ" : "ru-RU");
+  if (voice) u.voice = voice;
+  u.rate = 0.95;
+  u.onend = u.onerror = () => onEnd?.();
+  synth.speak(u);
+  return { ok: true, fallback };
+}
+
 /* ───────────── Иконкалар ───────────── */
 const ICONS = {
   diagnose: (
@@ -807,6 +891,9 @@ const ICONS = {
   pill: <path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7ZM7 10l7 7" />,
   back: <path d="M15 6l-6 6 6 6" />,
   trend: <path d="M4 16l5-5 4 4 7-7M15 8h5v5" />,
+  mic: <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3ZM6 11a6 6 0 0 0 12 0M12 17v4M9 21h6" />,
+  speaker: <path d="M5 9.5h3l4.5-4v13l-4.5-4H5v-5ZM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" />,
+  stop: <path d="M7 7h10v10H7z" />,
   map: <path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7 9 4Zm0 0v13m6-10v13" />,
   locate: <path d="M12 2v3M12 19v3M2 12h3M19 12h3M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />,
   refresh: <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />,
@@ -3105,6 +3192,88 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
   const [photo, setPhoto] = useState(null); // { full, thumb }
   const [topic, setTopic] = useState("care");
   const [copied, setCopied] = useState(-1);
+  const [rec, setRec] = useState("idle"); // idle | recording | transcribing
+  const [secs, setSecs] = useState(0);
+  const [speaking, setSpeaking] = useState(-1);
+  const [voiceNote, setVoiceNote] = useState("");
+  const recRef = useRef(null);
+  const timerRef = useRef(null);
+
+  useEffect(
+    () => () => {
+      window.speechSynthesis?.cancel();
+      recRef.current?.stream?.getTracks().forEach((tr) => tr.stop());
+      clearInterval(timerRef.current);
+    },
+    []
+  );
+
+  async function startRec() {
+    setErr("");
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setErr(t.voiceUnsupported);
+      return;
+    }
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setErr(t.micDenied);
+      return;
+    }
+    window.speechSynthesis?.cancel();
+    setSpeaking(-1);
+    const mr = new MediaRecorder(stream);
+    const chunks = [];
+    mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+    mr.onstop = async () => {
+      stream.getTracks().forEach((tr) => tr.stop());
+      clearInterval(timerRef.current);
+      if (recRef.current?.cancelled) {
+        setRec("idle");
+        return;
+      }
+      setRec("transcribing");
+      try {
+        const audio = await blobToWavDataUrl(new Blob(chunks, { type: mr.mimeType || "audio/webm" }));
+        const data = await postJSON("/api/transcribe", { audio, lang });
+        const said = (data.text || "").trim();
+        if (!said) setErr(t.noSpeech);
+        else ask(said, true);
+      } catch (e) {
+        setErr(e.message);
+      } finally {
+        setRec("idle");
+      }
+    };
+    recRef.current = { mr, stream, cancelled: false };
+    mr.start();
+    setSecs(0);
+    setRec("recording");
+    timerRef.current = setInterval(() => {
+      setSecs((x) => {
+        if (x + 1 >= 60) recRef.current?.mr.state === "recording" && recRef.current.mr.stop();
+        return x + 1;
+      });
+    }, 1000);
+  }
+  function stopRec(cancel = false) {
+    if (!recRef.current) return;
+    recRef.current.cancelled = cancel;
+    if (recRef.current.mr.state === "recording") recRef.current.mr.stop();
+  }
+
+  function toggleSpeak(textToRead, i) {
+    if (speaking === i) {
+      window.speechSynthesis?.cancel();
+      setSpeaking(-1);
+      return;
+    }
+    const r = speakText(textToRead, lang, () => setSpeaking(-1));
+    if (!r.ok) return;
+    setSpeaking(i);
+    setVoiceNote(r.fallback ? t.noKkVoice : "");
+  }
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const fileRef = useRef(null);
@@ -3139,7 +3308,7 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
     } catch {}
   }
 
-  async function send(list, image) {
+  async function send(list, image, autoSpeak = false) {
     setBusy(true);
     setErr("");
     try {
@@ -3150,7 +3319,15 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
         diagnosisId: entry?.result?.id,
         lang,
       });
-      setMessages([...list, { role: "assistant", text: data.reply }]);
+      const done = [...list, { role: "assistant", text: data.reply }];
+      setMessages(done);
+      if (autoSpeak) {
+        const r = speakText(data.reply, lang, () => setSpeaking(-1));
+        if (r.ok) {
+          setSpeaking(done.length - 1);
+          setVoiceNote(r.fallback ? t.noKkVoice : "");
+        }
+      }
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -3159,15 +3336,15 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
     }
   }
 
-  function ask(q) {
+  function ask(q, voice = false) {
     const question = (q ?? text).trim() || (photo ? t.photoQuestion : "");
     if (!question || busy) return;
-    const next = [...messages, { role: "user", text: question, thumb: photo?.thumb || null }];
+    const next = [...messages, { role: "user", text: question, thumb: photo?.thumb || null, voice }];
     const image = photo?.full || null;
     setMessages(next);
     setText("");
     setPhoto(null);
-    send(next, image);
+    send(next, image, voice);
   }
 
   // Соңғы сұрақты қайта жіберу (қате болса немесе жаңа жауап керек болса)
@@ -3228,6 +3405,12 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
         {messages.length === 0 && !busy && (
           <div className="chat-start">
             <p className="chat-lead">{t.chatEmpty}</p>
+            <button className="voice-cta" onClick={startRec} disabled={rec !== "idle"}>
+              <span className="voice-cta-icon">
+                <Icon name="mic" size={22} />
+              </span>
+              <span>{t.voiceHint}</span>
+            </button>
 
             {entry ? (
               <div className="chips">
@@ -3288,9 +3471,18 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
             )}
             <div className="bubble">
               {m.thumb && <img className="msg-photo" src={m.thumb} alt="" />}
-              {m.role === "assistant" ? <RichText text={m.text} /> : m.text}
+              {m.role === "assistant" ? (
+                <RichText text={m.text} />
+              ) : (
+                <>
+                  {m.voice && <Icon name="mic" size={14} />} {m.text}
+                </>
+              )}
               {m.role === "assistant" && (
                 <div className="msg-tools">
+                  <button className={speaking === i ? "on" : ""} onClick={() => toggleSpeak(m.text, i)} aria-label={t.listen}>
+                    <Icon name={speaking === i ? "stop" : "speaker"} size={15} /> {speaking === i ? t.stopListen : t.listen}
+                  </button>
                   <button onClick={() => copy(m.text, i)} aria-label={t.copy}>
                     <Icon name={copied === i ? "check" : "copy"} size={15} /> {copied === i ? t.copied : t.copy}
                   </button>
@@ -3341,6 +3533,23 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
           <Icon name="image" size={20} />
         </button>
         <div className="composer-body">
+          {rec !== "idle" && (
+            <div className={`rec-bar ${rec}`} role="status">
+              {rec === "recording" ? (
+                <>
+                  <span className="rec-dot" />
+                  <span>
+                    {t.listening} 0:{String(secs).padStart(2, "0")}
+                  </span>
+                  <button type="button" className="rec-cancel" onClick={() => stopRec(true)} aria-label={t.cancel}>
+                    <Icon name="x" size={16} />
+                  </button>
+                </>
+              ) : (
+                <span>{t.transcribing}</span>
+              )}
+            </div>
+          )}
           {photo && (
             <div className="attached">
               <img src={photo.thumb} alt="" />
@@ -3365,10 +3574,28 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
             aria-label={t.chatPlaceholder}
           />
         </div>
-        <button type="submit" className="send" disabled={busy || (!text.trim() && !photo)} aria-label={t.send}>
-          <Icon name="send" size={20} />
-        </button>
+        {rec === "recording" ? (
+          <button type="button" className="send rec" onClick={() => stopRec(false)} aria-label={t.voiceStop}>
+            <Icon name="send" size={20} />
+          </button>
+        ) : !text.trim() && !photo ? (
+          <button
+            type="button"
+            className="send mic"
+            onClick={startRec}
+            disabled={busy || rec !== "idle"}
+            aria-label={t.voiceAsk}
+            title={t.voiceAsk}
+          >
+            <Icon name="mic" size={21} />
+          </button>
+        ) : (
+          <button type="submit" className="send" disabled={busy} aria-label={t.send}>
+            <Icon name="send" size={20} />
+          </button>
+        )}
       </form>
+      {voiceNote && <p className="voice-note">{voiceNote}</p>}
       <p className="composer-fine">{t.disclaimer}</p>
     </div>
   );
