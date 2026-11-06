@@ -555,6 +555,25 @@ function RichText({ text }) {
   );
 }
 
+/* ───────────── Логотип ─────────────
+   Жапырақ (өсімдік) + сары қосу белгісі (дәрігер) + бұрыш белгілері (суретті сканерлеу / гербарий парағы) */
+function Logo({ size = 36 }) {
+  return (
+    <svg className="logo" width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="18" fill="#15803d" />
+      <g fill="none" stroke="#f9fbf6" strokeWidth="3" strokeLinecap="round" strokeOpacity="0.55">
+        <path d="M11 20v-5a4 4 0 0 1 4-4h5" />
+        <path d="M44 11h5a4 4 0 0 1 4 4v5" />
+        <path d="M53 44v5a4 4 0 0 1-4 4h-5" />
+        <path d="M20 53h-5a4 4 0 0 1-4-4v-5" />
+      </g>
+      <path d="M18 46c0-16.5 10.5-27 29-28 0 18.5-10.5 28-28 28z" fill="#f9fbf6" />
+      <path d="M18.5 45.5 14 50" stroke="#f9fbf6" strokeWidth="3.2" strokeLinecap="round" />
+      <path className="logo-plus" d="M33.5 25.5v11M28 31h11" stroke="#f59e0b" strokeWidth="4.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /* ───────────── Иконкалар ───────────── */
 const ICONS = {
   diagnose: (
@@ -786,9 +805,7 @@ export default function Home() {
       <Backdrop />
       <header className="topbar">
         <button className="brand" onClick={() => setTab("diagnose")}>
-          <span className="brand-mark">
-            <Icon name="leaf" size={18} />
-          </span>
+          <Logo size={36} />
           <span className="brand-name">{t.brand}</span>
         </button>
         <div className="top-actions">
