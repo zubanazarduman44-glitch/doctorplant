@@ -1246,6 +1246,14 @@ function Backdrop() {
             <stop offset="0" stopColor="var(--tulip-1)" />
             <stop offset="1" stopColor="var(--tulip-2)" />
           </linearGradient>
+          <linearGradient id="wingA" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#f59e0b" />
+            <stop offset="1" stopColor="#c2410c" />
+          </linearGradient>
+          <linearGradient id="wingB" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#fbbf24" />
+            <stop offset="1" stopColor="#ea580c" />
+          </linearGradient>
         </defs>
         <g className="tulip-sway">
           <path className="draw d1" pathLength="1" d="M80 560 C 82 470 74 380 82 250 C 86 190 80 160 82 140" />
@@ -1257,6 +1265,48 @@ function Backdrop() {
             <path className="petal" d="M82 140 C 58 132 50 100 56 66 C 66 84 76 100 82 110 Z" />
             <path className="petal" d="M82 140 C 106 132 114 100 108 66 C 98 84 88 100 82 110 Z" />
             <path className="petal mid" d="M82 128 C 68 110 68 78 82 52 C 96 78 96 110 82 128 Z" />
+          </g>
+        </g>
+        {/* Көбелек: гүлге қонып, айналып ұшады */}
+        <g className="butterfly">
+          <g>
+            <animateMotion
+              dur="18s"
+              begin="3s"
+              repeatCount="indefinite"
+              keyTimes="0;0.3;1"
+              keyPoints="0;0;1"
+              calcMode="linear"
+              path="M82 50 C 130 -10 158 40 140 105 C 122 170 40 185 14 125 C -2 80 40 18 82 50"
+            />
+            <g transform="scale(1.7)">
+            <g className="wings">
+              <animateTransform attributeName="transform" type="scale" values="1 1;0.2 1;1 1" dur="0.42s" repeatCount="indefinite" />
+              <path d="M0 0 C -6 -14 -20 -16 -20 -6 C -20 2 -9 4 0 0 Z" fill="url(#wingA)" />
+              <path d="M0 0 C 6 -14 20 -16 20 -6 C 20 2 9 4 0 0 Z" fill="url(#wingA)" />
+              <path d="M0 1 C -4 10 -14 12 -14 6 C -14 2 -6 1 0 1 Z" fill="url(#wingB)" />
+              <path d="M0 1 C 4 10 14 12 14 6 C 14 2 6 1 0 1 Z" fill="url(#wingB)" />
+              <circle cx="-12" cy="-8" r="2" fill="#fff7e6" opacity="0.85" />
+              <circle cx="12" cy="-8" r="2" fill="#fff7e6" opacity="0.85" />
+            </g>
+            <path d="M0 -6 L0 7" stroke="#3b2414" strokeWidth="2.2" strokeLinecap="round" />
+            <path d="M0 -6 C -2 -11 -4 -13 -6 -14 M0 -6 C 2 -11 4 -13 6 -14" stroke="#3b2414" strokeWidth="0.9" fill="none" />
+            </g>
+          </g>
+        </g>
+
+        {/* Қызыл қоңыз: сол жапырақпен жоғары өрмелейді */}
+        <g className="ladybug">
+          <animateMotion dur="28s" begin="2.5s" repeatCount="indefinite" rotate="auto" keyTimes="0;0.8;1" keyPoints="0;1;1" calcMode="linear" path="M78 540 C 64 515 48 495 40 470 C 30 430 22 380 30 300" />
+          <g transform="scale(1.15)">
+            <ellipse cx="0" cy="0" rx="9" ry="7" fill="#dc2626" />
+            <path d="M-9 0 H9" stroke="#1f1f1f" strokeWidth="1.2" />
+            <circle cx="9.5" cy="0" r="3.6" fill="#1f1f1f" />
+            <circle cx="-4" cy="-3.6" r="1.6" fill="#1f1f1f" />
+            <circle cx="-4" cy="3.6" r="1.6" fill="#1f1f1f" />
+            <circle cx="2.5" cy="-3.2" r="1.4" fill="#1f1f1f" />
+            <circle cx="2.5" cy="3.2" r="1.4" fill="#1f1f1f" />
+            <ellipse cx="-2" cy="-3" rx="3" ry="1.3" fill="#fff" opacity="0.35" />
           </g>
         </g>
       </svg>
@@ -1274,6 +1324,25 @@ function Backdrop() {
             </g>
           );
         })}
+      </svg>
+
+      {/* Жарқырауық қоңыздар (қараңғыда) / тозаң (жарықта) */}
+      <div className="fireflies">
+        {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+          <span key={i} className={`ff f${i}`} />
+        ))}
+      </div>
+
+      {/* Өсіп шығатын кішкентай беде — логотиптегідей */}
+      <svg className="sprout" viewBox="0 0 64 64">
+        <path className="sprout-stem" d="M32 64 C 32 52 31 42 32 31" />
+        <g className="sprout-head" transform="translate(32 28)">
+          {[45, 135, 225, 315].map((a) => (
+            <g key={a} transform={`rotate(${a}) translate(0 -1.6) scale(0.8 1)`}>
+              <path d={CLOVER_LEAF} fill="var(--sprout)" />
+            </g>
+          ))}
+        </g>
       </svg>
 
       {/* Баяу ұшып бара жатқан жапырақтар */}

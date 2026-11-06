@@ -27,6 +27,9 @@
   --tulip-1: #c2410c;
   --tulip-2: #f59e0b;
   --drift: rgba(21, 128, 61, 0.22);
+  --ff: #f5b52e;
+  --ff-glow: rgba(245, 181, 46, 0.35);
+  --sprout: rgba(21, 128, 61, 0.38);
 
   --serif: "Lora", Georgia, "Times New Roman", serif;
   --sans: "Raleway", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -62,6 +65,9 @@
   --tulip-1: #b4401a;
   --tulip-2: #f5a524;
   --drift: rgba(76, 194, 122, 0.2);
+  --ff: #e9ff8a;
+  --ff-glow: rgba(214, 255, 120, 0.75);
+  --sprout: rgba(76, 194, 122, 0.35);
   color-scheme: dark;
 }
 
@@ -89,10 +95,19 @@
     --tulip-1: #b4401a;
     --tulip-2: #f5a524;
     --drift: rgba(76, 194, 122, 0.2);
+    --ff: #e9ff8a;
+    --ff-glow: rgba(214, 255, 120, 0.75);
+    --sprout: rgba(76, 194, 122, 0.35);
+  --ff: #e9ff8a;
+  --ff-glow: rgba(214, 255, 120, 0.75);
+  --sprout: rgba(76, 194, 122, 0.35);
   --tulip-line: rgba(76, 194, 122, 0.3);
   --tulip-1: #b4401a;
   --tulip-2: #f5a524;
   --drift: rgba(76, 194, 122, 0.2);
+  --ff: #e9ff8a;
+  --ff-glow: rgba(214, 255, 120, 0.75);
+  --sprout: rgba(76, 194, 122, 0.35);
     color-scheme: dark;
   }
 }
@@ -176,6 +191,44 @@ a { color: inherit; }
   75% { transform: translate(30px, 88vh) rotate(260deg); }
   100% { transform: translate(-10px, 118vh) rotate(340deg); }
 }
+
+/* Көбелек */
+.butterfly { opacity: 0; animation: fadein 1s ease 3s forwards; }
+@keyframes fadein { to { opacity: 0.95; } }
+
+/* Қызыл қоңыз */
+.ladybug { opacity: 0.9; }
+
+/* Жарқырауық қоңыздар / тозаң */
+.fireflies { position: absolute; inset: 0; }
+.ff {
+  position: absolute; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ff); box-shadow: 0 0 12px 4px var(--ff-glow);
+  opacity: 0; animation: ffly 9s ease-in-out infinite, twinkle 3s ease-in-out infinite;
+}
+/* Тек экранның бос шеттерінде */
+.f1 { left: 92vw; top: 34vh; animation-delay: 0s, 0.4s; }
+.f2 { left: 95.5vw; top: 56vh; animation-delay: -2s, 1.1s; animation-duration: 11s, 2.6s; }
+.f3 { left: 90.5vw; top: 72vh; animation-delay: -4s, 0.2s; }
+.f4 { left: 96vw; top: 20vh; animation-delay: -6s, 1.7s; animation-duration: 13s, 3.4s; width: 5px; height: 5px; }
+.f5 { left: 3vw; top: 24vh; animation-delay: -1s, 2.2s; width: 5px; height: 5px; }
+.f6 { left: 8vw; top: 14vh; animation-delay: -3s, 0.9s; width: 6px; height: 6px; animation-duration: 10s, 2.9s; }
+.f7 { left: 2vw; top: 42vh; animation-delay: -5s, 1.4s; width: 4px; height: 4px; }
+@keyframes ffly {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(24px, -30px); }
+  50% { transform: translate(-16px, -54px); }
+  75% { transform: translate(18px, -22px); }
+}
+@keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.9; } }
+
+/* Өсіп шығатын беде */
+.sprout { position: absolute; right: 2.5vw; bottom: -4px; width: 58px; height: 58px; overflow: visible; }
+.sprout-stem { fill: none; stroke: var(--sprout); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: sstem 1.2s var(--ease) 2.6s forwards; }
+@keyframes sstem { to { stroke-dashoffset: 0; } }
+.sprout-head { transform-box: fill-box; transform-origin: center; scale: 0; animation: shead 0.9s cubic-bezier(0.3, 1.5, 0.5, 1) 3.5s forwards, sbob 6s ease-in-out 4.5s infinite alternate; }
+@keyframes shead { to { scale: 1; } }
+@keyframes sbob { from { rotate: -8deg; } to { rotate: 10deg; } }
 
 /* Қызғалдақ тек бос шеті бар кең экранда көрінеді */
 @media (min-width: 1360px) { .tulip { display: block; } }
@@ -1034,6 +1087,8 @@ a { color: inherit; }
   .sheet-form { border-radius: var(--r-xl) var(--r-xl) 0 0; padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
   .frond { height: 60vh; opacity: 0.7; }
   .dr2 { display: none; }
+  .fireflies { display: none; }
+  .sprout { right: 4vw; width: 40px; height: 40px; }
 }
 
 @media (max-width: 420px) {
@@ -1045,5 +1100,6 @@ a { color: inherit; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .butterfly, .ladybug, .fireflies { display: none; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition: none !important; }
 }
