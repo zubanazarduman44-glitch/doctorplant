@@ -6,7 +6,7 @@ import { CITIES, PLANTS, ACTIVES, REGISTRY_URL } from "./data";
 // Барлық мәтіндер екі тілде / Все тексты на двух языках
 const T = {
   kk: {
-    brand: "Өсімдік дәрігері",
+    brand: "Tamyr",
     nav: { diagnose: "Диагноз", plants: "Өсімдіктер", map: "Карта", chat: "Кеңесші", history: "Тарих", about: "Анықтамалық" },
     navHint: {
       diagnose: "Суреттен анықтау",
@@ -265,7 +265,7 @@ const T = {
     theme: "Тақырып",
   },
   ru: {
-    brand: "Доктор растений",
+    brand: "Tamyr",
     nav: { diagnose: "Диагноз", plants: "Растения", map: "Карта", chat: "Консультант", history: "История", about: "Справочник" },
     navHint: {
       diagnose: "Анализ по фото",
@@ -621,7 +621,7 @@ function downloadICS(plant, t) {
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Osimdik Doctor//KZ",
+    "PRODID:-//Tamyr//KZ",
     "CALSCALE:GREGORIAN",
     "BEGIN:VEVENT",
     `UID:${plant.id}@osimdik-doctor`,
