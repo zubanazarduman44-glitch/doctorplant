@@ -535,6 +535,64 @@ a { color: inherit; }
 .chip { min-height: 42px; padding: 0 18px; border-radius: 999px; background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--line); font-size: 15px; font-weight: 600; text-align: left; transition: box-shadow 0.2s; }
 .chip:hover { box-shadow: inset 0 0 0 1.5px var(--primary); }
 
+/* Кеңесші: бастапқы экран */
+.chat-start { margin: auto 0; padding: 16px 0 8px; display: flex; flex-direction: column; gap: 18px; }
+.chat-lead { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 36px); font-weight: 500; max-width: 24ch; line-height: 1.15; letter-spacing: -0.015em; }
+.topics { border-radius: var(--r-lg); background: var(--paper); box-shadow: 0 0 0 1px var(--line), var(--shadow); overflow: hidden; }
+.topic-tabs { display: flex; gap: 4px; padding: 6px; background: var(--paper-2); overflow-x: auto; scrollbar-width: none; }
+.topic-tabs::-webkit-scrollbar { display: none; }
+.topic-tab {
+  flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 16px; border-radius: 12px;
+  font-weight: 700; font-size: 14px; color: var(--muted); white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+.topic-tab:hover { color: var(--ink); }
+.topic-tab.on { background: var(--paper); color: var(--primary); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.topic-qs { display: grid; grid-template-columns: 1fr 1fr; }
+.topic-q {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 58px; padding: 12px 18px; text-align: left; font-weight: 600; font-size: 15px;
+  border-top: 1px solid var(--line);
+  transition: background 0.2s, color 0.2s;
+}
+.topic-q:nth-child(odd) { border-right: 1px solid var(--line); }
+.topic-q svg { flex-shrink: 0; color: var(--muted); transition: transform 0.2s var(--ease), color 0.2s; }
+.topic-q:hover { background: var(--primary-soft); color: var(--primary); }
+.topic-q:hover svg { color: var(--primary); transform: translate(2px, -2px); }
+
+.fact { display: flex; gap: 16px; padding: 20px 22px; border-radius: var(--r-lg); background: var(--ink); color: var(--bg); }
+.fact-icon { flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--amber); color: var(--on-amber); }
+.fact h3 { font-family: var(--serif); font-size: 18px; font-weight: 600; }
+.fact p { margin-top: 4px; font-size: 15px; color: color-mix(in srgb, var(--bg) 82%, var(--ink)); max-width: 62ch; }
+.fact-ask { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--amber); }
+
+/* Хабарламалар */
+.msg-photo { width: 160px; height: 160px; border-radius: 14px; object-fit: cover; margin-bottom: 8px; }
+.rich { display: flex; flex-direction: column; gap: 8px; white-space: normal; }
+.rich ul, .rich ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+.rich li::marker { color: var(--primary); font-weight: 700; }
+.rich strong { font-weight: 700; }
+.msg-tools { display: flex; gap: 4px; margin-top: 8px; margin-left: -8px; }
+.msg-tools button {
+  display: inline-flex; align-items: center; gap: 5px;
+  min-height: 32px; padding: 0 10px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  transition: background 0.2s, color 0.2s;
+}
+.msg-tools button:hover:not(:disabled) { background: var(--paper-2); color: var(--ink); }
+.alert .grow { flex: 1; }
+.alert .btn { flex-shrink: 0; }
+
+/* Сурет тіркеу */
+.attach { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--muted); transition: background 0.2s, color 0.2s; }
+.attach:hover { background: var(--paper-2); color: var(--primary); }
+.composer-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.composer-body textarea { flex: none; width: 100%; }
+.attached { position: relative; width: 64px; height: 64px; margin-top: 6px; }
+.attached img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
+.attached button { position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); }
+
 .msg { display: flex; gap: 12px; align-items: flex-start; }
 .msg.user { justify-content: flex-end; }
 .avatar { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--primary); color: var(--on-primary); }
@@ -550,7 +608,7 @@ a { color: inherit; }
 .composer {
   position: sticky; bottom: 44px;
   display: flex; align-items: flex-end; gap: 8px;
-  padding: 8px 8px 8px 22px; border-radius: 30px;
+  padding: 8px 8px 8px 8px; border-radius: 30px;
   background: var(--paper); box-shadow: 0 0 0 1.5px var(--line), var(--shadow);
 }
 .composer:focus-within { box-shadow: 0 0 0 2px var(--primary), var(--shadow); }
@@ -627,6 +685,9 @@ a { color: inherit; }
   .composer-fine { display: none; }
   .composer { bottom: calc(96px + env(safe-area-inset-bottom)); }
   .bubble { max-width: 88%; }
+  .topic-qs { grid-template-columns: 1fr; }
+  .topic-q:nth-child(odd) { border-right: 0; }
+  .fact { padding: 18px; }
   .hist { grid-template-columns: 1fr; }
   .plants { grid-template-columns: 1fr; }
   .stats { grid-template-columns: 1fr 1fr; }

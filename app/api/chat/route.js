@@ -34,7 +34,7 @@ Rules:
 - If unsure, say so and suggest sending a clearer photo or asking a local agronomist.
 - NEVER give exact chemical doses — tell the user to follow the product label.
 - NEVER say whether a plant or mushroom is safe to eat.
-- Don't use markdown headings; short paragraphs or short lists are fine.`;
+- Formatting: no markdown headings or tables. Use short paragraphs, "- " bullet lists or "1. " numbered steps, and **bold** for key words only.`;
 }
 
 export async function POST(req) {
@@ -45,7 +45,7 @@ export async function POST(req) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
 
-  const { messages, diagnosis, lang = "kk", diagnosisId } = body || {};
+  const { messages, diagnosis, lang = "kk", diagnosisId, image } = body || {};
   if (!Array.isArray(messages) || !messages.length) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
@@ -62,11 +62,27 @@ export async function POST(req) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
 
+  // Сұраққа сурет тіркелсе — соңғы хабарламаға қосамыз
+  let hasImage = false;
+  if (typeof image === "string" && image.startsWith("data:image/")) {
+    const [meta, base64] = image.split(",");
+    if (base64 && base64.length < 6_000_000) {
+      const mimeType = meta.slice(5, meta.indexOf(";"));
+      contents[contents.length - 1].parts.push({ inline_data: { mime_type: mimeType, data: base64 } });
+      hasImage = true;
+    }
+  }
+
   try {
     const reply = await callGemini(contents, {
-      system: systemPrompt(lang, diagnosis),
+      system:
+        systemPrompt(lang, diagnosis) +
+        (hasImage
+          ? "\n- The user attached a photo. Look at it carefully: identify the plant (common + Latin name) if possible, describe what you see, and answer the question. If the photo is unclear, say what to retake."
+          : ""),
       temperature: 0.4,
-      fast: true,
+      // Суретті жеңіл модель нашар таниды — сурет болса толық модель
+      fast: !hasImage,
     });
     countChatMessage(diagnosisId);
     return Response.json({ reply });

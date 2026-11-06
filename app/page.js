@@ -48,6 +48,32 @@ const T = {
     notifyHint: "Сайтты ашқанда суару керек өсімдіктер туралы хабарлайды.",
     notifyTitle: "Өсімдіктерді суару уақыты",
     remindersTitle: "Еске салу",
+    topics: [
+      { id: "care", icon: "drop", title: "Күтім", qs: ["Жапырақтары неге сарғаяды?", "Үй гүлін қай кезде қайта отырғызу керек?", "Қызанақты қалай тыңайтамын?", "Қараңғы бөлмеге қандай гүл қолайлы?"] },
+      { id: "bio", icon: "leaf", title: "Ботаника", qs: ["Фотосинтез қалай жүреді?", "Тозаңдану дегеніміз не?", "Өсімдіктер суды қалай тасымалдайды?", "Неліктен күзде жапырақтар түсін өзгертеді?"] },
+      { id: "eco", icon: "sprout", title: "Экология", qs: ["Ара жоқ болса, өсімдіктерге не болады?", "Шөлейттену дегеніміз не?", "Инвазиялық түрлер неге қауіпті?", "Компостты қалай жасаймын?"] },
+      { id: "kz", icon: "shield", title: "Қазақстан флорасы", qs: ["Қызыл кітапқа қандай өсімдіктер енген?", "Жабайы қызғалдақтар туралы айтып бер", "Сиверс алмасы неге маңызды?", "Сексеуіл неге құнды?"] },
+    ],
+    factTitle: "Күннің фактісі",
+    factAsk: "Толығырақ сұрау",
+    attach: "Сурет тіркеу",
+    removePhoto: "Суретті алып тастау",
+    photoQuestion: "Бұл қандай өсімдік?",
+    copy: "Көшіру",
+    copied: "Көшірілді",
+    retry: "Қайталау",
+    facts: [
+      "Үйдегі алманың арғы атасы — Іле Алатауы мен Жоңғар Алатауында өсетін жабайы Сиверс алмасы (Malus sieversii).",
+      "Қазақстанда жабайы қызғалдақтың 30-дан астам түрі өседі, олардың бірі — Грейг қызғалдағы.",
+      "Шыбынжұтқыш (Venus flytrap) қақпанын бір емес, қысқа уақыт ішінде екі рет тигенде ғана жабады.",
+      "Ұялшақ мимоза (Mimosa pudica) қол тигенде жапырақтарын бірнеше секундта жиып алады.",
+      "Кейбір бамбук түрлері бір тәулікте 90 см-ге дейін өседі.",
+      "Күзде жапырақтың сарғаюы — хлорофилл ыдырап, бұрыннан бар сары-қызғылт пигменттердің көрінуі.",
+      "Жас күнбағыс басы күнмен бірге бұрылады, ал пісіп-жетілгенде шығысқа қарап тоқтайды.",
+      "Жер атмосферасындағы оттегінің шамамен жартысын мұхиттағы микроскопиялық балдырлар (фитопланктон) береді.",
+      "Зиянкес шабуыл жасағанда көптеген өсімдіктер ұшпа заттар бөліп, көршілерін «ескертеді».",
+      "Әлемдегі ең көне ағаштардың бірі — қылқанды қарағай (bristlecone pine), жасы 4 800 жылдан асады.",
+    ],
     weekTitle: "Апта жоспары",
     weekRest: "суару жоқ",
     statPlants: "Өсімдік",
@@ -178,6 +204,32 @@ const T = {
     notifyHint: "Когда вы открываете сайт, он напомнит, какие растения пора полить.",
     notifyTitle: "Пора полить растения",
     remindersTitle: "Напоминания",
+    topics: [
+      { id: "care", icon: "drop", title: "Уход", qs: ["Почему желтеют листья?", "Когда пересаживать комнатные растения?", "Чем подкормить томаты?", "Какой цветок подойдёт для тёмной комнаты?"] },
+      { id: "bio", icon: "leaf", title: "Ботаника", qs: ["Как происходит фотосинтез?", "Что такое опыление?", "Как растения поднимают воду?", "Почему осенью листья меняют цвет?"] },
+      { id: "eco", icon: "sprout", title: "Экология", qs: ["Что будет с растениями без пчёл?", "Что такое опустынивание?", "Чем опасны инвазивные виды?", "Как сделать компост?"] },
+      { id: "kz", icon: "shield", title: "Флора Казахстана", qs: ["Какие растения в Красной книге Казахстана?", "Расскажи о диких тюльпанах", "Почему важна яблоня Сиверса?", "Чем ценен саксаул?"] },
+    ],
+    factTitle: "Факт дня",
+    factAsk: "Спросить подробнее",
+    attach: "Прикрепить фото",
+    removePhoto: "Убрать фото",
+    photoQuestion: "Что это за растение?",
+    copy: "Копировать",
+    copied: "Скопировано",
+    retry: "Повторить",
+    facts: [
+      "Предок домашней яблони — дикая яблоня Сиверса (Malus sieversii), растущая в горах Заилийского и Джунгарского Алатау.",
+      "В Казахстане растёт больше 30 видов диких тюльпанов, среди них — тюльпан Грейга.",
+      "Венерина мухоловка захлопывает ловушку только после двух касаний за короткое время.",
+      "Мимоза стыдливая (Mimosa pudica) складывает листья за несколько секунд после прикосновения.",
+      "Некоторые виды бамбука вырастают до 90 см за сутки.",
+      "Осенью листья желтеют, потому что разрушается хлорофилл и становятся видны жёлто-оранжевые пигменты, которые были в листе всегда.",
+      "Молодая корзинка подсолнуха поворачивается за солнцем, а созревшая останавливается и смотрит на восток.",
+      "Около половины кислорода в атмосфере Земли производят микроскопические водоросли океана — фитопланктон.",
+      "Когда растение атакуют вредители, многие виды выделяют летучие вещества и «предупреждают» соседей.",
+      "Одни из старейших деревьев на Земле — остистые сосны (bristlecone pine), их возраст превышает 4 800 лет.",
+    ],
     weekTitle: "План на неделю",
     weekRest: "без полива",
     statPlants: "Растений",
@@ -459,6 +511,50 @@ async function postJSON(url, payload) {
   return data;
 }
 
+/* ───────────── Жауапты пішімдеу ───────────── */
+// **қалың** мәтін
+function inline(text) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part.replace(/\*/g, "")
+  );
+}
+// Абзацтар, «- » тізімдер, «1. » нөмірленген тізімдер
+function RichText({ text }) {
+  const blocks = [];
+  let list = null;
+  for (const raw of String(text).split("\n")) {
+    const line = raw.trim();
+    const ul = line.match(/^[-•*]\s+(.*)/);
+    const ol = line.match(/^\d+[.)]\s+(.*)/);
+    if (ul || ol) {
+      const type = ul ? "ul" : "ol";
+      if (!list || list.type !== type) {
+        list = { type, items: [] };
+        blocks.push(list);
+      }
+      list.items.push((ul || ol)[1]);
+    } else {
+      list = null;
+      if (line) blocks.push({ type: "p", text: line.replace(/^#+\s*/, "") });
+    }
+  }
+  return (
+    <div className="rich">
+      {blocks.map((b, i) => {
+        if (b.type === "p") return <p key={i}>{inline(b.text)}</p>;
+        const Tag = b.type;
+        return (
+          <Tag key={i}>
+            {b.items.map((x, k) => (
+              <li key={k}>{inline(x)}</li>
+            ))}
+          </Tag>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ───────────── Иконкалар ───────────── */
 const ICONS = {
   diagnose: (
@@ -491,6 +587,10 @@ const ICONS = {
   edit: <path d="M5 19h4L19 9l-4-4L5 15v4ZM13 7l4 4" />,
   trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />,
   check: <path d="M5 12.5 10 17l9-10" />,
+  copy: <path d="M9 9h10v10H9V9ZM5 15V5h10" />,
+  refresh: <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />,
+  image: <path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11ZM4 15l4.5-4.5L13 15m-1.5-1.5L14 11l6 6M15.5 9h.01" />,
+  bulb: <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" />,
   flame: <path d="M12 21c3.6 0 6-2.5 6-6 0-4.5-4-6.5-4.5-11-2.5 2-4 4.5-4 7-1 0-2-1-2.5-2.5C5.5 10 6 12 6 15c0 3.5 2.4 6 6 6Z" />,
   trophy: <path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6M10 17h4" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
@@ -1575,33 +1675,47 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) 
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [photo, setPhoto] = useState(null); // { full, thumb }
+  const [topic, setTopic] = useState("care");
+  const [copied, setCopied] = useState(-1);
   const endRef = useRef(null);
   const inputRef = useRef(null);
+  const fileRef = useRef(null);
+
+  const dayIndex = Math.floor((dayStart() - dayStart(new Date(new Date().getFullYear(), 0, 1))) / DAY);
+  const fact = t.facts[dayIndex % t.facts.length];
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (messages.length || busy) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, busy]);
 
   useEffect(() => {
     setErr("");
   }, [entry?.key]);
 
-  async function ask(q) {
-    const question = (q ?? text).trim();
-    if (!question || busy) return;
-    const next = [...messages, { role: "user", text: question }];
-    setMessages(next);
-    setText("");
+  async function pickPhoto(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !file.type?.startsWith("image/")) return;
+    try {
+      const full = await compressImage(file, 1024, 0.82);
+      setPhoto({ full, thumb: await thumbnail(full) });
+      inputRef.current?.focus();
+    } catch {}
+  }
+
+  async function send(list, image) {
     setBusy(true);
     setErr("");
     try {
       const data = await postJSON("/api/chat", {
-        messages: next,
+        messages: list.map(({ role, text }) => ({ role, text })),
+        image: image || null,
         diagnosis: entry?.result || null,
         diagnosisId: entry?.result?.id,
         lang,
       });
-      setMessages([...next, { role: "assistant", text: data.reply }]);
+      setMessages([...list, { role: "assistant", text: data.reply }]);
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -1610,7 +1724,36 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) 
     }
   }
 
-  const suggestions = entry ? t.chatSuggestPlant : t.chatSuggestGeneral;
+  function ask(q) {
+    const question = (q ?? text).trim() || (photo ? t.photoQuestion : "");
+    if (!question || busy) return;
+    const next = [...messages, { role: "user", text: question, thumb: photo?.thumb || null }];
+    const image = photo?.full || null;
+    setMessages(next);
+    setText("");
+    setPhoto(null);
+    send(next, image);
+  }
+
+  // Соңғы сұрақты қайта жіберу (қате болса немесе жаңа жауап керек болса)
+  function retry() {
+    const lastUser = messages.map((m) => m.role).lastIndexOf("user");
+    if (lastUser < 0 || busy) return;
+    const list = messages.slice(0, lastUser + 1);
+    setMessages(list);
+    send(list, null);
+  }
+
+  async function copy(textToCopy, i) {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(i);
+      setTimeout(() => setCopied(-1), 1500);
+    } catch {}
+  }
+
+  const current = t.topics.find((x) => x.id === topic) || t.topics[0];
+  const lastIdx = messages.length - 1;
 
   return (
     <div className="chat-page">
@@ -1648,15 +1791,56 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) 
         )}
 
         {messages.length === 0 && !busy && (
-          <div className="chat-empty">
-            <p>{t.chatEmpty}</p>
-            <div className="chips">
-              {suggestions.map((s) => (
-                <button key={s} className="chip" onClick={() => ask(s)}>
-                  {s}
+          <div className="chat-start">
+            <p className="chat-lead">{t.chatEmpty}</p>
+
+            {entry ? (
+              <div className="chips">
+                {t.chatSuggestPlant.map((q) => (
+                  <button key={q} className="chip" onClick={() => ask(q)}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <section className="topics">
+                <div className="topic-tabs" role="tablist">
+                  {t.topics.map((x) => (
+                    <button
+                      key={x.id}
+                      role="tab"
+                      aria-selected={topic === x.id}
+                      className={`topic-tab ${topic === x.id ? "on" : ""}`}
+                      onClick={() => setTopic(x.id)}
+                    >
+                      <Icon name={x.icon} size={18} />
+                      {x.title}
+                    </button>
+                  ))}
+                </div>
+                <div className="topic-qs" role="tabpanel">
+                  {current.qs.map((q) => (
+                    <button key={q} className="topic-q" onClick={() => ask(q)}>
+                      <span>{q}</span>
+                      <Icon name="arrow" size={16} />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <aside className="fact">
+              <span className="fact-icon">
+                <Icon name="bulb" size={22} />
+              </span>
+              <div>
+                <h3>{t.factTitle}</h3>
+                <p>{fact}</p>
+                <button className="fact-ask" onClick={() => ask(`${t.factAsk}: ${fact}`)}>
+                  {t.factAsk} <Icon name="arrow" size={15} />
                 </button>
-              ))}
-            </div>
+              </div>
+            </aside>
           </div>
         )}
 
@@ -1667,7 +1851,22 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) 
                 <Icon name="leaf" size={16} />
               </span>
             )}
-            <div className="bubble">{m.text}</div>
+            <div className="bubble">
+              {m.thumb && <img className="msg-photo" src={m.thumb} alt="" />}
+              {m.role === "assistant" ? <RichText text={m.text} /> : m.text}
+              {m.role === "assistant" && (
+                <div className="msg-tools">
+                  <button onClick={() => copy(m.text, i)} aria-label={t.copy}>
+                    <Icon name={copied === i ? "check" : "copy"} size={15} /> {copied === i ? t.copied : t.copy}
+                  </button>
+                  {i === lastIdx && (
+                    <button onClick={retry} disabled={busy} aria-label={t.retry}>
+                      <Icon name="refresh" size={15} /> {t.retry}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         ))}
         {busy && (
@@ -1685,7 +1884,11 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) 
         )}
         {err && (
           <div className="alert" role="alert">
-            {err}
+            <Icon name="alert" size={18} />
+            <span className="grow">{err}</span>
+            <button className="btn ghost small" onClick={retry}>
+              {t.retry}
+            </button>
           </div>
         )}
         <div ref={endRef} />
@@ -1698,22 +1901,36 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages }) 
           ask();
         }}
       >
-        <textarea
-          ref={inputRef}
-          value={text}
-          rows={1}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              ask();
-            }
-          }}
-          placeholder={t.chatPlaceholder}
-          maxLength={1000}
-          aria-label={t.chatPlaceholder}
-        />
-        <button type="submit" className="send" disabled={busy || !text.trim()} aria-label={t.send}>
+        <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickPhoto} />
+        <button type="button" className="attach" onClick={() => fileRef.current?.click()} aria-label={t.attach} title={t.attach}>
+          <Icon name="image" size={20} />
+        </button>
+        <div className="composer-body">
+          {photo && (
+            <div className="attached">
+              <img src={photo.thumb} alt="" />
+              <button type="button" onClick={() => setPhoto(null)} aria-label={t.removePhoto}>
+                <Icon name="x" size={14} />
+              </button>
+            </div>
+          )}
+          <textarea
+            ref={inputRef}
+            value={text}
+            rows={1}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                ask();
+              }
+            }}
+            placeholder={photo ? t.photoQuestion : t.chatPlaceholder}
+            maxLength={1000}
+            aria-label={t.chatPlaceholder}
+          />
+        </div>
+        <button type="submit" className="send" disabled={busy || (!text.trim() && !photo)} aria-label={t.send}>
           <Icon name="send" size={20} />
         </button>
       </form>
