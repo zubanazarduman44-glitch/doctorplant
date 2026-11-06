@@ -3,7 +3,7 @@
 // API-кілт тек серверде болады — браузерге ешқашан көрінбейді.
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 // Vercel-де GEMINI_MODEL айнымалысы арқылы өзгертуге болады
 const MODELS = [
@@ -139,7 +139,8 @@ export async function POST(req) {
         );
       }
       // 400 болса — схемасыз қайталап көреміз; басқа қате болса — келесі модель
-      if (geminiRes.status !== 400) break;
+      // Схемаға қатысты 400 болса ғана схемасыз қайталаймыз; әйтпесе — келесі модель
+      if (!(geminiRes.status === 400 && /schema|response_?schema|enum/i.test(msg))) break;
     }
     if (geminiRes?.ok) break;
   }

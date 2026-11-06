@@ -121,7 +121,18 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image, lang }),
       });
-      const data = await res.json();
+      // Сервер кейде JSON емес мәтін қайтарады (таймаут т.б.) — абайлап оқимыз
+      const raw = await res.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(
+          res.status === 504
+            ? "Сервер уақытында жауап бермеді, қайталап көріңіз / Сервер не успел ответить, попробуйте ещё раз"
+            : `Сервер қатесі ${res.status} / Ошибка сервера ${res.status}: ${raw.slice(0, 120)}`
+        );
+      }
       if (!res.ok) throw new Error(data.error || "Error");
       setResult(data);
     } catch (e) {
