@@ -762,21 +762,31 @@ function RichText({ text }) {
   );
 }
 
-/* ───────────── Логотип ─────────────
-   Жапырақ (өсімдік) + сары қосу белгісі (дәрігер) + бұрыш белгілері (суретті сканерлеу / гербарий парағы) */
+/* ───────────── Логотип: төрт жапырақты беде (клевер) ───────────── */
+const CLOVER_LEAF = "M0 0C-10.5-3.5-16.5-11.5-14.6-19.2C-13-24.6-5.4-25.6 0-19.8C5.4-25.6 13-24.6 14.6-19.2C16.5-11.5 10.5-3.5 0 0Z";
 function Logo({ size = 36 }) {
   return (
     <svg className="logo" width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
-      <rect width="64" height="64" rx="18" fill="#15803d" />
-      <g fill="none" stroke="#f9fbf6" strokeWidth="3" strokeLinecap="round" strokeOpacity="0.55">
-        <path d="M11 20v-5a4 4 0 0 1 4-4h5" />
-        <path d="M44 11h5a4 4 0 0 1 4 4v5" />
-        <path d="M53 44v5a4 4 0 0 1-4 4h-5" />
-        <path d="M20 53h-5a4 4 0 0 1-4-4v-5" />
+      <defs>
+        <linearGradient id="tamyr-cl" x1="0.5" y1="1" x2="0.5" y2="0">
+          <stop offset="0" stopColor="#11602f" />
+          <stop offset="0.5" stopColor="#26994f" />
+          <stop offset="1" stopColor="#8ee063" />
+        </linearGradient>
+      </defs>
+      <path d="M32 30C33.5 41 37.5 51 43.5 59.5" fill="none" stroke="#14532d" strokeWidth="3" strokeLinecap="round" />
+      <g transform="translate(32 28.5) scale(0.98)">
+        <g className="logo-leaves">
+        {[45, 135, 225, 315].map((a) => (
+          <g key={a} transform={`rotate(${a}) translate(0 -1.6) scale(0.8 1)`}>
+            <path d={CLOVER_LEAF} fill="url(#tamyr-cl)" stroke="#0e4f2b" strokeWidth="0.9" strokeLinejoin="round" />
+            <path d="M-11.2-17.8C-10.2-21.6-6-22.6-3.2-20.2" fill="none" stroke="#ffffff" strokeOpacity="0.4" strokeWidth="1.7" strokeLinecap="round" />
+            <path d="M-7.2-11.6Q0-6.8 7.2-11.6" fill="none" stroke="#f3ffe9" strokeOpacity="0.6" strokeWidth="2.1" strokeLinecap="round" />
+          </g>
+        ))}
+        <circle r="2" fill="#0e4f2b" />
+        </g>
       </g>
-      <path d="M18 46c0-16.5 10.5-27 29-28 0 18.5-10.5 28-28 28z" fill="#f9fbf6" />
-      <path d="M18.5 45.5 14 50" stroke="#f9fbf6" strokeWidth="3.2" strokeLinecap="round" />
-      <path className="logo-plus" d="M33.5 25.5v11M28 31h11" stroke="#f59e0b" strokeWidth="4.6" strokeLinecap="round" />
     </svg>
   );
 }
@@ -1135,7 +1145,7 @@ export default function Home() {
       <Backdrop />
       <header className="topbar">
         <button className="brand" onClick={() => setTab("diagnose")}>
-          <Logo size={36} />
+          <Logo size={44} />
           <span className="brand-name">{t.brand}</span>
         </button>
         <div className="top-actions">
