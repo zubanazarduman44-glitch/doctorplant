@@ -875,9 +875,34 @@ export default function Home() {
 
 /* ───────────── Фон: гербарий торы ───────────── */
 function Backdrop() {
+  const leaf = "M12 2C6 6 4 12 6 20c1-4 3-7 6-9-2 3-3 6-3 10 7-3 10-9 9-15-1-2-3-3-6-4Z";
   return (
     <div className="backdrop" aria-hidden="true">
       <span className="sun" />
+
+      {/* Сол жақ: жабайы дала қызғалдағы — сызылып, гүлдейді, тербеледі */}
+      <svg className="tulip" viewBox="0 0 160 560">
+        <defs>
+          <linearGradient id="petal" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stopColor="var(--tulip-1)" />
+            <stop offset="1" stopColor="var(--tulip-2)" />
+          </linearGradient>
+        </defs>
+        <g className="tulip-sway">
+          <path className="draw d1" pathLength="1" d="M80 560 C 82 470 74 380 82 250 C 86 190 80 160 82 140" />
+          <path className="draw d2 leafline" pathLength="1" d="M80 520 C 34 470 18 380 30 300 C 48 380 66 450 80 500" />
+          <path className="draw d3 leafline" pathLength="1" d="M82 470 C 126 430 146 350 136 280 C 118 350 98 410 82 440" />
+          <path className="draw d4" pathLength="1" d="M60 560 C 58 530 52 510 44 495" />
+          <path className="draw d4" pathLength="1" d="M100 560 C 104 532 112 515 122 505" />
+          <g className="bloom">
+            <path className="petal" d="M82 140 C 58 132 50 100 56 66 C 66 84 76 100 82 110 Z" />
+            <path className="petal" d="M82 140 C 106 132 114 100 108 66 C 98 84 88 100 82 110 Z" />
+            <path className="petal mid" d="M82 128 C 68 110 68 78 82 52 C 96 78 96 110 82 128 Z" />
+          </g>
+        </g>
+      </svg>
+
+      {/* Оң жақ: тербелетін папоротник */}
       <svg className="frond" viewBox="0 0 400 600">
         <path d="M200 590 C 196 420 204 220 200 10" />
         {Array.from({ length: 11 }).map((_, i) => {
@@ -891,6 +916,13 @@ function Backdrop() {
           );
         })}
       </svg>
+
+      {/* Баяу ұшып бара жатқан жапырақтар */}
+      {[1, 2, 3].map((i) => (
+        <svg key={i} className={`drift dr${i}`} viewBox="0 0 24 24">
+          <path d={leaf} />
+        </svg>
+      ))}
     </div>
   );
 }
