@@ -48,6 +48,16 @@ const T = {
     notifyHint: "Сайтты ашқанда суару керек өсімдіктер туралы хабарлайды.",
     notifyTitle: "Өсімдіктерді суару уақыты",
     remindersTitle: "Еске салу",
+    weekTitle: "Апта жоспары",
+    weekRest: "суару жоқ",
+    statPlants: "Өсімдік",
+    statWeek: "Осы аптада суарылды",
+    statStreak: "Серия",
+    statBest: "Рекорд",
+    nDays: (n) => `${n} күн`,
+    nTimes: (n) => `${n} рет`,
+    streakHint: "Қатарынан неше күн бірде-бір өсімдік кешікпеді",
+    locale: "kk-KZ",
     heroTitle: "Өсімдігіңізге не болды?",
     heroText: "Жапырақты жақыннан түсіріңіз — түрін, ауруын және не істеу керегін айтамыз.",
     sheetSpecies: "Түрі",
@@ -168,6 +178,16 @@ const T = {
     notifyHint: "Когда вы открываете сайт, он напомнит, какие растения пора полить.",
     notifyTitle: "Пора полить растения",
     remindersTitle: "Напоминания",
+    weekTitle: "План на неделю",
+    weekRest: "без полива",
+    statPlants: "Растений",
+    statWeek: "Полито за неделю",
+    statStreak: "Серия",
+    statBest: "Рекорд",
+    nDays: (n) => `${n} дн.`,
+    nTimes: (n) => `${n} раз`,
+    streakHint: "Сколько дней подряд ни одно растение не просрочено",
+    locale: "ru-RU",
     heroTitle: "Что с вашим растением?",
     heroText: "Снимите лист крупным планом — определим вид, болезнь и подскажем, что делать.",
     sheetSpecies: "Вид",
@@ -266,6 +286,62 @@ function daysLeft(lastISO, every) {
   const last = dayStart(new Date(lastISO || Date.now()));
   return Math.round((last + every * DAY - dayStart()) / DAY);
 }
+const BEST_KEY = "osimdik_best_streak";
+
+// Суару журналы (ескі өсімдіктерде журнал жоқ — соңғы суаруды аламыз)
+function plantLog(p) {
+  return p.log?.length ? p.log : [p.lastWatered];
+}
+function addToLog(p, iso) {
+  const log = plantLog(p);
+  const d = dayStart(new Date(iso));
+  if (log.some((x) => dayStart(new Date(x)) === d)) return log;
+  return [...log, iso].sort().slice(-120);
+}
+function startOf(p) {
+  return dayStart(new Date(p.createdAt || p.lastWatered || Date.now()));
+}
+// D күнінің соңында өсімдік кешігіп тұр ма?
+function lateOn(p, D) {
+  if (D < startOf(p)) return false;
+  let last = null;
+  for (const iso of plantLog(p)) {
+    const x = dayStart(new Date(iso));
+    if (x <= D && (last === null || x > last)) last = x;
+  }
+  if (last === null) last = startOf(p);
+  return (D - last) / DAY > p.waterEvery;
+}
+// Серия: бүгіннен артқа қарай қатарынан неше күн ешбір өсімдік кешікпеді
+function calcStreak(plants) {
+  if (!plants.length) return 0;
+  const earliest = Math.min(...plants.map(startOf));
+  let n = 0;
+  for (let k = 0; k < 366; k++) {
+    const D = dayStart() - k * DAY;
+    if (D < earliest) break;
+    if (plants.some((p) => lateOn(p, D))) break;
+    n++;
+  }
+  return n;
+}
+function wateredThisWeek(plants) {
+  const from = dayStart() - 6 * DAY;
+  return plants.reduce((sum, p) => sum + plantLog(p).filter((x) => dayStart(new Date(x)) >= from).length, 0);
+}
+// Алдағы 7 күн: әр күні қай өсімдіктерді суару керек
+function weekPlan(plants) {
+  const days = Array.from({ length: 7 }, (_, i) => ({ date: new Date(dayStart() + i * DAY), items: [] }));
+  for (const p of plants) {
+    const left = daysLeft(p.lastWatered, p.waterEvery);
+    if (left === null) continue;
+    for (let d = Math.max(0, left); d < 7; d += p.waterEvery) {
+      days[d].items.push({ plant: p, late: left < 0 && d === 0 });
+    }
+  }
+  return days;
+}
+
 function todayISO() {
   return new Date().toISOString();
 }
@@ -415,6 +491,8 @@ const ICONS = {
   edit: <path d="M5 19h4L19 9l-4-4L5 15v4ZM13 7l4 4" />,
   trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />,
   check: <path d="M5 12.5 10 17l9-10" />,
+  flame: <path d="M12 21c3.6 0 6-2.5 6-6 0-4.5-4-6.5-4.5-11-2.5 2-4 4.5-4 7-1 0-2-1-2.5-2.5C5.5 10 6 12 6 15c0 3.5 2.4 6 6 6Z" />,
+  trophy: <path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6M10 17h4" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
 };
 
@@ -508,6 +586,7 @@ export default function Home() {
       waterEvery: Math.min(60, Math.max(1, r.watering_interval_days || 7)),
       fertEvery: Math.min(180, Math.max(0, r.fertilize_interval_days || 0)),
       lastWatered: todayISO(),
+      log: [todayISO()],
       lastFert: todayISO(),
       note: r.care?.watering || "",
       diagKey: entry.key,
@@ -1186,6 +1265,15 @@ function MyPlants({ t, plants, onSave }) {
     (a, b) => (daysLeft(a.lastWatered, a.waterEvery) ?? 99) - (daysLeft(b.lastWatered, b.waterEvery) ?? 99)
   );
   const due = sorted.filter((p) => (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0).length;
+  const streak = calcStreak(plants);
+  const [best, setBest] = useState(0);
+  useEffect(() => {
+    const prev = parseInt(store(BEST_KEY) || "0", 10) || 0;
+    const b = Math.max(prev, streak);
+    if (b !== prev) store(BEST_KEY, String(b));
+    setBest(b);
+  }, [streak]);
+  const week = weekPlan(plants);
 
   return (
     <div className="page">
@@ -1219,6 +1307,53 @@ function MyPlants({ t, plants, onSave }) {
         </div>
       ) : (
         <>
+          <section className="stats">
+            <div className="stat">
+              <Icon name="plants" size={20} />
+              <strong>{plants.length}</strong>
+              <span>{t.statPlants}</span>
+            </div>
+            <div className="stat">
+              <Icon name="drop" size={20} />
+              <strong>{t.nTimes(wateredThisWeek(plants))}</strong>
+              <span>{t.statWeek}</span>
+            </div>
+            <div className={`stat streak ${streak > 0 ? "on" : ""}`} title={t.streakHint}>
+              <Icon name="flame" size={20} />
+              <strong>{t.nDays(streak)}</strong>
+              <span>{t.statStreak}</span>
+            </div>
+            <div className="stat" title={t.streakHint}>
+              <Icon name="trophy" size={20} />
+              <strong>{t.nDays(best)}</strong>
+              <span>{t.statBest}</span>
+            </div>
+          </section>
+          <p className="streak-hint">{t.streakHint}</p>
+
+          <section className="week">
+            <h3>{t.weekTitle}</h3>
+            <ol className="days">
+              {week.map((d, i) => (
+                <li key={i} className={`day ${i === 0 ? "today-day" : ""} ${d.items.length ? "busy" : ""}`}>
+                  <span className="dow">{d.date.toLocaleDateString(t.locale, { weekday: "short" })}</span>
+                  <span className="dnum">{d.date.getDate()}</span>
+                  <span className="dots">
+                    {d.items.slice(0, 3).map(({ plant, late }) => (
+                      <span key={plant.id} className={`dot ${late ? "late" : ""}`} title={plant.name}>
+                        {plant.thumb ? <img src={plant.thumb} alt={plant.name} /> : plant.name.slice(0, 1)}
+                      </span>
+                    ))}
+                    {d.items.length > 3 && <span className="dot more">+{d.items.length - 3}</span>}
+                  </span>
+                  <span className="dnames">
+                    {d.items.length ? d.items.map((x) => x.plant.name).join(", ") : t.weekRest}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+
           <section className={`today ${due ? "has-due" : ""}`}>
             <Icon name={due ? "drop" : "check"} size={26} />
             <p>{due ? t.summaryDue(due) : t.summaryOk}</p>
@@ -1230,7 +1365,10 @@ function MyPlants({ t, plants, onSave }) {
                 key={p.id}
                 t={t}
                 plant={p}
-                onWater={() => update(p.id, { lastWatered: todayISO() })}
+                onWater={() => {
+                  const now = todayISO();
+                  update(p.id, { lastWatered: now, log: addToLog(p, now) });
+                }}
                 onFert={() => update(p.id, { lastFert: todayISO() })}
                 onEdit={() => setEditing(p)}
                 onDelete={() => onSave(plants.filter((x) => x.id !== p.id))}
@@ -1374,6 +1512,7 @@ function PlantForm({ t, plant, onCancel, onSubmit }) {
       waterEvery: Math.min(60, Math.max(1, parseInt(f.waterEvery, 10) || 7)),
       fertEvery: Math.min(180, Math.max(0, parseInt(f.fertEvery, 10) || 0)),
       lastWatered: lastISO,
+      log: plant ? addToLog(plant, lastISO) : [lastISO],
       note: f.note.trim(),
     });
   }
