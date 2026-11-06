@@ -7,7 +7,7 @@ import { CITIES, PLANTS, ACTIVES, REGISTRY_URL } from "./data";
 const T = {
   kk: {
     brand: "Өсімдік дәрігері",
-    nav: { diagnose: "Диагноз", plants: "Өсімдіктер", chat: "Кеңесші", history: "Тарих", about: "Анықтамалық" },
+    nav: { diagnose: "Диагноз", plants: "Өсімдіктер", map: "Карта", chat: "Кеңесші", history: "Тарих", about: "Анықтамалық" },
     navHint: {
       diagnose: "Суреттен анықтау",
       chat: "Ботаника және экология",
@@ -75,6 +75,33 @@ const T = {
       "Зиянкес шабуыл жасағанда көптеген өсімдіктер ұшпа заттар бөліп, көршілерін «ескертеді».",
       "Әлемдегі ең көне ағаштардың бірі — қылқанды қарағай (bristlecone pine), жасы 4 800 жылдан асады.",
     ],
+    mapTitle: "Өсімдіктер картасы",
+    mapSub: "Қалаңызда қай жерде қандай өсімдіктер өсетінін және қандай аурулар таралып жатқанын көріңіз.",
+    mapFilters: { all: "Барлығы", sick: "Ауру", healthy: "Сау", protected: "Қызыл кітап" },
+    mapSearch: "Өсімдік атауы бойынша сүзу",
+    mapCount: (n) => `Аймақта ${n} белгі`,
+    mapTopDisease: (x) => `Жиі кездесетін мәселе: ${x}`,
+    mapEmpty: "Бұл аймақта әзірге белгі жоқ. Өсімдігіңізді бірінші болып белгілеңіз!",
+    mapAdd: "Өсімдік белгілеу",
+    mapPrivacy: "Орын шамамен 500 м дәлдікпен, Қызыл кітаптағы түрлер — 5 км дәлдікпен сақталады. Суреттер жарияланбайды.",
+    mapProtected: "Қызыл кітап (орны жасырылған)",
+    mapLoading: "Карта жүктелуде…",
+    mapError: "Картаны жүктеу мүмкін болмады",
+    mapNotConfigured: "Карта базасы әлі бапталмаған",
+    showOnMap: "Картада көрсету",
+    shownOnMap: "Картаға қосылды",
+    showOnMapHint: "Қаладағы басқа адамдар бұл өсімдікті және оның жағдайын көре алады. Орын шамамен көрсетіледі.",
+    geoDenied: "Орынды анықтау мүмкін болмады. Браузерге геолокацияға рұқсат беріңіз.",
+    mapPickTitle: "Қай өсімдікті белгілейміз?",
+    mapPickFromHistory: "Тарихтан таңдау",
+    mapPickNone: "— таңдамау —",
+    mapPickName: "Немесе атауын жазыңыз",
+    mapPickStatus: "Жағдайы",
+    mapSave: "Белгілеу",
+    mapHere: "Белгі сіздің қазіргі орныңызға шамамен қойылады.",
+    recentTitle: "Соңғы талдаулар",
+    showAll: "Барлығын көру",
+    showLess: "Жасыру",
     addPhoto: "Тағы сурет",
     photosHint: "3 суретке дейін: жалпы көрінісі, жапырақтың үсті мен асты",
     progressTitle: "Емдеу барысы",
@@ -228,7 +255,7 @@ const T = {
   },
   ru: {
     brand: "Доктор растений",
-    nav: { diagnose: "Диагноз", plants: "Растения", chat: "Консультант", history: "История", about: "Справочник" },
+    nav: { diagnose: "Диагноз", plants: "Растения", map: "Карта", chat: "Консультант", history: "История", about: "Справочник" },
     navHint: {
       diagnose: "Анализ по фото",
       chat: "Ботаника и экология",
@@ -296,6 +323,33 @@ const T = {
       "Когда растение атакуют вредители, многие виды выделяют летучие вещества и «предупреждают» соседей.",
       "Одни из старейших деревьев на Земле — остистые сосны (bristlecone pine), их возраст превышает 4 800 лет.",
     ],
+    mapTitle: "Карта растений",
+    mapSub: "Смотрите, где в вашем городе растут какие растения и где распространяются болезни.",
+    mapFilters: { all: "Все", sick: "Больные", healthy: "Здоровые", protected: "Красная книга" },
+    mapSearch: "Фильтр по названию растения",
+    mapCount: (n) => `Отметок в районе: ${n}`,
+    mapTopDisease: (x) => `Чаще всего: ${x}`,
+    mapEmpty: "Здесь пока нет отметок. Отметьте своё растение первым!",
+    mapAdd: "Отметить растение",
+    mapPrivacy: "Место хранится с точностью ~500 м, для видов из Красной книги — ~5 км. Фото не публикуются.",
+    mapProtected: "Красная книга (место скрыто)",
+    mapLoading: "Загружаем карту…",
+    mapError: "Не удалось загрузить карту",
+    mapNotConfigured: "База карты ещё не настроена",
+    showOnMap: "Показать на карте",
+    shownOnMap: "Добавлено на карту",
+    showOnMapHint: "Другие жители города увидят это растение и его состояние. Место показывается приблизительно.",
+    geoDenied: "Не удалось определить местоположение. Разрешите браузеру доступ к геолокации.",
+    mapPickTitle: "Какое растение отметить?",
+    mapPickFromHistory: "Выбрать из истории",
+    mapPickNone: "— не выбрано —",
+    mapPickName: "Или введите название",
+    mapPickStatus: "Состояние",
+    mapSave: "Отметить",
+    mapHere: "Отметка ставится примерно в ваше текущее место.",
+    recentTitle: "Последние анализы",
+    showAll: "Показать все",
+    showLess: "Свернуть",
     addPhoto: "Ещё фото",
     photosHint: "До 3 фото: общий вид, лист сверху и снизу",
     progressTitle: "Ход лечения",
@@ -747,6 +801,8 @@ const ICONS = {
   pill: <path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7ZM7 10l7 7" />,
   back: <path d="M15 6l-6 6 6 6" />,
   trend: <path d="M4 16l5-5 4 4 7-7M15 8h5v5" />,
+  map: <path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7 9 4Zm0 0v13m6-10v13" />,
+  locate: <path d="M12 2v3M12 19v3M2 12h3M19 12h3M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />,
   refresh: <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />,
   image: <path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11ZM4 15l4.5-4.5L13 15m-1.5-1.5L14 11l6 6M15.5 9h.01" />,
   bulb: <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" />,
@@ -773,7 +829,7 @@ function Icon({ name, size = 20 }) {
   );
 }
 
-const TABS = ["diagnose", "plants", "chat", "history", "about"];
+const TABS = ["diagnose", "plants", "map", "chat", "about"];
 
 /* ───────────── Басты бет ───────────── */
 export default function Home() {
@@ -925,6 +981,43 @@ export default function Home() {
       ...plants,
     ]);
   }
+  // Талдауды картаға белгілеу (браузер геолокациясы арқылы)
+  function getPosition() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject(new Error(t.geoDenied));
+      navigator.geolocation.getCurrentPosition(
+        (p) => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
+        () => reject(new Error(t.geoDenied)),
+        { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 }
+      );
+    });
+  }
+  async function addToMap({ plant_name, latin_name, health_status, diagnosis, red_book }) {
+    const pos = await getPosition();
+    await postJSON("/api/observations", {
+      ...pos,
+      plant_name,
+      latin_name,
+      health_status,
+      diagnosis,
+      red_book,
+      clientId,
+      lang,
+    });
+    return pos;
+  }
+  async function mapEntry(entry) {
+    const r = entry.result || {};
+    await addToMap({
+      plant_name: r.plant_name || r.latin_name || "—",
+      latin_name: r.latin_name || "",
+      health_status: r.health_status,
+      diagnosis: r.diagnosis,
+      red_book: Boolean(r.red_book_kz),
+    });
+    patchEntry(entry.key, { mapped: true });
+  }
+
   function askQuestion(q) {
     setChatKey(null);
     setPendingQ(q);
@@ -1027,6 +1120,10 @@ export default function Home() {
             onPatch={patchEntry}
             onAsk={askAbout}
             onSavePlant={addPlantFromEntry}
+            onMap={mapEntry}
+            history={history}
+            onOpenEntry={openEntry}
+            onClearHistory={() => saveHistory([])}
             onOpenPlants={() => setTab("plants")}
           />
         )}
@@ -1050,15 +1147,7 @@ export default function Home() {
             }}
           />
         )}
-        {tab === "history" && (
-          <HistoryPage
-            t={t}
-            history={history}
-            onOpen={openEntry}
-            onClear={() => saveHistory([])}
-            onStart={() => setTab("diagnose")}
-          />
-        )}
+        {tab === "map" && <PlantMap t={t} lang={lang} history={history} onAdd={addToMap} />}
         {tab === "about" && (
           <Reference t={t} lang={lang} plants={plants} onAddPlant={addPlantSimple} onAsk={askQuestion} />
         )}
@@ -1210,7 +1299,7 @@ function FileInputs({ fileRef, camRef, onPick }) {
   );
 }
 
-function Diagnose({ t, image, images = [], onRemove, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants }) {
+function Diagnose({ t, image, images = [], onRemove, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants, onMap, history = [], onOpenEntry, onClearHistory }) {
   const fileRef = useRef(null);
   const camRef = useRef(null);
   const [drag, setDrag] = useState(false);
@@ -1377,6 +1466,10 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
         </section>
       )}
 
+      {!current && !image && history.length > 0 && (
+        <RecentHistory t={t} history={history} onOpen={onOpenEntry} onClear={onClearHistory} />
+      )}
+
       {current && (
         <>
           {!image && (
@@ -1389,14 +1482,14 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
               </button>
             </div>
           )}
-          <Result t={t} entry={current} onAsk={onAsk} onPatch={onPatch} onSavePlant={onSavePlant} onOpenPlants={onOpenPlants} />
+          <Result t={t} entry={current} onAsk={onAsk} onPatch={onPatch} onSavePlant={onSavePlant} onOpenPlants={onOpenPlants} onMap={onMap} />
         </>
       )}
     </div>
   );
 }
 
-function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants }) {
+function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) {
   const r = entry.result;
   if (r.is_plant === false) {
     return (
@@ -1532,6 +1625,8 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants }) {
       {(status === "sick" || status === "needs_attention" || entry.followups?.length > 0) && (
         <Progress t={t} entry={entry} onPatch={onPatch} style={n()} />
       )}
+
+      <MapButton t={t} entry={entry} onMap={onMap} style={n()} />
 
       {entry.plantId ? (
         <button className="tile save done" style={n()} onClick={onOpenPlants}>
@@ -2530,6 +2625,398 @@ function Meds({ t, lang }) {
   );
 }
 
+/* ───────────── Өсімдіктер картасы ───────────── */
+function loadLeaflet() {
+  if (typeof window === "undefined") return Promise.reject();
+  if (window.L) return Promise.resolve(window.L);
+  if (window.__leafletP) return window.__leafletP;
+  window.__leafletP = new Promise((resolve, reject) => {
+    const css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(css);
+    const sc = document.createElement("script");
+    sc.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    sc.onload = () => resolve(window.L);
+    sc.onerror = () => {
+      window.__leafletP = null;
+      reject(new Error("leaflet"));
+    };
+    document.head.appendChild(sc);
+  });
+  return window.__leafletP;
+}
+const MARK_COLORS = { healthy: "#15803d", needs_attention: "#d97706", sick: "#c62828", unknown: "#6b7c72" };
+// Бір нүктедегі белгілер бір-бірін жаппауы үшін кішкене ығысу (тек көрсету үшін)
+function jitter(id, k) {
+  let h = 0;
+  for (const ch of String(id) + k) h = (h * 31 + ch.charCodeAt(0)) | 0;
+  return ((h % 1000) / 1000 - 0.5) * 0.003;
+}
+
+function MapButton({ t, entry, onMap, style }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  if (entry.result?.is_plant === false) return null;
+  return (
+    <section className={`tile wide mapbtn ${entry.mapped ? "done" : ""}`} style={style}>
+      <span className="care-icon">
+        <Icon name={entry.mapped ? "check" : "map"} size={20} />
+      </span>
+      <div className="mapbtn-text">
+        <h3>{entry.mapped ? t.shownOnMap : t.showOnMap}</h3>
+        <p className="muted small">{err || t.showOnMapHint}</p>
+      </div>
+      {!entry.mapped && (
+        <button
+          className="btn ghost small"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            setErr("");
+            try {
+              await onMap(entry);
+            } catch (e) {
+              setErr(e.message);
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <Icon name="locate" size={16} /> {busy ? "…" : t.showOnMap}
+        </button>
+      )}
+    </section>
+  );
+}
+
+function PlantMap({ t, lang, history, onAdd }) {
+  const boxRef = useRef(null);
+  const mapRef = useRef(null);
+  const layerRef = useRef(null);
+  const [city, setCity] = useState("almaty");
+  const [center, setCenter] = useState(null);
+  const [items, setItems] = useState([]);
+  const [state, setState] = useState("loading");
+  const [filter, setFilter] = useState("all");
+  const [q, setQ] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [reload, setReload] = useState(0);
+
+  useEffect(() => {
+    const saved = store(CITY_KEY);
+    const c = CITIES.find((x) => x.id === saved) || CITIES[0];
+    setCity(c.id);
+    setCenter({ lat: c.lat, lon: c.lon });
+  }, []);
+
+  // Картаны бір рет құрамыз
+  useEffect(() => {
+    if (!center || mapRef.current) return;
+    let cancelled = false;
+    loadLeaflet()
+      .then((L) => {
+        if (cancelled || !boxRef.current) return;
+        const map = L.map(boxRef.current, { zoomControl: true, attributionControl: true }).setView([center.lat, center.lon], 12);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 18,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+        layerRef.current = L.layerGroup().addTo(map);
+        mapRef.current = map;
+        setReload((x) => x + 1);
+      })
+      .catch(() => setState("error"));
+    return () => {
+      cancelled = true;
+    };
+  }, [center]);
+
+  useEffect(
+    () => () => {
+      mapRef.current?.remove();
+      mapRef.current = null;
+    },
+    []
+  );
+
+  // Белгілерді жүктеу
+  useEffect(() => {
+    if (!center) return;
+    let cancelled = false;
+    setState((s) => (s === "error" ? s : "loading"));
+    mapRef.current?.setView([center.lat, center.lon], mapRef.current.getZoom() < 11 ? 12 : mapRef.current.getZoom());
+    fetch(`/api/observations?lat=${center.lat}&lon=${center.lon}&r=0.35`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        setItems(d.items || []);
+        setState(d.configured === false ? "notcfg" : "ok");
+      })
+      .catch(() => !cancelled && setState("ok"));
+    return () => {
+      cancelled = true;
+    };
+  }, [center, reload]);
+
+  const needle = q.trim().toLowerCase();
+  const shown = items.filter(
+    (it) =>
+      (filter === "all" ||
+        (filter === "sick" && (it.health_status === "sick" || it.health_status === "needs_attention")) ||
+        (filter === "healthy" && it.health_status === "healthy") ||
+        (filter === "protected" && it.protected)) &&
+      (!needle || `${it.plant_name} ${it.latin_name || ""}`.toLowerCase().includes(needle))
+  );
+
+  // Белгілерді салу (мәтін DOM арқылы — HTML енгізілмейді)
+  useEffect(() => {
+    const L = typeof window !== "undefined" ? window.L : null;
+    if (!L || !layerRef.current) return;
+    layerRef.current.clearLayers();
+    for (const it of shown) {
+      const color = MARK_COLORS[it.health_status] || MARK_COLORS.unknown;
+      const m = L.circleMarker([+it.lat + jitter(it.id, "a"), +it.lon + jitter(it.id, "b")], {
+        radius: it.protected ? 16 : 8,
+        color: it.protected ? "#b45309" : "#ffffff",
+        weight: it.protected ? 2 : 2,
+        dashArray: it.protected ? "4 4" : null,
+        fillColor: color,
+        fillOpacity: it.protected ? 0.35 : 0.85,
+      });
+      const box = document.createElement("div");
+      box.className = "pop";
+      const b = document.createElement("strong");
+      b.textContent = it.plant_name;
+      box.appendChild(b);
+      if (it.latin_name) {
+        const i = document.createElement("em");
+        i.textContent = it.latin_name;
+        box.appendChild(i);
+      }
+      const st = document.createElement("span");
+      st.className = "pop-st";
+      st.style.color = color;
+      st.textContent = (t.statuses[it.health_status] || "") + (it.protected ? ` · ${t.mapProtected}` : "");
+      box.appendChild(st);
+      if (it.diagnosis && it.health_status !== "healthy") {
+        const d = document.createElement("span");
+        d.textContent = it.diagnosis;
+        box.appendChild(d);
+      }
+      const dt = document.createElement("time");
+      dt.textContent = new Date(it.created_at).toLocaleDateString();
+      box.appendChild(dt);
+      m.bindPopup(box);
+      m.addTo(layerRef.current);
+    }
+  }, [shown.length, filter, needle, items, reload]);
+
+  function choose(v) {
+    if (v === "geo") {
+      navigator.geolocation?.getCurrentPosition(
+        (p) => {
+          setCity("geo");
+          setCenter({ lat: +p.coords.latitude.toFixed(4), lon: +p.coords.longitude.toFixed(4) });
+        },
+        () => {}
+      );
+      return;
+    }
+    const c = CITIES.find((x) => x.id === v);
+    if (!c) return;
+    setCity(v);
+    store(CITY_KEY, v);
+    setCenter({ lat: c.lat, lon: c.lon });
+  }
+
+  // Статистика: ең жиі кездесетін мәселе
+  const counts = {};
+  for (const it of items) {
+    if ((it.health_status === "sick" || it.health_status === "needs_attention") && it.diagnosis) {
+      const k = it.diagnosis.toLowerCase();
+      counts[k] = (counts[k] || 0) + 1;
+    }
+  }
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+
+  return (
+    <div className="page">
+      <header className="page-head">
+        <div>
+          <h1>{t.mapTitle}</h1>
+          <p className="muted page-sub">{t.mapSub}</p>
+        </div>
+        <button className="btn primary" onClick={() => setAdding(true)}>
+          <Icon name="plus" size={18} /> {t.mapAdd}
+        </button>
+      </header>
+
+      {adding && (
+        <MapAddForm
+          t={t}
+          history={history}
+          onCancel={() => setAdding(false)}
+          onSubmit={async (row) => {
+            const pos = await onAdd(row);
+            setAdding(false);
+            setCity("geo");
+            setCenter({ lat: +pos.lat.toFixed(4), lon: +pos.lon.toFixed(4) });
+            setReload((x) => x + 1);
+          }}
+        />
+      )}
+
+      <div className="map-tools">
+        <label className="ctx">
+          <span className="sr-only">{t.mapTitle}</span>
+          <select value={city} onChange={(e) => choose(e.target.value)}>
+            {city === "geo" && <option value="geo">{t.myLocation}</option>}
+            {CITIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c[lang] || c.ru}
+              </option>
+            ))}
+            {city !== "geo" && <option value="geo">{t.myLocation}</option>}
+          </select>
+        </label>
+        <div className="search grow">
+          <Icon name="search" size={18} />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.mapSearch} aria-label={t.mapSearch} />
+        </div>
+      </div>
+      <div className="chips">
+        {Object.entries(t.mapFilters).map(([k, label]) => (
+          <button key={k} className={`chip ${filter === k ? "on" : ""}`} onClick={() => setFilter(k)}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <section className="map-wrap">
+        <div ref={boxRef} className="map-box" />
+        {state === "loading" && <div className="map-overlay">{t.mapLoading}</div>}
+        {state === "error" && <div className="map-overlay">{t.mapError}</div>}
+        {state === "notcfg" && <div className="map-overlay">{t.mapNotConfigured}</div>}
+        {state === "ok" && items.length === 0 && <div className="map-overlay soft">{t.mapEmpty}</div>}
+      </section>
+
+      <section className="map-info">
+        <div className="legend">
+          {["healthy", "needs_attention", "sick"].map((k) => (
+            <span key={k}>
+              <i style={{ background: MARK_COLORS[k] }} /> {t.statuses[k]}
+            </span>
+          ))}
+          <span>
+            <i className="lg-protected" /> {t.mapProtected}
+          </span>
+        </div>
+        <p className="map-stats">
+          <strong>{t.mapCount(shown.length)}</strong>
+          {top && <span> · {t.mapTopDisease(top[0])}</span>}
+        </p>
+        <p className="muted small">
+          <Icon name="shield" size={14} /> {t.mapPrivacy}
+        </p>
+      </section>
+    </div>
+  );
+}
+
+function MapAddForm({ t, history, onCancel, onSubmit }) {
+  const [pick, setPick] = useState("");
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState("healthy");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  function onPick(key) {
+    setPick(key);
+    const h = history.find((x) => x.key === key);
+    if (h) {
+      setName(h.result?.plant_name || "");
+      setStatus(h.result?.health_status || "unknown");
+    }
+  }
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const h = history.find((x) => x.key === pick);
+    setBusy(true);
+    setErr("");
+    try {
+      await onSubmit({
+        plant_name: name.trim(),
+        latin_name: h?.result?.latin_name || "",
+        health_status: status,
+        diagnosis: h?.result?.diagnosis || "",
+        red_book: Boolean(h?.result?.red_book_kz),
+      });
+    } catch (e2) {
+      setErr(e2.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="modal" role="dialog" aria-modal="true" aria-label={t.mapPickTitle} onClick={onCancel}>
+      <form className="sheet-form" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
+        <header className="form-head">
+          <h2>{t.mapPickTitle}</h2>
+          <button type="button" className="icon-btn" onClick={onCancel} aria-label={t.cancel}>
+            <Icon name="x" size={18} />
+          </button>
+        </header>
+        {history.length > 0 && (
+          <label className="field">
+            <span>{t.mapPickFromHistory}</span>
+            <select value={pick} onChange={(e) => onPick(e.target.value)}>
+              <option value="">{t.mapPickNone}</option>
+              {history.map((h) => (
+                <option key={h.key} value={h.key}>
+                  {h.result?.plant_name || "—"} · {new Date(h.date).toLocaleDateString()}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <label className="field">
+          <span>{t.mapPickName}</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required />
+        </label>
+        <label className="field">
+          <span>{t.mapPickStatus}</span>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            {["healthy", "needs_attention", "sick", "unknown"].map((k) => (
+              <option key={k} value={k}>
+                {t.statuses[k]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="muted small">
+          <Icon name="locate" size={14} /> {t.mapHere} {t.mapPrivacy}
+        </p>
+        {err && (
+          <p className="alert small">
+            <Icon name="alert" size={16} /> {err}
+          </p>
+        )}
+        <div className="form-actions">
+          <button type="button" className="btn ghost" onClick={onCancel}>
+            {t.cancel}
+          </button>
+          <button type="submit" className="btn primary" disabled={busy}>
+            <Icon name="map" size={16} /> {busy ? "…" : t.mapSave}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 /* ───────────── Кеңесші (чат) ───────────── */
 function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, initialQuestion, onConsumed }) {
   const [text, setText] = useState("");
@@ -2808,50 +3295,49 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
 }
 
 /* ───────────── Тарих ───────────── */
-function HistoryPage({ t, history, onOpen, onClear, onStart }) {
+function RecentHistory({ t, history, onOpen, onClear }) {
+  const [all, setAll] = useState(false);
+  const list = all ? history : history.slice(0, 4);
   return (
-    <div className="page">
-      <header className="page-head">
-        <h1>{t.historyTitle}</h1>
-        {history.length > 0 && (
-          <button className="btn ghost small" onClick={onClear}>
-            {t.clear}
-          </button>
-        )}
-      </header>
-
-      {history.length === 0 ? (
-        <div className="empty">
-          <p>{t.historyEmpty}</p>
-          <button className="btn primary" onClick={onStart}>
-            {t.historyStart}
-          </button>
+    <section className="recent">
+      <header className="recent-head">
+        <h2>{t.recentTitle}</h2>
+        <div className="recent-tools">
+          {all && (
+            <button className="btn ghost small" onClick={onClear}>
+              {t.clear}
+            </button>
+          )}
+          {history.length > 4 && (
+            <button className="btn ghost small" onClick={() => setAll(!all)}>
+              {all ? t.showLess : `${t.showAll} (${history.length})`}
+            </button>
+          )}
         </div>
-      ) : (
-        <ul className="hist">
-          {history.map((h) => {
-            const status = h.result?.health_status || "unknown";
-            return (
-              <li key={h.key}>
-                <button className="hist-item" onClick={() => onOpen(h)}>
-                  <span className={`hist-thumb s-${status}`}>
-                    {h.thumb ? <img src={h.thumb} alt="" /> : <Icon name="leaf" />}
-                  </span>
-                  <span className="hist-text">
-                    <strong>{h.result?.plant_name || "—"}</strong>
-                    <span className="hist-diag">{h.result?.diagnosis}</span>
-                  </span>
-                  <span className="hist-meta">
-                    <span className={`status s-${status}`}>{t.statuses[status]}</span>
-                    <time>{new Date(h.date).toLocaleDateString()}</time>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
+      </header>
+      <ul className="hist">
+        {list.map((h) => {
+          const status = h.result?.health_status || "unknown";
+          return (
+            <li key={h.key}>
+              <button className="hist-item" onClick={() => onOpen(h)}>
+                <span className={`hist-thumb s-${status}`}>
+                  {h.thumb ? <img src={h.thumb} alt="" /> : <Icon name="leaf" />}
+                </span>
+                <span className="hist-text">
+                  <strong>{h.result?.plant_name || "—"}</strong>
+                  <span className="hist-diag">{h.result?.diagnosis}</span>
+                </span>
+                <span className="hist-meta">
+                  <span className={`status s-${status}`}>{t.statuses[status]}</span>
+                  <time>{new Date(h.date).toLocaleDateString()}</time>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 

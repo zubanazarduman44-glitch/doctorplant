@@ -688,6 +688,58 @@ a { color: inherit; }
 .med .p-safety { display: flex; gap: 6px; align-items: flex-start; }
 .med .p-safety svg { flex-shrink: 0; margin-top: 3px; }
 
+
+/* ═════════ Карта ═════════ */
+.page-sub { margin-top: 6px; max-width: 60ch; }
+.map-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.map-tools .search { flex: 1; min-width: 220px; min-height: 46px; }
+.map-tools .ctx select { min-height: 46px; }
+.map-wrap { position: relative; border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 0 0 1px var(--line), var(--shadow); background: var(--paper-2); }
+.map-box { height: min(62vh, 560px); width: 100%; }
+.map-overlay {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 500;
+  max-width: calc(100% - 40px); padding: 14px 20px; border-radius: var(--r-md);
+  background: var(--paper); box-shadow: var(--shadow), 0 0 0 1px var(--line);
+  font-weight: 600; text-align: center;
+}
+.map-overlay.soft { top: auto; bottom: 18px; transform: translateX(-50%); font-family: var(--serif); font-size: 17px; }
+.map-info { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; border-radius: var(--r-lg); background: var(--paper); box-shadow: 0 0 0 1px var(--line); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; font-weight: 600; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); }
+.legend i.lg-protected { width: 18px; height: 18px; background: rgba(217, 119, 6, 0.3); border: 2px dashed #b45309; box-shadow: none; }
+.map-stats { font-size: 15px; }
+.map-info .small { display: flex; align-items: flex-start; gap: 6px; }
+.map-info .small svg { flex-shrink: 0; margin-top: 2px; }
+
+/* Leaflet терезелері сайт стилінде */
+.leaflet-container { font-family: var(--sans); background: var(--paper-2); }
+.leaflet-popup-content-wrapper { border-radius: 14px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
+.leaflet-popup-tip { background: var(--paper); }
+.leaflet-popup-content { margin: 12px 14px; }
+.pop { display: flex; flex-direction: column; gap: 2px; min-width: 160px; font-size: 13px; }
+.pop strong { font-family: var(--serif); font-size: 16px; }
+.pop em { font-family: var(--serif); color: var(--muted); }
+.pop-st { font-weight: 700; }
+.pop time { color: var(--muted); font-size: 12px; }
+:root[data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.7); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.7); }
+}
+
+/* Нәтижедегі «Картада көрсету» */
+.mapbtn { display: flex; align-items: center; gap: 14px; }
+.mapbtn-text { flex: 1; min-width: 0; }
+.mapbtn-text h3 { font-family: var(--serif); font-size: 18px; font-weight: 600; margin: 0; }
+.mapbtn.done { background: var(--primary-soft); box-shadow: none; }
+
+/* Диагноз бетіндегі соңғы талдаулар */
+.recent { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.recent-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.recent-head h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.recent-tools { display: flex; gap: 8px; }
+.field select { width: 100%; min-height: 46px; padding: 0 12px; border-radius: var(--r-sm); border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); font-size: 16px; font-weight: 500; }
+
 /* ───────── Веб-камера ───────── */
 .modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(5, 14, 9, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .cam { width: min(720px, 100%); border-radius: var(--r-xl); padding: 12px; display: flex; flex-direction: column; gap: 12px; background: var(--paper); }
@@ -897,6 +949,11 @@ a { color: inherit; }
   .enc-card strong { font-size: 17px; }
   .meds { grid-template-columns: 1fr; }
   .thumb { width: 44px; height: 44px; }
+  .map-box { height: 58vh; }
+  .map-tools .ctx, .map-tools .ctx select { width: 100%; max-width: none; }
+  .mapbtn { flex-wrap: wrap; }
+  .mapbtn .btn { width: 100%; }
+  .recent-head h2 { font-size: 22px; }
   .subtabs { align-self: stretch; display: grid; grid-template-columns: repeat(3, 1fr); }
   .subtab { justify-content: center; padding: 0 6px; font-size: 14px; }
   .subtab svg { display: none; }

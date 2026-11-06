@@ -60,6 +60,10 @@ const SCHEMA = {
         soil_fertilizer: { type: "STRING" },
       },
     },
+    red_book_kz: {
+      type: "BOOLEAN",
+      description: "true ONLY if you are sure this species is listed in the Red Book of Kazakhstan; otherwise false",
+    },
     watering_interval_days: {
       type: "INTEGER",
       description: "Typical number of days between waterings for this plant now (1-30). For a houseplant assume indoor conditions.",
