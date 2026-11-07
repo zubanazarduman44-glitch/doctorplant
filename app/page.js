@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CITIES, PLANTS, ACTIVES, REGISTRY_URL } from "./data";
 
 // Барлық мәтіндер екі тілде / Все тексты на двух языках
@@ -99,6 +99,10 @@ const T = {
     mapPickStatus: "Жағдайы",
     mapSave: "Белгілеу",
     mapHere: "Белгі сіздің қазіргі орныңызға шамамен қойылады.",
+    footerTag: "Өсімдіктерге арналған ЖИ-көмекші: диагноз, күтім, карта және кеңес — қазақша және орысша.",
+    footerSections: "Бөлімдер",
+    footerAbout: "Жоба туралы",
+    footerTop: "Жоғары",
     voiceAsk: "Дауыспен сұрау",
     voiceHint: "Микрофонды басып, қазақша немесе орысша сұраңыз",
     listening: "Тыңдап тұрмын…",
@@ -358,6 +362,10 @@ const T = {
     mapPickStatus: "Состояние",
     mapSave: "Отметить",
     mapHere: "Отметка ставится примерно в ваше текущее место.",
+    footerTag: "ИИ-помощник для растений: диагноз, уход, карта и советы — на казахском и русском.",
+    footerSections: "Разделы",
+    footerAbout: "О проекте",
+    footerTop: "Наверх",
     voiceAsk: "Спросить голосом",
     voiceHint: "Нажмите на микрофон и спросите по-казахски или по-русски",
     listening: "Слушаю…",
@@ -947,6 +955,24 @@ export default function Home() {
 
   const dueCount = plants.filter((p) => (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0).length;
 
+  const tabsRef = useRef(null);
+  const [ind, setInd] = useState({ opacity: 0 });
+
+  // Белсенді қойынды астындағы «таблетканы» жылжыту
+  const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
+  useIso(() => {
+    function place() {
+      const nav = tabsRef.current;
+      const el = nav?.querySelector(`[data-tab="${tab}"]`);
+      if (!el) return;
+      setInd({ opacity: 1, width: el.offsetWidth, height: el.offsetHeight, transform: `translate(${el.offsetLeft}px, ${el.offsetTop}px)` });
+    }
+    place();
+    window.addEventListener("resize", place);
+    document.fonts?.ready?.then(place);
+    return () => window.removeEventListener("resize", place);
+  }, [tab, lang, dueCount]);
+
   // Сайт ашылғанда — күніне бір рет хабарландыру
   useEffect(() => {
     if (!dueCount || typeof Notification === "undefined" || Notification.permission !== "granted") return;
@@ -1162,10 +1188,12 @@ export default function Home() {
         </div>
       </header>
 
-      <nav className="tabs" aria-label="Menu">
+      <nav className="tabs" aria-label="Menu" ref={tabsRef}>
+        <span className="tab-ind" style={ind} aria-hidden="true" />
         {TABS.map((k) => (
           <button
             key={k}
+            data-tab={k}
             className={`tab ${tab === k ? "active" : ""}`}
             onClick={() => setTab(k)}
             aria-current={tab === k ? "page" : undefined}
@@ -1226,7 +1254,7 @@ export default function Home() {
           <Reference t={t} lang={lang} plants={plants} onAddPlant={addPlantSimple} onAsk={askQuestion} />
         )}
 
-        {tab !== "chat" && <footer className="disclaimer">{t.disclaimer}</footer>}
+        {tab !== "chat" && <SiteFooter t={t} tab={tab} setTab={setTab} />}
       </main>
     </div>
   );
@@ -1486,7 +1514,13 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
       {showSheet && (
         <section className={`hero ${image ? "has-image" : ""}`}>
           <div className="hero-copy">
-            <h1>{t.heroTitle}</h1>
+            <h1 className="hero-title" aria-label={t.heroTitle}>
+              {t.heroTitle.split(" ").map((w, i) => (
+                <span key={`${w}${i}`} className="hw" style={{ "--i": i }} aria-hidden="true">
+                  {w}
+                </span>
+              ))}
+            </h1>
             <p>{t.heroText}</p>
             <div className="hero-actions">
               {image ? (
@@ -1558,7 +1592,20 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
               </div>
             ) : (
               <button className="sheet-empty" onClick={() => fileRef.current?.click()}>
-                <Icon name="leaf" size={44} />
+                <svg className="sprig" viewBox="0 0 120 200" aria-hidden="true">
+                  <path d="M60 196 C 58 150 62 90 60 14" />
+                  {[0, 1, 2, 3, 4, 5].map((k) => {
+                    const y = 170 - k * 26;
+                    const w = 38 - k * 4;
+                    return (
+                      <g key={k}>
+                        <path d={`M60 ${y} C ${60 - w * 0.6} ${y - 6} ${60 - w} ${y - 20} ${60 - w} ${y - 28} C ${60 - w * 0.5} ${y - 22} ${60 - w * 0.2} ${y - 10} 60 ${y}`} />
+                        <path d={`M60 ${y - 12} C ${60 + w * 0.6} ${y - 18} ${60 + w} ${y - 32} ${60 + w} ${y - 40} C ${60 + w * 0.5} ${y - 34} ${60 + w * 0.2} ${y - 22} 60 ${y - 12}`} />
+                      </g>
+                    );
+                  })}
+                  <ellipse cx="60" cy="12" rx="5" ry="9" />
+                </svg>
                 <span>{t.uploadSub}</span>
               </button>
             )}
@@ -1579,6 +1626,8 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
           <Icon name="alert" size={18} /> {error}
         </div>
       )}
+
+      {!current && !image && <LatinTicker />}
 
       {!current && !image && (
         <section className="bento intro">
@@ -2206,6 +2255,60 @@ function PlantForm({ t, plant, onCancel, onSubmit }) {
         </div>
       </form>
     </div>
+  );
+}
+
+/* ───────────── Латын атаулары жолағы ───────────── */
+const TICKER = [
+  "Tulipa greigii", "Malus sieversii", "Monstera deliciosa", "Haloxylon aphyllum", "Ficus elastica",
+  "Aloe vera", "Solanum lycopersicum", "Phalaenopsis", "Dracaena trifasciata", "Cucumis sativus",
+  "Spathiphyllum wallisii", "Chlorophytum comosum", "Zamioculcas zamiifolia", "Trifolium repens",
+];
+function LatinTicker() {
+  const row = (hidden) => (
+    <div className="ticker-row" aria-hidden={hidden || undefined}>
+      {TICKER.map((n) => (
+        <span key={n} className="tk">
+          <em>{n}</em>
+          <Icon name="leaf" size={16} />
+        </span>
+      ))}
+    </div>
+  );
+  return (
+    <section className="ticker" aria-label="Latin plant names">
+      <div className="ticker-track">
+        {row(false)}
+        {row(true)}
+      </div>
+    </section>
+  );
+}
+
+/* ───────────── Футер ───────────── */
+function SiteFooter({ t, tab, setTab }) {
+  return (
+    <footer className="site-footer">
+      <div className="sf-top">
+        <div className="sf-brand">
+          <Logo size={52} />
+          <p>{t.footerTag}</p>
+        </div>
+        <nav className="sf-links" aria-label={t.footerSections}>
+          <h3>{t.footerSections}</h3>
+          {TABS.map((k) => (
+            <button key={k} className={tab === k ? "on" : ""} onClick={() => { setTab(k); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+              {t.nav[k]}
+            </button>
+          ))}
+        </nav>
+        <button className="sf-top-btn" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <Icon name="arrow" size={18} /> {t.footerTop}
+        </button>
+      </div>
+      <p className="sf-word" aria-hidden="true">Tamyr</p>
+      <p className="sf-disc">{t.disclaimer}</p>
+    </footer>
   );
 }
 

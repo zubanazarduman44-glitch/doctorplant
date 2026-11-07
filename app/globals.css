@@ -826,6 +826,82 @@ a { color: inherit; }
 .recent-tools { display: flex; gap: 8px; }
 .field select { width: 100%; min-height: 46px; padding: 0 12px; border-radius: var(--r-sm); border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); font-size: 16px; font-weight: 500; }
 
+
+/* ═════════ Гербарий 2.0 ═════════ */
+/* Қағаз түйіршігі (бүкіл бетке өте жеңіл) */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.06; mix-blend-mode: multiply;
+}
+:root[data-theme="dark"] body::after { opacity: 0.09; mix-blend-mode: screen; filter: invert(1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body::after { opacity: 0.09; mix-blend-mode: screen; filter: invert(1); } }
+
+/* Қойындылар: жылжымалы «таблетка» */
+.tab-ind {
+  position: absolute; left: 0; top: 0; z-index: 0;
+  border-radius: 999px; background: var(--ink);
+  transition: transform 0.45s var(--ease), width 0.45s var(--ease), opacity 0.2s;
+}
+.tab { z-index: 1; }
+.tab.active { background: transparent; color: var(--bg); }
+
+/* Hero: сөздер кезекпен көтеріледі (жалғыз жүктелу сәті) */
+.hw { display: inline-block; margin-right: 0.24em; animation: hwRise 0.9s var(--ease) both; animation-delay: calc(var(--i) * 110ms + 0.1s); }
+@keyframes hwRise { from { opacity: 0; transform: translateY(0.45em) rotate(2deg); filter: blur(6px); } }
+
+/* Гербарий парағы: желімді лента */
+.sheet::before, .sheet::after {
+  content: ""; position: absolute; z-index: 3; top: -13px; width: 118px; height: 30px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 6px, transparent 6px 12px),
+    color-mix(in srgb, var(--amber) 42%, transparent);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  -webkit-mask: linear-gradient(90deg, transparent 0 3px, #000 3px calc(100% - 3px), transparent 0);
+  mask: linear-gradient(90deg, transparent 0 3px, #000 3px calc(100% - 3px), transparent 0);
+}
+.sheet::before { left: 22px; transform: rotate(-7deg); }
+.sheet::after { right: 26px; transform: rotate(6deg); background-color: color-mix(in srgb, var(--primary) 30%, transparent); }
+
+/* Бос парақтағы ботаникалық бұтақ */
+.sprig { width: 44%; max-height: 64%; fill: color-mix(in srgb, var(--primary) 7%, transparent); stroke: var(--primary); stroke-width: 1.5; stroke-linecap: round; opacity: 0.55; transform-origin: 50% 100%; transition: transform 0.6s var(--ease), opacity 0.3s; }
+.sheet-empty:hover .sprig { transform: rotate(-3deg) scale(1.03); opacity: 0.8; }
+
+/* Латын атаулары жолағы */
+.ticker {
+  overflow: hidden; margin: 6px 0 8px; padding: 16px 0;
+  border-block: 1px solid var(--line);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.ticker-track { display: flex; width: max-content; animation: tick 70s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.ticker-row { display: flex; align-items: center; gap: 30px; padding-right: 30px; }
+.tk { display: inline-flex; align-items: center; gap: 30px; white-space: nowrap; }
+.tk em { font-family: var(--serif); font-style: italic; font-size: clamp(22px, 2.6vw, 32px); color: var(--ink); opacity: 0.82; }
+.tk svg { color: var(--primary); opacity: 0.55; }
+@keyframes tick { to { transform: translateX(-50%); } }
+
+/* Үлкен футер */
+.site-footer { max-width: 1120px; margin: 72px auto 0; padding-top: 36px; border-top: 1px solid var(--line); overflow: hidden; }
+.sf-top { display: grid; grid-template-columns: 1.5fr 1fr auto; gap: 32px; align-items: start; }
+.sf-brand { display: flex; flex-direction: column; gap: 14px; }
+.sf-brand p { max-width: 42ch; color: var(--muted); font-size: 15px; }
+.sf-links { display: flex; flex-direction: column; gap: 4px; }
+.sf-links h3 { font-family: var(--serif); font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+.sf-links button { align-self: flex-start; padding: 3px 0; color: var(--muted); font-weight: 600; transition: color 0.2s; }
+.sf-links button:hover, .sf-links button.on { color: var(--primary); }
+.sf-top-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 999px; background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 700; font-size: 14px; }
+.sf-top-btn svg { transform: rotate(-45deg); }
+.sf-word {
+  margin: 28px 0 -0.08em; padding-bottom: 0.14em; text-align: center; user-select: none;
+  font-family: var(--serif); font-weight: 700; line-height: 0.95; letter-spacing: -0.06em;
+  font-size: clamp(110px, 24vw, 320px);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 80%, var(--ink)) 10%, color-mix(in srgb, var(--primary) 18%, transparent) 88%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sf-disc { padding: 18px 0 8px; font-size: 12px; color: var(--muted); text-align: center; }
+
 /* ───────── Веб-камера ───────── */
 .modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(5, 14, 9, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .cam { width: min(720px, 100%); border-radius: var(--r-xl); padding: 12px; display: flex; flex-direction: column; gap: 12px; background: var(--paper); }
@@ -1057,6 +1133,12 @@ a { color: inherit; }
   .enc-card strong { font-size: 17px; }
   .meds { grid-template-columns: 1fr; }
   .thumb { width: 44px; height: 44px; }
+  .tab-ind { border-radius: 16px; }
+  .sf-top { grid-template-columns: 1fr; gap: 22px; }
+  .sf-links { flex-direction: row; flex-wrap: wrap; gap: 6px 16px; }
+  .sf-links h3 { width: 100%; }
+  .site-footer { margin-top: 48px; }
+  .sheet::before, .sheet::after { width: 86px; height: 24px; top: -10px; }
   .map-box { height: 58vh; }
   .map-fab { position: fixed; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom)); min-height: 54px; z-index: 45; }
   .map-pickbar { right: 12px; top: 66px; }
