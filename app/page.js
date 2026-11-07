@@ -2,6 +2,19 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CITIES, PLANTS, ACTIVES, REGISTRY_URL } from "./data";
+import {
+  getAuthConfig,
+  signInWithGoogle,
+  consumeRedirect,
+  getSession,
+  getUser,
+  signOut,
+  loadCloud,
+  saveCloud,
+  deleteCloud,
+  mergePlants,
+  mergeHistory,
+} from "../lib/auth";
 
 // Барлық мәтіндер екі тілде / Все тексты на двух языках
 const T = {
@@ -103,6 +116,49 @@ const T = {
     footerSections: "Бөлімдер",
     footerAbout: "Жоба туралы",
     footerTop: "Жоғары",
+    login: "Кіру",
+    profile: {
+      title: "Профиль",
+      guestTitle: "Tamyr аккаунты",
+      guestSub: "Google (Gmail) арқылы бір батырмамен кіріңіз — аккаунт өзі ашылады.",
+      perks: [
+        ["cloud", "Өсімдіктеріңіз бен тарихыңыз бұлтта сақталады"],
+        ["sprout", "Телефоннан да, компьютерден де бірдей ашылады"],
+        ["trophy", "Жетістіктер мен жеке статистика"],
+      ],
+      google: "Google арқылы кіру",
+      privacy: "Біз тек атыңыз бен поштаңызды көреміз. Құпиясөз сақталмайды.",
+      notReady: "Кіру әлі бапталмаған — әзірлеуші Google кіруін қосқанда жұмыс істейді.",
+      since: "Tamyr-да",
+      editName: "Атын өзгерту",
+      save: "Сақтау",
+      stats: { plants: "Өсімдік", diag: "Диагноз", streak: "Үздік серия", mapped: "Картада" },
+      days: "күн",
+      badgesTitle: "Жетістіктер",
+      badges: {
+        first: ["Алғашқы диагноз", "Бірінші өсімдікті тексерді"],
+        five: ["Бағбан", "5 өсімдік қосты"],
+        week: ["Тұрақты күтім", "7 күндік серия"],
+        mapper: ["Зерттеуші", "Картаға белгі қойды"],
+        healer: ["Емші", "Ауру өсімдікті тапты"],
+        rare: ["Қызыл кітап", "Сирек өсімдікті кездестірді"],
+      },
+      syncTitle: "Бұлттағы сақтау",
+      syncing: "Сақталып жатыр…",
+      synced: "Сақталды",
+      syncErr: "Сақтау сәтсіз — интернетті тексеріңіз",
+      syncNow: "Қазір сақтау",
+      settings: "Баптаулар",
+      language: "Тіл",
+      theme: "Тақырып",
+      light: "Жарық",
+      dark: "Қараңғы",
+      logout: "Шығу",
+      wipe: "Бұлттағы деректерді өшіру",
+      wipeConfirm: "Бұлттағы барлық деректер өшеді (құрылғыдағы қалады). Жалғастырамыз ба?",
+      wiped: "Бұлттағы деректер өшірілді",
+      loginErr: "Кіру сәтсіз болды",
+    },
     voiceAsk: "Дауыспен сұрау",
     voiceHint: "Микрофонды басып, қазақша немесе орысша сұраңыз",
     listening: "Тыңдап тұрмын…",
@@ -366,6 +422,49 @@ const T = {
     footerSections: "Разделы",
     footerAbout: "О проекте",
     footerTop: "Наверх",
+    login: "Войти",
+    profile: {
+      title: "Профиль",
+      guestTitle: "Аккаунт Tamyr",
+      guestSub: "Войдите через Google (Gmail) одной кнопкой — аккаунт создастся сам.",
+      perks: [
+        ["cloud", "Растения и история сохраняются в облаке"],
+        ["sprout", "Одинаково открываются с телефона и компьютера"],
+        ["trophy", "Достижения и личная статистика"],
+      ],
+      google: "Войти через Google",
+      privacy: "Мы видим только имя и почту. Пароли не хранятся.",
+      notReady: "Вход ещё не настроен — заработает, когда разработчик включит вход через Google.",
+      since: "В Tamyr с",
+      editName: "Изменить имя",
+      save: "Сохранить",
+      stats: { plants: "Растений", diag: "Диагнозов", streak: "Лучшая серия", mapped: "На карте" },
+      days: "дн.",
+      badgesTitle: "Достижения",
+      badges: {
+        first: ["Первый диагноз", "Проверил первое растение"],
+        five: ["Садовод", "Добавил 5 растений"],
+        week: ["Заботливый", "Серия 7 дней"],
+        mapper: ["Исследователь", "Отметил растение на карте"],
+        healer: ["Лекарь", "Нашёл больное растение"],
+        rare: ["Красная книга", "Встретил редкое растение"],
+      },
+      syncTitle: "Облачное сохранение",
+      syncing: "Сохраняется…",
+      synced: "Сохранено",
+      syncErr: "Не удалось сохранить — проверьте интернет",
+      syncNow: "Сохранить сейчас",
+      settings: "Настройки",
+      language: "Язык",
+      theme: "Тема",
+      light: "Светлая",
+      dark: "Тёмная",
+      logout: "Выйти",
+      wipe: "Удалить данные в облаке",
+      wipeConfirm: "Все данные в облаке будут удалены (на устройстве останутся). Продолжить?",
+      wiped: "Данные в облаке удалены",
+      loginErr: "Не удалось войти",
+    },
     voiceAsk: "Спросить голосом",
     voiceHint: "Нажмите на микрофон и спросите по-казахски или по-русски",
     listening: "Слушаю…",
@@ -891,6 +990,9 @@ const ICONS = {
   flame: <path d="M12 21c3.6 0 6-2.5 6-6 0-4.5-4-6.5-4.5-11-2.5 2-4 4.5-4 7-1 0-2-1-2.5-2.5C5.5 10 6 12 6 15c0 3.5 2.4 6 6 6Z" />,
   trophy: <path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6M10 17h4" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
+  user: <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />,
+  logout: <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11" />,
+  mail: <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11ZM3.5 6.5 12 13l8.5-6.5" />,
 };
 
 function Icon({ name, size = 20 }) {
@@ -953,6 +1055,111 @@ export default function Home() {
     document.documentElement.lang = lang;
   }, [lang]);
 
+  /* ── Аккаунт / Аккаунт ── */
+  const [authReady, setAuthReady] = useState(null); // null — тексерілуде, false — бапталмаған
+  const [user, setUser] = useState(null);
+  const [displayName, setDisplayName] = useState("");
+  const [sync, setSync] = useState({ state: "idle", at: null });
+  const [authMsg, setAuthMsg] = useState("");
+  const syncedRef = useRef(false);
+
+  useEffect(() => {
+    const { error, got } = consumeRedirect();
+    if (error) {
+      setAuthMsg(error);
+      setTab("profile");
+    }
+    if (got) setTab("profile");
+    (async () => {
+      const cfg = await getAuthConfig();
+      setAuthReady(Boolean(cfg));
+      if (!cfg || !(await getSession())) return;
+      try {
+        const u = await getUser();
+        if (u) await startSync(u);
+      } catch {}
+    })();
+  }, []);
+
+  // Кіргеннен кейін: бұлт пен құрылғыны біріктіреміз
+  async function startSync(u) {
+    setUser(u);
+    setSync({ state: "syncing", at: null });
+    try {
+      const cloud = await loadCloud(u.id);
+      let localPlants = [];
+      let localHistory = [];
+      try {
+        localPlants = JSON.parse(store(PLANTS_KEY) || "[]");
+        localHistory = JSON.parse(store(HISTORY_KEY) || "[]");
+      } catch {}
+      const mp = mergePlants(localPlants, cloud?.plants || []);
+      const mh = mergeHistory(localHistory, cloud?.history || []);
+      setPlants(mp);
+      store(PLANTS_KEY, JSON.stringify(mp));
+      setHistory(mh);
+      store(HISTORY_KEY, JSON.stringify(mh));
+      const name = cloud?.display_name || u.name || "";
+      setDisplayName(name);
+      await saveCloud(u.id, { plants: mp, history: mh, display_name: name });
+      syncedRef.current = true;
+      setSync({ state: "saved", at: new Date() });
+    } catch {
+      setSync({ state: "error", at: null });
+    }
+  }
+
+  async function pushCloud(extra = {}) {
+    if (!user || !syncedRef.current) return;
+    setSync((x) => ({ ...x, state: "syncing" }));
+    try {
+      await saveCloud(user.id, { plants, history, display_name: displayName, ...extra });
+      setSync({ state: "saved", at: new Date() });
+    } catch {
+      setSync((x) => ({ ...x, state: "error" }));
+    }
+  }
+
+  // Өзгеріс болса — 1,5 секундтан кейін бұлтқа сақтаймыз
+  useEffect(() => {
+    if (!user || !syncedRef.current) return;
+    const id = setTimeout(() => pushCloud(), 1500);
+    return () => clearTimeout(id);
+  }, [plants, history, user]);
+
+  async function login() {
+    setAuthMsg("");
+    try {
+      await signInWithGoogle();
+    } catch {
+      setAuthMsg(t.profile.notReady);
+    }
+  }
+
+  async function logout() {
+    await signOut();
+    syncedRef.current = false;
+    setUser(null);
+    setSync({ state: "idle", at: null });
+  }
+
+  async function wipeCloud() {
+    if (!user || !window.confirm(t.profile.wipeConfirm)) return;
+    try {
+      await deleteCloud(user.id);
+      await logout();
+      setAuthMsg(t.profile.wiped);
+    } catch {
+      setSync((x) => ({ ...x, state: "error" }));
+    }
+  }
+
+  async function renameUser(name) {
+    const clean = name.trim().slice(0, 60);
+    setDisplayName(clean);
+    await pushCloud({ display_name: clean });
+  }
+
   const dueCount = plants.filter((p) => (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0).length;
 
   const tabsRef = useRef(null);
@@ -964,7 +1171,7 @@ export default function Home() {
     function place() {
       const nav = tabsRef.current;
       const el = nav?.querySelector(`[data-tab="${tab}"]`);
-      if (!el) return;
+      if (!el) return setInd((x) => ({ ...x, opacity: 0 }));
       setInd({ opacity: 1, width: el.offsetWidth, height: el.offsetHeight, transform: `translate(${el.offsetLeft}px, ${el.offsetTop}px)` });
     }
     place();
@@ -1185,6 +1392,24 @@ export default function Home() {
           <button className="icon-btn" onClick={toggleTheme} aria-label={t.theme} title={t.theme}>
             <Icon name={theme === "light" ? "moon" : "sun"} size={18} />
           </button>
+          <button
+            className={`acct-btn ${user ? "in" : ""} ${tab === "profile" ? "on" : ""}`}
+            onClick={() => {
+              setTab("profile");
+              window.scrollTo({ top: 0 });
+            }}
+            aria-label={t.profile.title}
+            title={t.profile.title}
+          >
+            {user ? (
+              <Avatar user={user} name={displayName} size={34} />
+            ) : (
+              <>
+                <Icon name="user" size={17} />
+                <span className="acct-label">{t.login}</span>
+              </>
+            )}
+          </button>
         </div>
       </header>
 
@@ -1252,6 +1477,29 @@ export default function Home() {
         {tab === "map" && <PlantMap t={t} lang={lang} history={history} onAdd={addToMap} />}
         {tab === "about" && (
           <Reference t={t} lang={lang} plants={plants} onAddPlant={addPlantSimple} onAsk={askQuestion} />
+        )}
+
+        {tab === "profile" && (
+          <Profile
+            t={t}
+            lang={lang}
+            theme={theme}
+            user={user}
+            authReady={authReady}
+            authMsg={authMsg}
+            displayName={displayName}
+            sync={sync}
+            plants={plants}
+            history={history}
+            onLogin={login}
+            onLogout={logout}
+            onWipe={wipeCloud}
+            onRename={renameUser}
+            onSyncNow={() => pushCloud()}
+            onLang={changeLang}
+            onTheme={toggleTheme}
+            onGo={setTab}
+          />
         )}
 
         {tab !== "chat" && <SiteFooter t={t} tab={tab} setTab={setTab} />}
@@ -2286,6 +2534,254 @@ function LatinTicker() {
 }
 
 /* ───────────── Футер ───────────── */
+/* ───────────── Профиль / Профиль ───────────── */
+function Avatar({ user, name, size = 40 }) {
+  const [broken, setBroken] = useState(false);
+  const letter = (name || user?.name || user?.email || "?").trim().charAt(0).toUpperCase();
+  return (
+    <span className="uav" style={{ width: size, height: size, fontSize: size * 0.42 }}>
+      {user?.avatar && !broken ? (
+        <img src={user.avatar} alt="" referrerPolicy="no-referrer" onError={() => setBroken(true)} />
+      ) : (
+        letter
+      )}
+    </span>
+  );
+}
+
+const BADGES = [
+  { id: "first", icon: "diagnose", test: (d) => d.diag >= 1 },
+  { id: "five", icon: "plants", test: (d) => d.plants >= 5 },
+  { id: "week", icon: "flame", test: (d) => d.best >= 7 },
+  { id: "mapper", icon: "map", test: (d) => d.mapped >= 1 },
+  { id: "healer", icon: "shield", test: (d) => d.healer },
+  { id: "rare", icon: "book", test: (d) => d.rare },
+];
+
+function Profile({
+  t, lang, theme, user, authReady, authMsg, displayName, sync, plants, history,
+  onLogin, onLogout, onWipe, onRename, onSyncNow, onLang, onTheme, onGo,
+}) {
+  const p = t.profile;
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(displayName);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => setDraft(displayName), [displayName]);
+
+  const best = Math.max(Number(store(BEST_KEY) || 0), calcStreak(plants));
+  const data = {
+    plants: plants.length,
+    diag: history.length,
+    best,
+    mapped: history.filter((h) => h.mapped).length,
+    healer: history.some((h) => h.result?.health_status === "sick"),
+    rare: history.some((h) => h.result?.red_book_kz),
+  };
+  const earned = BADGES.filter((b) => b.test(data)).length;
+  const locale = lang === "kk" ? "kk-KZ" : "ru-RU";
+
+  const badges = (
+    <section className="tile badges-tile">
+      <div className="badges-head">
+        <h3>{p.badgesTitle}</h3>
+        <span className="badge-count">
+          {earned}/{BADGES.length}
+        </span>
+      </div>
+      <div className="badges">
+        {BADGES.map((b) => {
+          const on = b.test(data);
+          const [name, desc] = p.badges[b.id];
+          return (
+            <div key={b.id} className={`badge ${on ? "on" : ""}`} title={desc}>
+              <span className="seal">
+                <Icon name={b.icon} size={22} />
+              </span>
+              <strong>{name}</strong>
+              <small>{desc}</small>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+
+  if (!user) {
+    return (
+      <div className="profile">
+        <section className="auth-card">
+          <div className="auth-copy">
+            <span className="eyebrow">{p.title}</span>
+            <h1>{p.guestTitle}</h1>
+            <p className="auth-sub">{p.guestSub}</p>
+            <ul className="perks">
+              {p.perks.map(([icon, text]) => (
+                <li key={text}>
+                  <span><Icon name={icon} size={18} /></span>
+                  {text}
+                </li>
+              ))}
+            </ul>
+            <button
+              className="btn primary big google-btn"
+              disabled={authReady === false || busy}
+              onClick={async () => {
+                setBusy(true);
+                await onLogin();
+                setTimeout(() => setBusy(false), 4000);
+              }}
+            >
+              <Icon name="mail" size={20} />
+              {p.google}
+            </button>
+            {authReady === false && <p className="auth-note warn">{p.notReady}</p>}
+            {authMsg && <p className="auth-note warn">{authMsg}</p>}
+            <p className="auth-note">{p.privacy}</p>
+          </div>
+          <div className="id-card ghosted" aria-hidden="true">
+            <span className="tape a" />
+            <span className="tape b" />
+            <div className="id-top">
+              <span className="uav empty" style={{ width: 72, height: 72 }}>
+                <Icon name="user" size={30} />
+              </span>
+              <div>
+                <span className="id-kicker">Herbarium Tamyr</span>
+                <em className="id-latin">Hortulanus tamyrensis</em>
+              </div>
+            </div>
+            <dl className="id-rows">
+              <div><dt>{p.since}</dt><dd>— — —</dd></div>
+              <div><dt>{p.stats.plants}</dt><dd>{data.plants}</dd></div>
+              <div><dt>{p.stats.diag}</dt><dd>{data.diag}</dd></div>
+            </dl>
+            <Logo size={34} />
+          </div>
+        </section>
+        {badges}
+      </div>
+    );
+  }
+
+  const sinceStr = user.createdAt ? new Date(user.createdAt).toLocaleDateString(locale, { month: "long", year: "numeric" }) : "—";
+  const timeStr = sync.at ? sync.at.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "";
+
+  return (
+    <div className="profile">
+      <div className="prof-top">
+      <section className="id-card big">
+        <span className="tape a" />
+        <span className="tape b" />
+        <div className="id-top">
+          <Avatar user={user} name={displayName} size={88} />
+          <div className="id-name">
+            <span className="id-kicker">Herbarium Tamyr · {p.title}</span>
+            {editing ? (
+              <form
+                className="name-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onRename(draft);
+                  setEditing(false);
+                }}
+              >
+                <input value={draft} maxLength={60} onChange={(e) => setDraft(e.target.value)} autoFocus aria-label={p.editName} />
+                <button className="btn primary small" type="submit">{p.save}</button>
+              </form>
+            ) : (
+              <h1>
+                {displayName || user.name}
+                <button className="icon-btn mini" onClick={() => setEditing(true)} aria-label={p.editName} title={p.editName}>
+                  <Icon name="edit" size={15} />
+                </button>
+              </h1>
+            )}
+            <em className="id-latin">Hortulanus tamyrensis</em>
+          </div>
+        </div>
+        <dl className="id-rows">
+          <div><dt>Email</dt><dd>{user.email}</dd></div>
+          <div><dt>{p.since}</dt><dd>{sinceStr}</dd></div>
+          <div><dt>{p.badgesTitle}</dt><dd>{earned}/{BADGES.length}</dd></div>
+        </dl>
+        <span className="id-stamp" aria-hidden="true"><Logo size={46} /></span>
+      </section>
+
+      <div className="stats">
+        <button className="stat as-btn" onClick={() => onGo("plants")}>
+          <Icon name="plants" />
+          <strong>{data.plants}</strong>
+          <span>{p.stats.plants}</span>
+        </button>
+        <button className="stat as-btn" onClick={() => onGo("diagnose")}>
+          <Icon name="diagnose" />
+          <strong>{data.diag}</strong>
+          <span>{p.stats.diag}</span>
+        </button>
+        <div className={`stat streak ${best >= 3 ? "on" : ""}`}>
+          <Icon name="flame" />
+          <strong>{best} <small>{p.days}</small></strong>
+          <span>{p.stats.streak}</span>
+        </div>
+        <button className="stat as-btn" onClick={() => onGo("map")}>
+          <Icon name="pin" />
+          <strong>{data.mapped}</strong>
+          <span>{p.stats.mapped}</span>
+        </button>
+      </div>
+      </div>
+
+      {badges}
+
+      <div className="bento prof-grid">
+        <section className={`tile sync-tile s-${sync.state}`}>
+          <h3><Icon name="cloud" size={20} /> {p.syncTitle}</h3>
+          <p className="sync-line">
+            <span className="dot" />
+            {sync.state === "syncing" && p.syncing}
+            {sync.state === "saved" && `${p.synced} · ${timeStr}`}
+            {sync.state === "error" && p.syncErr}
+            {sync.state === "idle" && "—"}
+          </p>
+          <button className="btn tonal small" onClick={onSyncNow} disabled={sync.state === "syncing"}>
+            <Icon name="refresh" size={16} /> {p.syncNow}
+          </button>
+        </section>
+
+        <section className="tile set-tile">
+          <h3>{p.settings}</h3>
+          <div className="set-row">
+            <span>{p.language}</span>
+            <div className="seg">
+              {["kk", "ru"].map((l) => (
+                <button key={l} className={lang === l ? "on" : ""} onClick={() => onLang(l)}>
+                  {l === "kk" ? "Қаз" : "Рус"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="set-row">
+            <span>{p.theme}</span>
+            <div className="seg">
+              <button className={theme === "light" ? "on" : ""} onClick={() => theme !== "light" && onTheme()}>{p.light}</button>
+              <button className={theme !== "light" ? "on" : ""} onClick={() => theme === "light" && onTheme()}>{p.dark}</button>
+            </div>
+          </div>
+        </section>
+
+        <section className="tile out-tile">
+          <button className="btn ghost" onClick={onLogout}>
+            <Icon name="logout" size={18} /> {p.logout}
+          </button>
+          <button className="link-danger" onClick={onWipe}>
+            <Icon name="trash" size={15} /> {p.wipe}
+          </button>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 function SiteFooter({ t, tab, setTab }) {
   return (
     <footer className="site-footer">

@@ -41,3 +41,9 @@ SUPABASE_SERVICE_ROLE_KEY = <secret key>
 
 Без них сайт работает, просто ничего не сохраняется на сервере (история остаётся в браузере).
 Фото на сервере НЕ хранятся — только текстовый результат.
+
+## Аккаунт (Google арқылы кіру)
+- Supabase → Authentication → Providers → Google: Client ID / Secret (Google Cloud Console-дан).
+- Supabase → Authentication → URL Configuration: Site URL = сайт мекенжайы, Redirect URLs = `https://<сайт>/**`.
+- Vercel: `SUPABASE_PUBLISHABLE_KEY` = Supabase publishable (жария) кілт (`sb_publishable_...`). Service кілтті ЕШҚАШАН мұнда қоймаңыз.
+- Кесте: `supabase/user_data.sql`.
