@@ -1582,3 +1582,15 @@ body::after {
   .wk-tx em { display: block; }
 }
 .wk-date .wk-big { font-size: 32px; color: var(--ink); }
+
+/* Талдау барысы */
+.an-prog { margin-top: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 18px; background: var(--paper); box-shadow: 0 0 0 1px var(--line); max-width: 460px; animation: wkIn 0.3s var(--ease); }
+.an-prog ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.an-prog li { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--muted); transition: color 0.3s; }
+.an-prog li.now { color: var(--ink); }
+.an-prog li.done { color: var(--primary); }
+.an-dot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 2px var(--line); color: #fff; flex-shrink: 0; }
+.an-prog li.done .an-dot { background: var(--primary); box-shadow: none; }
+.an-prog li.now .an-dot { box-shadow: inset 0 0 0 2px var(--primary); position: relative; }
+.an-prog li.now .an-dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); animation: blink 0.9s infinite; }
+.an-time { font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; color: var(--muted); }

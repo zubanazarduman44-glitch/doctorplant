@@ -22,7 +22,7 @@ Rules:
 - "products": fill ONLY if a fungicide/insecticide/fertilizer or biological product is really needed (otherwise empty array). For each product give: product_type (e.g. "copper-based fungicide"), active_ingredient (international name, e.g. "copper oxychloride"), search_query (short Russian query to search this product in a Kazakhstan online shop, e.g. "хлорокись меди фунгицид"), example_brands (1-3 brand names commonly sold in Kazakhstan/CIS garden shops, if you are not sure — leave empty), safety (one short safety note). NEVER give exact doses — the user must follow the label.
 - NEVER say whether a plant is safe to eat.
 - Mention if the plant is toxic to pets or children (only if well known).
-- Keep each text field short and practical, suitable for a mobile screen.`;
+- Be concise (fast answer): symptoms, causes and treatment — at most 4 items each, each item one short sentence (max ~14 words). Care fields — one short sentence each.`;
 }
 
 const SCHEMA = {
@@ -78,6 +78,11 @@ const SCHEMA = {
   required: ["is_plant", "confidence", "health_status", "diagnosis", "treatment", "care"],
 };
 
+// Функцияны алдын ала «ояту» (сурет таңдалғанда браузер шақырады)
+export function GET() {
+  return new Response(null, { status: 204 });
+}
+
 export async function POST(req) {
   let body;
   try {
@@ -108,7 +113,12 @@ export async function POST(req) {
 
   let text;
   try {
-    text = await callGemini(contents, { schema: SCHEMA });
+    text = await callGemini(contents, {
+      schema: SCHEMA,
+      thinking: "minimal",
+      mediaResolution: "MEDIA_RESOLUTION_MEDIUM",
+      maxTokens: 2048,
+    });
   } catch (e) {
     const status = e instanceof GeminiError ? e.status : 502;
     return Response.json({ error: e.message }, { status });

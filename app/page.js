@@ -302,6 +302,7 @@ const T = {
     change: "Басқа сурет",
     analyze: "Талдау",
     analyzing: "Жапырақты қарап жатырмыз…",
+    anSteps: ["Суретті жіберу", "Түрін анықтау", "Денсаулығын тексеру", "Кеңес дайындау"],
     tips: ["Күндізгі жарық", "Жапыраққа жақын", "Ауру жерін көрсетіңіз"],
     confidence: "Сенімділік",
     diagnosis: "Диагноз",
@@ -641,6 +642,7 @@ const T = {
     change: "Другое фото",
     analyze: "Анализировать",
     analyzing: "Рассматриваем лист…",
+    anSteps: ["Отправляем фото", "Определяем вид", "Проверяем здоровье", "Готовим советы"],
     tips: ["Дневной свет", "Близко к листу", "Покажите больное место"],
     confidence: "Уверенность",
     diagnosis: "Диагноз",
@@ -979,6 +981,31 @@ function store(key, value) {
 }
 
 // Суретті кішірейтеміз және EXIF/геолокацияны өшіреміз
+// Талдау барысы — адам не болып жатқанын көреді
+function AnalyzeProgress({ t }) {
+  const [ms, setMs] = useState(0);
+  useEffect(() => {
+    const t0 = Date.now();
+    const id = setInterval(() => setMs(Date.now() - t0), 100);
+    return () => clearInterval(id);
+  }, []);
+  const marks = [0, 1200, 3500, 6500];
+  const step = marks.filter((m) => ms >= m).length - 1;
+  return (
+    <div className="an-prog" role="status" aria-live="polite">
+      <ol>
+        {t.anSteps.map((x, i) => (
+          <li key={x} className={i < step ? "done" : i === step ? "now" : ""}>
+            <span className="an-dot">{i < step ? <Icon name="check" size={12} /> : null}</span>
+            {x}
+          </li>
+        ))}
+      </ol>
+      <span className="an-time">{(ms / 1000).toFixed(1)} s</span>
+    </div>
+  );
+}
+
 function compressImage(file, maxSize = 1024, quality = 0.82) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -1469,8 +1496,10 @@ export default function Home() {
     if (!file || !file.type?.startsWith("image/")) return;
     setCurrent(null);
     setError("");
+    // Серверді алдын ала оятамыз — «Анықтау» басылғанда бірден жауап береді
+    fetch("/api/diagnose", { method: "GET" }).catch(() => {});
     try {
-      const img = await compressImage(file);
+      const img = await compressImage(file, 960, 0.8);
       setImages((prev) => (append ? [...prev, img].slice(0, 3) : [img]));
     } catch {
       setError("Error reading image");
@@ -1556,12 +1585,13 @@ export default function Home() {
     setError("");
     setCurrent(null);
     try {
+      const thumbP = thumbnail(image);
       const data = await postJSON("/api/diagnose", { images, lang, clientId });
       const entry = {
         key: data.id || String(Date.now()),
         date: new Date().toISOString(),
         lang,
-        thumb: await thumbnail(image),
+        thumb: await thumbP,
         result: data,
         chat: [],
         feedback: null,
@@ -2015,6 +2045,7 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
                 </>
               )}
             </div>
+            {loading && <AnalyzeProgress t={t} />}
           </div>
 
           {/* Гербарий парағы — сурет жүктелетін орын */}
