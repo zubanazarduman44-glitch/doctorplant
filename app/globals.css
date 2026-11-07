@@ -5,12 +5,12 @@
    Шрифттер: Lora (тақырып, латын атаулары) / Raleway (мәтін)
    ═══════════════════════════════════════════════ */
 :root {
-  --bg: #eef3ec;
-  --paper: #f9fbf6;
-  --paper-2: #e4ece2;
-  --ink: #0e2a1c;
-  --muted: #4b6155;
-  --line: #d3dfd2;
+  --bg: #ecf7ef;
+  --paper: rgba(255, 255, 255, 0.78);
+  --paper-2: rgba(226, 243, 231, 0.9);
+  --ink: #0c2a1a;
+  --muted: #47604f;
+  --line: rgba(21, 110, 58, 0.14);
   --primary: #15803d;
   --on-primary: #ffffff;
   --primary-soft: rgba(21, 128, 61, 0.1);
@@ -20,7 +20,17 @@
   --warn: #a35a00;
   --danger: #c62828;
   --focus: #15803d;
-  --shadow: 0 1px 0 rgba(14, 42, 28, 0.04), 0 12px 32px -18px rgba(14, 42, 28, 0.25);
+  --shadow: 0 1px 2px rgba(14, 60, 32, 0.05), 0 20px 44px -24px rgba(16, 96, 52, 0.32);
+  /* Жарық нұсқаның «тірі» фоны және шыны карточкалар */
+  --bg-mesh:
+    radial-gradient(60% 50% at 8% -6%, rgba(134, 239, 172, 0.55), transparent 62%),
+    radial-gradient(48% 42% at 100% 4%, rgba(253, 224, 120, 0.42), transparent 62%),
+    radial-gradient(55% 50% at 92% 100%, rgba(94, 234, 212, 0.28), transparent 62%),
+    radial-gradient(45% 40% at 0% 100%, rgba(190, 242, 160, 0.4), transparent 62%),
+    linear-gradient(180deg, #f3fbf5 0%, #e8f5ec 100%);
+  --glass-blur: blur(18px) saturate(1.35);
+  --btn-grad: linear-gradient(135deg, #2bb265 0%, #15803d 55%, #0f6a33 100%);
+  --card-hi: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --frond: rgba(21, 128, 61, 0.09);
   --sun: rgba(245, 180, 40, 0.35);
   --tulip-line: rgba(21, 128, 61, 0.32);
@@ -1594,3 +1604,48 @@ body::after {
 .an-prog li.now .an-dot { box-shadow: inset 0 0 0 2px var(--primary); position: relative; }
 .an-prog li.now .an-dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); animation: blink 0.9s infinite; }
 .an-time { font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; color: var(--muted); }
+
+
+/* ───────── Жарық нұсқа 2.0 (қараңғыда өшеді) ───────── */
+:root[data-theme="dark"] { --bg-mesh: none; --glass-blur: none; --btn-grad: var(--primary); --card-hi: inset 0 0 0 0 transparent; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg-mesh: none; --glass-blur: none; --btn-grad: var(--primary); --card-hi: inset 0 0 0 0 transparent; }
+}
+body { background-color: var(--bg); background-image: var(--bg-mesh); background-attachment: fixed; }
+.tile, .stat, .wk, .enc-card, .auth-card, .site-footer, .an-prog, .quick-add, .empty, .week {
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+}
+.tile, .stat, .wk, .enc-card, .auth-card, .an-prog { box-shadow: var(--card-hi), 0 0 0 1px var(--line), var(--shadow); }
+.btn.primary { background: var(--btn-grad); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 12px 26px -12px rgba(21, 128, 61, 0.75); }
+.wk-act:not(.k-fert .wk-act), .send { background: var(--btn-grad); }
+
+:root[data-theme="light"] .topbar { background: rgba(255, 255, 255, 0.55); border-bottom-color: rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -24px rgba(16, 96, 52, 0.5); }
+:root[data-theme="light"] .tabs { background: rgba(255, 255, 255, 0.66); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.95), 0 10px 28px -18px rgba(16, 96, 52, 0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+:root[data-theme="light"] .tab-ind { background: var(--btn-grad) !important; box-shadow: 0 8px 18px -8px rgba(21, 128, 61, 0.7); }
+:root[data-theme="light"] .tab.active { color: #fff !important; }
+:root[data-theme="light"] .seg, :root[data-theme="light"] .icon-btn { background: rgba(255, 255, 255, 0.7); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.95), 0 6px 16px -12px rgba(16, 96, 52, 0.5); }
+:root[data-theme="light"] .acct-btn:not(.in) { background: var(--btn-grad); color: #fff; box-shadow: 0 10px 22px -12px rgba(21, 128, 61, 0.8); }
+:root[data-theme="light"] .sheet { background: #fdfefb; }
+:root[data-theme="light"] .stat svg { color: var(--primary); }
+:root[data-theme="light"] .stat { background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(236, 248, 240, 0.78)); }
+:root[data-theme="light"] .intro .t-priv, :root[data-theme="light"] .fact-tile { background: linear-gradient(150deg, #134e2c, #0c3520); }
+:root[data-theme="light"] .day.today-day, :root[data-theme="light"] .wk-day.on { background: linear-gradient(160deg, #1b5e36, #0c2a1a); }
+:root[data-theme="light"] .hero-title .hw, :root[data-theme="light"] .page-head h1 { background: linear-gradient(120deg, #0c2a1a 30%, #17703c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+:root[data-theme="light"] .ticker { background: rgba(255, 255, 255, 0.45); }
+:root[data-theme="light"] .site-footer { background: transparent; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .topbar { background: rgba(255, 255, 255, 0.55); border-bottom-color: rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -24px rgba(16, 96, 52, 0.5); }
+  :root:not([data-theme="dark"]) .tabs { background: rgba(255, 255, 255, 0.66); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.95), 0 10px 28px -18px rgba(16, 96, 52, 0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+  :root:not([data-theme="dark"]) .tab-ind { background: var(--btn-grad) !important; box-shadow: 0 8px 18px -8px rgba(21, 128, 61, 0.7); }
+  :root:not([data-theme="dark"]) .tab.active { color: #fff !important; }
+  :root:not([data-theme="dark"]) .seg, :root:not([data-theme="dark"]) .icon-btn { background: rgba(255, 255, 255, 0.7); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.95), 0 6px 16px -12px rgba(16, 96, 52, 0.5); }
+  :root:not([data-theme="dark"]) .acct-btn:not(.in) { background: var(--btn-grad); color: #fff; box-shadow: 0 10px 22px -12px rgba(21, 128, 61, 0.8); }
+  :root:not([data-theme="dark"]) .sheet { background: #fdfefb; }
+  :root:not([data-theme="dark"]) .stat svg { color: var(--primary); }
+  :root:not([data-theme="dark"]) .stat { background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(236, 248, 240, 0.78)); }
+  :root:not([data-theme="dark"]) .intro .t-priv, :root:not([data-theme="dark"]) .fact-tile { background: linear-gradient(150deg, #134e2c, #0c3520); }
+  :root:not([data-theme="dark"]) .day.today-day, :root:not([data-theme="dark"]) .wk-day.on { background: linear-gradient(160deg, #1b5e36, #0c2a1a); }
+  :root:not([data-theme="dark"]) .hero-title .hw, :root:not([data-theme="dark"]) .page-head h1 { background: linear-gradient(120deg, #0c2a1a 30%, #17703c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  :root:not([data-theme="dark"]) .ticker { background: rgba(255, 255, 255, 0.45); }
+  :root:not([data-theme="dark"]) .site-footer { background: transparent; }
+}
