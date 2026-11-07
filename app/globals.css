@@ -1491,3 +1491,10 @@ body::after {
   .ai-hero { gap: 12px; padding-top: 4px; }
   .glass-composer::before { bottom: -110px; }
 }
+@media (max-width: 600px) {
+  .intro .t-scan { min-height: 420px; }
+  .scan-card { padding: 12px 14px; border-radius: 18px; }
+  .scan-card strong { font-size: 22px; }
+  .scan-tip { display: none; }
+  .scan-frame { top: 32%; width: 52%; }
+}

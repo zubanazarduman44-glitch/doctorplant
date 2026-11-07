@@ -1921,7 +1921,6 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
               srcSet={photoSet(SCENES.monsteraDrops)}
               sizes="(max-width: 860px) 100vw, 60vw"
               alt=""
-              loading="lazy"
             />
             <span className="scan-line" aria-hidden="true" />
             <span className="scan-frame" aria-hidden="true"><i /><i /><i /><i /></span>
@@ -1936,7 +1935,7 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
           <div className="t-gallery">
             {t.gallery.map(([label, key]) => (
               <figure key={key} className="g-ph">
-                <img src={photoUrl(PLANT_PHOTOS[key], 700, 700)} srcSet={`${photoUrl(PLANT_PHOTOS[key], 700, 700)} 1x, ${photoUrl(PLANT_PHOTOS[key], 1400, 1400)} 2x`} alt="" loading="lazy" />
+                <img src={photoUrl(PLANT_PHOTOS[key], 700, 700)} srcSet={`${photoUrl(PLANT_PHOTOS[key], 700, 700)} 1x, ${photoUrl(PLANT_PHOTOS[key], 1400, 1400)} 2x`} alt="" />
                 <figcaption>{label}</figcaption>
               </figure>
             ))}
