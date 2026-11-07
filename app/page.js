@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CITIES, PLANTS, ACTIVES, REGISTRY_URL } from "./data";
+import { photoUrl, photoSet, PLANT_PHOTOS, photoForLatin, SCENES } from "./photos";
 import {
   getAuthConfig,
   signInWithGoogle,
@@ -254,6 +255,20 @@ const T = {
     sheetDate: "Күні",
     sheetPending: "анықталмаған",
     fShootTitle: "Қалай түсіру керек",
+    scanKicker: "Tamyr осылай көреді",
+    scanName: "Монстера",
+    scanStatus: "Сау · сенімділік 96%",
+    scanTip: "Келесі суару: 5 күннен кейін",
+    gallery: [["Үй гүлдері", "monstera"], ["Бақша", "tomato"], ["Гүлдер", "orchid"], ["Жеміс ағаштары", "sieversii"]],
+    aiHi: "Сәлем",
+    aiAsk: "бүгін немен көмектесейін?",
+    aiTools: "Құралдар",
+    aiNew: "Жаңа чат",
+    share: "Бөлісу",
+    good: "Жақсы жауап",
+    bad: "Нашар жауап",
+    editQ: "Өңдеу",
+    aiName: "Tamyr ЖИ",
     fFindTitle: "Не анықтаймыз",
     fFind: ["Өсімдік түрі", "Ауру және себебі", "Емдеу қадамдары", "ҚР-дағы препараттар"],
     fPrivTitle: "Сурет сақталмайды",
@@ -560,6 +575,20 @@ const T = {
     sheetDate: "Дата",
     sheetPending: "не определён",
     fShootTitle: "Как снимать",
+    scanKicker: "Так видит Tamyr",
+    scanName: "Монстера",
+    scanStatus: "Здорова · уверенность 96%",
+    scanTip: "Следующий полив: через 5 дней",
+    gallery: [["Комнатные", "monstera"], ["Огород", "tomato"], ["Цветы", "orchid"], ["Плодовые", "sieversii"]],
+    aiHi: "Привет",
+    aiAsk: "чем помочь сегодня?",
+    aiTools: "Инструменты",
+    aiNew: "Новый чат",
+    share: "Поделиться",
+    good: "Хороший ответ",
+    bad: "Плохой ответ",
+    editQ: "Изменить",
+    aiName: "Tamyr ИИ",
     fFindTitle: "Что определяем",
     fFind: ["Вид растения", "Болезнь и причину", "Шаги лечения", "Препараты в Казахстане"],
     fPrivTitle: "Фото не сохраняется",
@@ -963,6 +992,7 @@ const ICONS = {
   down: <path d="M17 13V5h2.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5H17Zm0 0-4 7a2 2 0 0 1-2-2v-3.5H6a2 2 0 0 1-2-2.3l1-6A2 2 0 0 1 7 5h10" />,
   alert: <path d="M12 9v4M12 17h.01M10.3 4.2 2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z" />,
   arrow: <path d="M7 17 17 7M9 7h8v8" />,
+  chevron: <path d="m6 9 6 6 6-6" />,
   plants: <path d="M7 14h10l-1.2 6.2a1 1 0 0 1-1 .8H9.2a1 1 0 0 1-1-.8L7 14ZM12 14V9m0 0c0-2.5-1.7-4-4.5-4 0 2.5 1.7 4 4.5 4Zm0 0c0-2.8 1.8-4.5 5-4.5 0 2.8-1.8 4.5-5 4.5Z" />,
   bell: <path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16ZM10 20a2 2 0 0 0 4 0" />,
   calendar: <path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 17.5v-11ZM5 10h14M9 3v4M15 3v4" />,
@@ -990,6 +1020,11 @@ const ICONS = {
   flame: <path d="M12 21c3.6 0 6-2.5 6-6 0-4.5-4-6.5-4.5-11-2.5 2-4 4.5-4 7-1 0-2-1-2.5-2.5C5.5 10 6 12 6 15c0 3.5 2.4 6 6 6Z" />,
   trophy: <path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6M10 17h4" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
+  sparkle: <path d="M12 3.5c.6 3.9 2.6 5.9 6.5 6.5-3.9.6-5.9 2.6-6.5 6.5-.6-3.9-2.6-5.9-6.5-6.5 3.9-.6 5.9-2.6 6.5-6.5ZM18.5 15.5c.3 1.7 1.1 2.5 2.8 2.8-1.7.3-2.5 1.1-2.8 2.8-.3-1.7-1.1-2.5-2.8-2.8 1.7-.3 2.5-1.1 2.8-2.8Z" />,
+  plusCircle: <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 8v8M8 12h8" />,
+  thumbUp: <path d="M7 10v10H4V10h3Zm0 0 4-7c1.7 0 2.7 1.2 2.4 2.8L13 9h5.5a2 2 0 0 1 2 2.4l-1.3 6.8A2.2 2.2 0 0 1 17 20H7" />,
+  thumbDown: <path d="M7 14V4H4v10h3Zm0 0 4 7c1.7 0 2.7-1.2 2.4-2.8L13 15h5.5a2 2 0 0 0 2-2.4l-1.3-6.8A2.2 2.2 0 0 0 17 4H7" />,
+  share: <path d="M12 15V3M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />,
   user: <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />,
   logout: <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11" />,
   mail: <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11ZM3.5 6.5 12 13l8.5-6.5" />,
@@ -1459,6 +1494,7 @@ export default function Home() {
           <ChatPage
             t={t}
             lang={lang}
+            userName={user ? (displayName || user.name || "").split(" ")[0] : ""}
             history={history}
             entry={chatEntry}
             onSelect={setChatKey}
@@ -1879,6 +1915,32 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
 
       {!current && !image && (
         <section className="bento intro">
+          <figure className="tile t-scan">
+            <img
+              src={photoUrl(SCENES.monsteraDrops, 1600)}
+              srcSet={photoSet(SCENES.monsteraDrops)}
+              sizes="(max-width: 860px) 100vw, 60vw"
+              alt=""
+              loading="lazy"
+            />
+            <span className="scan-line" aria-hidden="true" />
+            <span className="scan-frame" aria-hidden="true"><i /><i /><i /><i /></span>
+            <figcaption className="scan-card">
+              <span className="scan-kicker"><Icon name="sparkle" size={14} /> {t.scanKicker}</span>
+              <strong>{t.scanName}</strong>
+              <em>Monstera deliciosa</em>
+              <span className="scan-ok"><span className="dot" /> {t.scanStatus}</span>
+              <span className="scan-tip"><Icon name="drop" size={14} /> {t.scanTip}</span>
+            </figcaption>
+          </figure>
+          <div className="t-gallery">
+            {t.gallery.map(([label, key]) => (
+              <figure key={key} className="g-ph">
+                <img src={photoUrl(PLANT_PHOTOS[key], 700, 700)} srcSet={`${photoUrl(PLANT_PHOTOS[key], 700, 700)} 1x, ${photoUrl(PLANT_PHOTOS[key], 1400, 1400)} 2x`} alt="" loading="lazy" />
+                <figcaption>{label}</figcaption>
+              </figure>
+            ))}
+          </div>
           <div className="tile t-shoot">
             <h3>{t.fShootTitle}</h3>
             <ul className="ticks">
@@ -2275,6 +2337,9 @@ function MyPlants({ t, lang, plants, onSave }) {
                   ])
                 }
               >
+                {photoForLatin(latin) && (
+                  <img className="qa-ph" src={photoUrl(photoForLatin(latin), 240, 240)} alt="" loading="lazy" />
+                )}
                 <span className="qa-name">{name}</span>
                 <span className="qa-latin">{latin}</span>
                 <span className="qa-meta">
@@ -2350,7 +2415,7 @@ function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete }) {
     <li className={`plant p-${state}`}>
       <div className="plant-main">
         <div className="pring" style={{ "--p": progress }}>
-          {plant.thumb ? <img src={plant.thumb} alt="" /> : <span className="pring-in"><Icon name="plants" size={26} /></span>}
+          {plant.thumb ? <img src={plant.thumb} alt="" /> : photoForLatin(plant.latin) ? <img src={photoUrl(photoForLatin(plant.latin), 200, 200)} alt="" loading="lazy" /> : <span className="pring-in"><Icon name="plants" size={26} /></span>}
         </div>
         <div className="plant-text">
           <h3>{plant.name}</h3>
@@ -3156,10 +3221,21 @@ function Encyclopedia({ t, lang, plants, onAddPlant, onAsk }) {
       <ul className="enc-grid">
         {list.map((p) => (
           <li key={p.id}>
-            <button className={`enc-card g-${p.group}`} onClick={() => setOpen(p)}>
-              <span className="enc-mark">
-                <Icon name={p.group === "garden" ? "sprout" : p.group === "kz" ? "shield" : "plants"} size={22} />
-              </span>
+            <button className={`enc-card g-${p.group} ${PLANT_PHOTOS[p.id] ? "has-ph" : ""}`} onClick={() => setOpen(p)}>
+              {PLANT_PHOTOS[p.id] ? (
+                <span className="enc-ph">
+                  <img
+                    src={photoUrl(PLANT_PHOTOS[p.id], 640, 480)}
+                    srcSet={`${photoUrl(PLANT_PHOTOS[p.id], 640, 480)} 1x, ${photoUrl(PLANT_PHOTOS[p.id], 1280, 960)} 2x`}
+                    alt={p.name}
+                    loading="lazy"
+                  />
+                </span>
+              ) : (
+                <span className="enc-mark">
+                  <Icon name={p.group === "garden" ? "sprout" : p.group === "kz" ? "shield" : "plants"} size={22} />
+                </span>
+              )}
               <strong>{p.name}</strong>
               <em>{p.latin}</em>
               <span className="enc-tags">
@@ -3187,6 +3263,16 @@ function PlantCardFull({ t, p, plants, onBack, onAddPlant, onAsk }) {
       <button className="link back" onClick={onBack}>
         <Icon name="back" size={18} /> {t.encBack}
       </button>
+      {PLANT_PHOTOS[p.id] && (
+        <figure className="enc-hero">
+          <img
+            src={photoUrl(PLANT_PHOTOS[p.id], 1800, 900)}
+            srcSet={`${photoUrl(PLANT_PHOTOS[p.id], 1200, 600)} 1200w, ${photoUrl(PLANT_PHOTOS[p.id], 2400, 1200)} 2400w, ${photoUrl(PLANT_PHOTOS[p.id], 3840, 1920)} 3840w`}
+            sizes="100vw"
+            alt={p.name}
+          />
+        </figure>
+      )}
       <header className="tile enc-head">
         <div>
           <p className="latin">{p.latin}</p>
@@ -3834,13 +3920,15 @@ function MapAddForm({ t, history, pos, onCancel, onSubmit }) {
 }
 
 /* ───────────── Кеңесші (чат) ───────────── */
-function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, initialQuestion, onConsumed }) {
+function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMessages, initialQuestion, onConsumed }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [photo, setPhoto] = useState(null); // { full, thumb }
   const [topic, setTopic] = useState("care");
   const [copied, setCopied] = useState(-1);
+  const [tools, setTools] = useState(false);
+  const [rated, setRated] = useState({});
   const [rec, setRec] = useState("idle"); // idle | recording | transcribing
   const [secs, setSecs] = useState(0);
   const recRef = useRef(null);
@@ -3992,29 +4080,56 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
 
   const current = t.topics.find((x) => x.id === topic) || t.topics[0];
   const lastIdx = messages.length - 1;
+  const quick = entry ? t.chatSuggestPlant : t.topics.map((x) => x.qs[0]).slice(0, 4);
+
+  async function share(textToShare) {
+    try {
+      if (navigator.share) await navigator.share({ title: "Tamyr", text: textToShare });
+      else await navigator.clipboard.writeText(textToShare);
+    } catch {}
+  }
+
+  const Orb = ({ size = "big" }) => (
+    <span className={`orb orb-${size}`} aria-hidden="true">
+      <span className="orb-core" />
+      <span className="orb-shine" />
+      <Icon name="sparkle" size={size === "big" ? 64 : 17} />
+      {size === "big" && (
+        <>
+          <i className="spk s1" />
+          <i className="spk s2" />
+          <i className="spk s3" />
+          <i className="spk s4" />
+        </>
+      )}
+    </span>
+  );
 
   return (
-    <div className="chat-page">
+    <div className={`chat-page glass-chat ${messages.length === 0 && !busy ? "is-empty" : ""}`}>
       <header className="chat-head">
-        <h1>{t.chatTitle}</h1>
-        <div className="chat-tools">
-          <label className="ctx">
-            <span className="sr-only">{t.chatAbout}</span>
-            <select value={entry?.key || ""} onChange={(e) => onSelect(e.target.value || null)}>
-              <option value="">{t.chatGeneral}</option>
-              {history.map((h) => (
-                <option key={h.key} value={h.key}>
-                  {h.result?.plant_name || "—"} · {new Date(h.date).toLocaleDateString()}
-                </option>
-              ))}
-            </select>
-          </label>
-          {messages.length > 0 && (
-            <button className="btn ghost small" onClick={() => setMessages([])} disabled={busy}>
-              {t.chatClear}
-            </button>
-          )}
-        </div>
+        <span className="ch-spacer" />
+        <label className="ctx-pill">
+          <span className="sr-only">{t.chatAbout}</span>
+          <select value={entry?.key || ""} onChange={(e) => onSelect(e.target.value || null)}>
+            <option value="">Tamyr · {t.chatGeneral}</option>
+            {history.map((h) => (
+              <option key={h.key} value={h.key}>
+                {h.result?.plant_name || "—"} · {new Date(h.date).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+          <Icon name="chevron" size={16} />
+        </label>
+        <button
+          className="round-btn"
+          onClick={() => setMessages([])}
+          disabled={busy || messages.length === 0}
+          aria-label={t.aiNew}
+          title={t.aiNew}
+        >
+          <Icon name="edit" size={19} />
+        </button>
       </header>
 
       <div className="thread">
@@ -4029,25 +4144,28 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
         )}
 
         {messages.length === 0 && !busy && (
-          <div className="chat-start">
-            <p className="chat-lead">{t.chatEmpty}</p>
-            <button className="voice-cta" onClick={startRec} disabled={rec !== "idle"}>
-              <span className="voice-cta-icon">
-                <Icon name="mic" size={22} />
-              </span>
-              <span>{t.voiceHint}</span>
+          <div className="ai-hero">
+            <Orb />
+            <h1 className="ai-greet">
+              <span>{t.aiHi}{userName ? `, ${userName}` : ""},</span> {t.aiAsk}
+            </h1>
+            <p className="ai-sub">{t.chatEmpty}</p>
+            <button className={`tools-chip ${tools ? "on" : ""}`} onClick={() => setTools((x) => !x)} aria-expanded={tools}>
+              <Icon name="sparkle" size={17} /> {t.aiTools}
             </button>
 
-            {entry ? (
-              <div className="chips">
-                {t.chatSuggestPlant.map((q) => (
-                  <button key={q} className="chip" onClick={() => ask(q)}>
+            {!tools && (
+              <div className="ai-quick">
+                {quick.map((q) => (
+                  <button key={q} className="aq" onClick={() => ask(q)}>
                     {q}
                   </button>
                 ))}
               </div>
-            ) : (
-              <section className="topics">
+            )}
+
+            {tools && !entry && (
+              <section className="topics glass-panel">
                 <div className="topic-tabs" role="tablist">
                   {t.topics.map((x) => (
                     <button
@@ -4072,10 +4190,19 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
                 </div>
               </section>
             )}
+            {tools && entry && (
+              <div className="ai-quick">
+                {t.chatSuggestPlant.map((q) => (
+                  <button key={q} className="aq" onClick={() => ask(q)}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
 
-            <aside className="fact">
+            <aside className="fact glass-panel">
               <span className="fact-icon">
-                <Icon name="bulb" size={22} />
+                <Icon name="bulb" size={20} />
               </span>
               <div>
                 <h3>{t.factTitle}</h3>
@@ -4088,47 +4215,73 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
           </div>
         )}
 
-        {messages.map((m, i) => (
-          <div key={i} className={`msg ${m.role}`}>
-            {m.role === "assistant" && (
-              <span className="avatar" aria-hidden="true">
-                <Icon name="leaf" size={16} />
-              </span>
-            )}
-            <div className="bubble">
-              {m.thumb && <img className="msg-photo" src={m.thumb} alt="" />}
-              {m.role === "assistant" ? (
-                <RichText text={m.text} />
-              ) : (
-                <>
-                  {m.voice && <Icon name="mic" size={14} />} {m.text}
-                </>
-              )}
-              {m.role === "assistant" && (
+        {messages.map((m, i) =>
+          m.role === "assistant" ? (
+            <div key={i} className="msg assistant">
+              <Orb size="mini" />
+              <div className="ai-body">
+                <span className="ai-name">{t.aiName}</span>
+                <div className="ai-text">
+                  <RichText text={m.text} />
+                </div>
                 <div className="msg-tools">
-                  <button onClick={() => copy(m.text, i)} aria-label={t.copy}>
-                    <Icon name={copied === i ? "check" : "copy"} size={15} /> {copied === i ? t.copied : t.copy}
+                  <button onClick={() => copy(m.text, i)} aria-label={t.copy} title={copied === i ? t.copied : t.copy}>
+                    <Icon name={copied === i ? "check" : "copy"} size={17} />
+                  </button>
+                  <button className={rated[i] === "up" ? "on" : ""} onClick={() => setRated((r) => ({ ...r, [i]: r[i] === "up" ? null : "up" }))} aria-label={t.good} title={t.good}>
+                    <Icon name="thumbUp" size={17} />
+                  </button>
+                  <button className={rated[i] === "down" ? "on" : ""} onClick={() => setRated((r) => ({ ...r, [i]: r[i] === "down" ? null : "down" }))} aria-label={t.bad} title={t.bad}>
+                    <Icon name="thumbDown" size={17} />
+                  </button>
+                  <button onClick={() => share(m.text)} aria-label={t.share} title={t.share}>
+                    <Icon name="share" size={17} />
                   </button>
                   {i === lastIdx && (
-                    <button onClick={retry} disabled={busy} aria-label={t.retry}>
-                      <Icon name="refresh" size={15} /> {t.retry}
+                    <button onClick={retry} disabled={busy} aria-label={t.retry} title={t.retry}>
+                      <Icon name="refresh" size={17} />
                     </button>
                   )}
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          ) : (
+            <div key={i} className="msg user">
+              <div className="user-col">
+                <div className="bubble">
+                  {m.thumb && <img className="msg-photo" src={m.thumb} alt="" />}
+                  {m.voice && <Icon name="mic" size={14} />} {m.text}
+                </div>
+                <div className="msg-tools end">
+                  <button onClick={() => copy(m.text, i)} aria-label={t.copy} title={t.copy}>
+                    <Icon name={copied === i ? "check" : "copy"} size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setText(m.text);
+                      inputRef.current?.focus();
+                    }}
+                    aria-label={t.editQ}
+                    title={t.editQ}
+                  >
+                    <Icon name="edit" size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        )}
         {busy && (
           <div className="msg assistant">
-            <span className="avatar" aria-hidden="true">
-              <Icon name="leaf" size={16} />
-            </span>
-            <div className="bubble typing">
-              <span />
-              <span />
-              <span />
-              <span className="sr-only">{t.thinking}</span>
+            <Orb size="mini" />
+            <div className="ai-body">
+              <span className="ai-name">{t.aiName}</span>
+              <div className="typing">
+                <span />
+                <span />
+                <span />
+                <span className="sr-only">{t.thinking}</span>
+              </div>
             </div>
           </div>
         )}
@@ -4145,78 +4298,79 @@ function ChatPage({ t, lang, history, entry, onSelect, messages, setMessages, in
       </div>
 
       <form
-        className="composer"
+        className="composer glass-composer"
         onSubmit={(e) => {
           e.preventDefault();
           ask();
         }}
       >
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickPhoto} />
-        <button type="button" className="attach" onClick={() => fileRef.current?.click()} aria-label={t.attach} title={t.attach}>
-          <Icon name="image" size={20} />
-        </button>
-        <div className="composer-body">
-          {rec !== "idle" && (
-            <div className={`rec-bar ${rec}`} role="status">
-              {rec === "recording" ? (
-                <>
-                  <span className="rec-dot" />
-                  <span>
-                    {t.listening} 0:{String(secs).padStart(2, "0")}
-                  </span>
-                  <button type="button" className="rec-cancel" onClick={() => stopRec(true)} aria-label={t.cancel}>
-                    <Icon name="x" size={16} />
-                  </button>
-                </>
-              ) : (
-                <span>{t.transcribing}</span>
-              )}
-            </div>
+        <div className="gc-field">
+          <button type="button" className="attach" onClick={() => fileRef.current?.click()} aria-label={t.attach} title={t.attach}>
+            <Icon name="plusCircle" size={21} />
+          </button>
+          <div className="composer-body">
+            {rec !== "idle" && (
+              <div className={`rec-bar ${rec}`} role="status">
+                {rec === "recording" ? (
+                  <>
+                    <span className="rec-dot" />
+                    <span>
+                      {t.listening} 0:{String(secs).padStart(2, "0")}
+                    </span>
+                    <button type="button" className="rec-cancel" onClick={() => stopRec(true)} aria-label={t.cancel}>
+                      <Icon name="x" size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <span>{t.transcribing}</span>
+                )}
+              </div>
+            )}
+            {photo && (
+              <div className="attached">
+                <img src={photo.thumb} alt="" />
+                <button type="button" onClick={() => setPhoto(null)} aria-label={t.removePhoto}>
+                  <Icon name="x" size={14} />
+                </button>
+              </div>
+            )}
+            <textarea
+              ref={inputRef}
+              value={text}
+              rows={1}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  ask();
+                }
+              }}
+              placeholder={photo ? t.photoQuestion : t.chatPlaceholder}
+              maxLength={1000}
+              aria-label={t.chatPlaceholder}
+            />
+          </div>
+          {rec === "recording" ? (
+            <button type="button" className="mic-in rec" onClick={() => stopRec(false)} aria-label={t.voiceStop} title={t.voiceStop}>
+              <Icon name="mic" size={20} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="mic-in"
+              onClick={startRec}
+              disabled={busy || rec !== "idle"}
+              aria-label={t.voiceAsk}
+              title={t.voiceAsk}
+            >
+              <Icon name="mic" size={20} />
+            </button>
           )}
-          {photo && (
-            <div className="attached">
-              <img src={photo.thumb} alt="" />
-              <button type="button" onClick={() => setPhoto(null)} aria-label={t.removePhoto}>
-                <Icon name="x" size={14} />
-              </button>
-            </div>
-          )}
-          <textarea
-            ref={inputRef}
-            value={text}
-            rows={1}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                ask();
-              }
-            }}
-            placeholder={photo ? t.photoQuestion : t.chatPlaceholder}
-            maxLength={1000}
-            aria-label={t.chatPlaceholder}
-          />
         </div>
-        {rec === "recording" ? (
-          <button type="button" className="send rec" onClick={() => stopRec(false)} aria-label={t.voiceStop}>
-            <Icon name="send" size={20} />
-          </button>
-        ) : !text.trim() && !photo ? (
-          <button
-            type="button"
-            className="send mic"
-            onClick={startRec}
-            disabled={busy || rec !== "idle"}
-            aria-label={t.voiceAsk}
-            title={t.voiceAsk}
-          >
-            <Icon name="mic" size={21} />
-          </button>
-        ) : (
-          <button type="submit" className="send" disabled={busy} aria-label={t.send}>
-            <Icon name="send" size={20} />
-          </button>
-        )}
+        <button type="submit" className="send-orb" disabled={busy || (!text.trim() && !photo)} aria-label={t.send}>
+          <Icon name="send" size={21} />
+        </button>
       </form>
 
       <p className="composer-fine">{t.disclaimer}</p>
