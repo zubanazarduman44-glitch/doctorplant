@@ -8,6 +8,20 @@ import { saveDiagnosis } from "../../../lib/db";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+function contextBlock(ctx, answers, previous) {
+  const lines = [];
+  if (ctx?.city) lines.push(`Location: ${String(ctx.city).slice(0, 40)}, Kazakhstan.`);
+  if (ctx?.month) lines.push(`Current month: ${String(ctx.month).slice(0, 20)} (consider season and local climate).`);
+  if (ctx?.weather) lines.push(`Recent weather: ${String(ctx.weather).slice(0, 160)}.`);
+  if (previous) lines.push(`Earlier quick analysis said: ${String(previous).slice(0, 300)}. Re-check it critically.`);
+  if (Array.isArray(answers) && answers.length) {
+    lines.push("The owner answered your clarifying questions:");
+    for (const a of answers.slice(0, 4)) lines.push(`- Q: ${String(a.q || "").slice(0, 160)} → A: ${String(a.a || "").slice(0, 160)}`);
+    lines.push("Use these answers to refine the diagnosis and probabilities. Do NOT ask the same questions again (followup_questions may be empty).");
+  }
+  return lines.length ? `\nContext:\n${lines.join("\n")}\n` : "";
+}
+
 function buildPrompt(lang, count = 1) {
   return `Сен — Қазақстанда жұмыс істейтін тәжірибелі агроном және ботаниксің. Пайдаланушы өсімдіктің суретін жіберді.
 You are an experienced agronomist and botanist working in Kazakhstan. Analyze the plant photo.
@@ -23,6 +37,12 @@ Rules:
 - NEVER say whether a plant is safe to eat.
 - Mention if the plant is toxic to pets or children (only if well known).
 - "spots": if disease, pest or damage is VISIBLE, mark up to 5 most important affected areas. For each: box_2d = [ymin, xmin, ymax, xmax] normalized to 0-1000 relative to that image, image_index = which photo (0-based), label = 2-4 words in the answer language (e.g. "fungal spots", "pest eggs"). Boxes must tightly surround the visible symptom. If the plant looks healthy or the problem is not visible as an area — empty array.
+- Think like a plant doctor: first list possible causes (diseases, pests, AND abiotic: over/under-watering, sunburn, cold, nutrient deficiency), compare them with what you SEE, then decide.
+- "pathogen": Latin name of the causal organism if it is a disease or pest (e.g. "Alternaria solani", "Tetranychus urticae"); empty if abiotic or healthy.
+- "severity": none (healthy) / mild / moderate / severe. "severity_note": one sentence about how urgent it is.
+- "differential": 2-3 most likely explanations INCLUDING the main one, each with probability (integers that sum to ~100) and "why" (one short sentence: which visible sign supports it). Order from most to least likely.
+- "treatment_plan": a short schedule of 3-5 steps with "day" (0 = today, then e.g. 3, 7, 14) and "action" (one short sentence). For a healthy plant — simple care checkpoints.
+- "followup_questions": if your top probability is below 85% or the cause depends on care conditions, ask 1-3 short questions that would most change the diagnosis (watering frequency, location/light, recent changes, pests seen, underside of leaves). Each with 2-4 short answer options. Otherwise empty.
 - Be concise (fast answer): symptoms, causes and treatment — at most 4 items each, each item one short sentence (max ~14 words). Care fields — one short sentence each.`;
 }
 
@@ -85,6 +105,33 @@ const SCHEMA = {
         required: ["box_2d", "label"],
       },
     },
+    pathogen: { type: "STRING" },
+    severity: { type: "STRING", enum: ["none", "mild", "moderate", "severe"] },
+    severity_note: { type: "STRING" },
+    differential: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: { name: { type: "STRING" }, probability: { type: "INTEGER" }, why: { type: "STRING" } },
+        required: ["name", "probability"],
+      },
+    },
+    treatment_plan: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: { day: { type: "INTEGER" }, action: { type: "STRING" } },
+        required: ["day", "action"],
+      },
+    },
+    followup_questions: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: { q: { type: "STRING" }, options: { type: "ARRAY", items: { type: "STRING" } } },
+        required: ["q", "options"],
+      },
+    },
     toxicity_note: { type: "STRING" },
     photo_tip: { type: "STRING", description: "Empty if photo is good" },
   },
@@ -104,7 +151,7 @@ export async function POST(req) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
 
-  const { image, images, lang = "kk", clientId } = body || {};
+  const { image, images, lang = "kk", clientId, context, answers, previous } = body || {};
   // Бір немесе бірнеше сурет (ең көбі 3)
   const list = (Array.isArray(images) ? images : [image]).filter(
     (x) => typeof x === "string" && x.startsWith("data:image/")
@@ -112,7 +159,7 @@ export async function POST(req) {
   if (!list.length) {
     return Response.json({ error: "Сурет табылмады / Фото не найдено" }, { status: 400 });
   }
-  const parts = [{ text: buildPrompt(lang, Math.min(list.length, 3)) }];
+  const parts = [{ text: buildPrompt(lang, Math.min(list.length, 3)) + contextBlock(context, answers, previous) }];
   let total = 0;
   for (const img of list.slice(0, 3)) {
     const [meta, base64] = img.split(",");
@@ -128,9 +175,10 @@ export async function POST(req) {
   try {
     text = await callGemini(contents, {
       schema: SCHEMA,
-      thinking: "minimal",
+      // Нақтылау кезінде тереңірек ойланады; алғашқы талдау — жылдам
+      thinking: Array.isArray(answers) && answers.length ? "low" : "minimal",
       mediaResolution: "MEDIA_RESOLUTION_MEDIUM",
-      maxTokens: 2048,
+      maxTokens: 3072,
     });
   } catch (e) {
     const status = e instanceof GeminiError ? e.status : 502;
@@ -158,6 +206,26 @@ export async function POST(req) {
     })
     .filter(Boolean)
     .slice(0, 5);
+
+  // Жаңа өрістерді тазалаймыз
+  const str = (x, n) => String(x ?? "").slice(0, n);
+  result.differential = (Array.isArray(result.differential) ? result.differential : [])
+    .filter((d) => d?.name)
+    .slice(0, 3)
+    .map((d) => ({ name: str(d.name, 80), probability: Math.max(0, Math.min(100, Math.round(Number(d.probability) || 0))), why: str(d.why, 160) }));
+  result.treatment_plan = (Array.isArray(result.treatment_plan) ? result.treatment_plan : [])
+    .filter((x) => x?.action)
+    .slice(0, 6)
+    .map((x) => ({ day: Math.max(0, Math.min(60, Math.round(Number(x.day) || 0))), action: str(x.action, 160) }))
+    .sort((a, b) => a.day - b.day);
+  result.followup_questions = (Array.isArray(result.followup_questions) ? result.followup_questions : [])
+    .filter((x) => x?.q && Array.isArray(x.options) && x.options.length)
+    .slice(0, 3)
+    .map((x) => ({ q: str(x.q, 140), options: x.options.slice(0, 4).map((o) => str(o, 40)) }));
+  if (!["none", "mild", "moderate", "severe"].includes(result.severity)) {
+    result.severity = result.health_status === "healthy" ? "none" : result.health_status === "sick" ? "moderate" : "mild";
+  }
+  result.refined = Boolean(Array.isArray(answers) && answers.length);
 
   // Базаға сақтаймыз (сурет сақталмайды — тек нәтиже)
   const id = await saveDiagnosis({ lang, clientId, result });

@@ -311,6 +311,27 @@ const T = {
     tips: ["Күндізгі жарық", "Жапыраққа жақын", "Ауру жерін көрсетіңіз"],
     confidence: "Сенімділік",
     diagnosis: "Диагноз",
+    scanTxt: "СКАНЕРЛЕУ",
+    ac: {
+      healthy: "Өсімдік сау",
+      detected: "Ауру анықталды",
+      attention: "Назар аудару керек",
+      conf: (n) => `диагноз ықтималдығы ${n}%`,
+      treat: "Қазір емдеу",
+      more: "Толығырақ",
+      refined: "Нақтыланған диагноз",
+      model: "Tamyr AI 2.0",
+      sev: { none: "Сау", mild: "Жеңіл", moderate: "Орташа", severe: "Ауыр" },
+      sevTitle: "Ауырлық деңгейі",
+    },
+    diffTitle: "Ықтимал себептер",
+    diffHint: "ЖИ бірнеше нұсқаны салыстырды",
+    planTitle: "Емдеу жоспары",
+    planDay: (d) => (d === 0 ? "Бүгін" : `${d}-күн`),
+    qTitle: "ЖИ нақтылағысы келеді",
+    qHint: "Жауап берсеңіз, диагноз дәлірек болады",
+    qBtn: "Диагнозды нақтылау",
+    qBusy: "Қайта талдап жатыр…",
     spotsTitle: "Ауру қай жерде",
     spotsHint: "ЖИ суреттегі зақымданған жерлерді белгіледі",
     spotsToggle: "Белгілерді жасыру",
@@ -672,6 +693,27 @@ const T = {
     tips: ["Дневной свет", "Близко к листу", "Покажите больное место"],
     confidence: "Уверенность",
     diagnosis: "Диагноз",
+    scanTxt: "СКАНИРОВАНИЕ",
+    ac: {
+      healthy: "Растение здорово",
+      detected: "Обнаружена болезнь",
+      attention: "Требует внимания",
+      conf: (n) => `вероятность диагноза ${n}%`,
+      treat: "Лечить сейчас",
+      more: "Подробнее",
+      refined: "Уточнённый диагноз",
+      model: "Tamyr AI 2.0",
+      sev: { none: "Здорово", mild: "Лёгкая", moderate: "Средняя", severe: "Тяжёлая" },
+      sevTitle: "Степень поражения",
+    },
+    diffTitle: "Возможные причины",
+    diffHint: "ИИ сравнил несколько вариантов",
+    planTitle: "План лечения",
+    planDay: (d) => (d === 0 ? "Сегодня" : `День ${d}`),
+    qTitle: "ИИ хочет уточнить",
+    qHint: "Ответьте — и диагноз станет точнее",
+    qBtn: "Уточнить диагноз",
+    qBusy: "Анализирую заново…",
     spotsTitle: "Где проблема",
     spotsHint: "ИИ отметил поражённые места на фото",
     spotsToggle: "Скрыть отметки",
@@ -1024,6 +1066,41 @@ function store(key, value) {
 }
 
 // Суретті кішірейтеміз және EXIF/геолокацияны өшіреміз
+// Сканерлеу HUD: суреттің үстінде технологиялық рамка мен пайыз
+function ScanHud({ t }) {
+  const [ms, setMs] = useState(0);
+  useEffect(() => {
+    const t0 = Date.now();
+    const id = setInterval(() => setMs(Date.now() - t0), 120);
+    return () => clearInterval(id);
+  }, []);
+  const pct = Math.min(97, Math.round(97 * (1 - Math.exp(-ms / 5200))));
+  const dots = [
+    [28, 34], [62, 26], [46, 58], [72, 64], [34, 72], [56, 44],
+  ];
+  return (
+    <div className="hud" aria-hidden="true">
+      <span className="hud-grid" />
+      <span className="hud-frame">
+        <i /><i /><i /><i />
+        <span className="hud-reticle">
+          <span />
+        </span>
+        <span className="hud-beam" />
+        <span className="hud-label">
+          {t.scanTxt}… {pct}%
+        </span>
+        <span className="hud-bar">
+          <span style={{ width: `${pct}%` }} />
+        </span>
+      </span>
+      {dots.map(([x, y], k) => (
+        <span key={k} className="hud-dot" style={{ left: `${x}%`, top: `${y}%`, "--d": `${k * 0.45}s` }} />
+      ))}
+    </div>
+  );
+}
+
 // Талдау барысы — адам не болып жатқанын көреді
 function AnalyzeProgress({ t }) {
   const [ms, setMs] = useState(0);
@@ -1684,7 +1761,7 @@ export default function Home() {
     setCurrent(null);
     try {
       const thumbP = thumbnail(image);
-      const data = await postJSON("/api/diagnose", { images, lang, clientId });
+      const data = await postJSON("/api/diagnose", { images, lang, clientId, context: diagContext() });
       let photos = null;
       if (data.spots?.length) {
         photos = {};
@@ -1708,6 +1785,47 @@ export default function Home() {
       setError(e.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function diagContext() {
+    const cid = store(CITY_KEY);
+    const c = CITIES.find((x) => x.id === cid) || null;
+    return {
+      city: c ? c.ru : "",
+      month: new Date().toLocaleDateString("en", { month: "long" }),
+    };
+  }
+
+  // Нақтылау: ЖИ сұрақтарына жауаптармен қайта талдау
+  const [refining, setRefining] = useState(false);
+  async function refine(answers) {
+    if (!current || !images.length) return;
+    setRefining(true);
+    setError("");
+    try {
+      const data = await postJSON("/api/diagnose", {
+        images,
+        lang,
+        clientId,
+        context: diagContext(),
+        answers,
+        previous: `${current.result?.diagnosis || ""} (${current.result?.pathogen || ""})`,
+      });
+      let photos = current.photos || null;
+      if (data.spots?.length) {
+        photos = {};
+        for (const idx of [...new Set(data.spots.map((x) => x.i))]) {
+          if (images[idx]) photos[idx] = await shrinkDataUrl(images[idx]);
+        }
+      }
+      const next = { ...current, result: data, ...(photos ? { photos } : {}), answers };
+      setCurrent(next);
+      saveHistory(history.map((h) => (h.key === current.key ? next : h)));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setRefining(false);
     }
   }
 
@@ -1817,6 +1935,8 @@ export default function Home() {
             history={history}
             onOpenEntry={openEntry}
             onClearHistory={() => saveHistory([])}
+            onRefine={refine}
+            refining={refining}
             onOpenPlants={() => setTab("plants")}
           />
         )}
@@ -2110,7 +2230,7 @@ function FileInputs({ fileRef, camRef, onPick }) {
   );
 }
 
-function Diagnose({ t, image, images = [], onRemove, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants, onMap, history = [], onOpenEntry, onClearHistory }) {
+function Diagnose({ t, image, images = [], onRemove, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants, onMap, history = [], onOpenEntry, onClearHistory, onRefine, refining }) {
   const fileRef = useRef(null);
   const camRef = useRef(null);
   const [drag, setDrag] = useState(false);
@@ -2211,9 +2331,9 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
             <span className="crop bl" />
             <span className="crop br" />
             {image ? (
-              <div className={`specimen ${loading ? "scanning" : ""}`}>
+              <div className={`specimen ${loading || refining ? "scanning" : ""}`}>
                 <img src={image} alt="" />
-                {loading && <span className="scan-line" aria-hidden="true" />}
+                {(loading || refining) && <ScanHud t={t} />}
                 <div className="thumbs">
                   {images.map((src, i) => (
                     <span key={i} className={`thumb ${i === 0 ? "main" : ""}`}>
@@ -2341,14 +2461,24 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
               </button>
             </div>
           )}
-          <Result t={t} entry={current} onAsk={onAsk} onPatch={onPatch} onSavePlant={onSavePlant} onOpenPlants={onOpenPlants} onMap={onMap} />
+          <Result
+            t={t}
+            entry={current}
+            onAsk={onAsk}
+            onPatch={onPatch}
+            onSavePlant={onSavePlant}
+            onOpenPlants={onOpenPlants}
+            onMap={onMap}
+            onRefine={images.length ? onRefine : null}
+            refining={refining}
+          />
         </>
       )}
     </div>
   );
 }
 
-function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) {
+function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap, onRefine, refining }) {
   const r = entry.result;
   if (r.is_plant === false) {
     return (
@@ -2371,7 +2501,9 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) 
   ].filter((c) => c[2]);
 
   return (
-    <article className={`bento result s-${status}`} key={entry.key}>
+    <article className={`bento result s-${status}`} key={entry.key + (r.refined ? "-r" : "")}>
+      <AlertCard t={t} entry={entry} r={r} status={status} conf={conf} onAsk={onAsk} style={n()} />
+
       {/* Гербарий этикеткасы */}
       <header className="tile label" style={n()}>
         <div className="ring" style={{ "--p": conf }}>
@@ -2394,6 +2526,45 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) 
       </section>
 
       {r.spots?.length > 0 && entry.photos && <SpotView t={t} spots={r.spots} photos={entry.photos} style={n()} />}
+
+      {r.differential?.length > 1 && (
+        <section className="tile diff" style={n()}>
+          <h3 className="tile-title">{t.diffTitle}</h3>
+          <p className="muted small-note">{t.diffHint}</p>
+          <ol className="diff-list">
+            {r.differential.map((d, k) => (
+              <li key={k} className={k === 0 ? "top" : ""}>
+                <div className="diff-row">
+                  <strong>{d.name}</strong>
+                  <span>{d.probability}%</span>
+                </div>
+                <span className="diff-bar">
+                  <span style={{ width: `${d.probability}%`, "--d": `${k * 0.12}s` }} />
+                </span>
+                {d.why && <p>{d.why}</p>}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {r.treatment_plan?.length > 0 && (
+        <section className="tile plan" id="treat-plan" style={n()}>
+          <h3 className="tile-title">{t.planTitle}</h3>
+          <ol className="plan-list">
+            {r.treatment_plan.map((x, k) => (
+              <li key={k}>
+                <span className={`plan-day ${x.day === 0 ? "now" : ""}`}>{t.planDay(x.day)}</span>
+                <p>{x.action}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {onRefine && !r.refined && r.followup_questions?.length > 0 && (
+        <FollowUps t={t} qs={r.followup_questions} onRefine={onRefine} refining={refining} style={n()} />
+      )}
 
       {r.treatment?.length > 0 && (
         <section className="tile treat" style={n()}>
@@ -2512,6 +2683,122 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) 
         <Feedback t={t} entry={entry} onPatch={onPatch} />
       </div>
     </article>
+  );
+}
+
+function AlertCard({ t, entry, r, status, conf, onAsk, style }) {
+  const a = t.ac;
+  const sev = r.severity || (status === "healthy" ? "none" : "mild");
+  const top = r.differential?.[0]?.probability || conf;
+  const title = sev === "none" ? a.healthy : r.pathogen ? a.detected : a.attention;
+  const cityId = typeof window !== "undefined" ? store(CITY_KEY) : null;
+  const city = CITIES.find((c) => c.id === cityId);
+  const levels = ["none", "mild", "moderate", "severe"];
+  function treat() {
+    const el = document.getElementById("treat-plan") || document.querySelector(".result .treat");
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  return (
+    <section className={`tile alert-card sev-${sev}`} style={style}>
+      <header className="ac-head">
+        <Icon name={sev === "none" ? "check" : "alert"} size={22} />
+        <strong>{title}</strong>
+        {r.refined && (
+          <span className="ac-refined">
+            <Icon name="sparkle" size={13} /> {a.refined}
+          </span>
+        )}
+      </header>
+      <div className="ac-body">
+        <div className="ac-main">
+          <p className="ac-diag">
+            <b>{r.diagnosis}</b>
+            {r.pathogen && <em> ({r.pathogen})</em>}
+          </p>
+          <p className="ac-conf">{a.conf(top)}</p>
+          {sev !== "none" && (
+            <div className="ac-sev">
+              <span className="ac-sev-t">
+                {a.sevTitle}: <b>{a.sev[sev]}</b>
+              </span>
+              <span className="ac-meter">
+                {levels.slice(1).map((l, k) => (
+                  <i key={l} className={levels.indexOf(sev) > k ? "on" : ""} />
+                ))}
+              </span>
+            </div>
+          )}
+          {r.severity_note && <p className="ac-note">{r.severity_note}</p>}
+        </div>
+        <div className="ac-actions">
+          {sev !== "none" && (
+            <button className="ac-btn" onClick={treat}>
+              <Icon name="shield" size={20} />
+              <span>{a.treat}</span>
+            </button>
+          )}
+          <button className="ac-btn" onClick={() => onAsk(entry)}>
+            <Icon name="book" size={20} />
+            <span>{a.more}</span>
+          </button>
+        </div>
+      </div>
+      <footer className="ac-meta">
+        <span>
+          <Icon name="leaf" size={14} /> {r.plant_name}
+          {r.latin_name ? ` (${r.latin_name})` : ""}
+        </span>
+        <span>
+          <Icon name="calendar" size={14} /> {new Date(entry.date).toLocaleString(t.locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+        </span>
+        {city && (
+          <span>
+            <Icon name="pin" size={14} /> {city[t.locale?.startsWith("kk") ? "kk" : "ru"] || city.ru}
+          </span>
+        )}
+        <span className="ac-model">{a.model}</span>
+      </footer>
+    </section>
+  );
+}
+
+function FollowUps({ t, qs, onRefine, refining, style }) {
+  const [ans, setAns] = useState({});
+  const ready = Object.keys(ans).length > 0;
+  return (
+    <section className={`tile followq ${refining ? "busy" : ""}`} style={style}>
+      <h3 className="tile-title">
+        <Icon name="sparkle" size={18} /> {t.qTitle}
+      </h3>
+      <p className="muted small-note">{t.qHint}</p>
+      <div className="fq-list">
+        {qs.map((q, k) => (
+          <div key={k} className="fq">
+            <p>{q.q}</p>
+            <div className="pf-chips">
+              {q.options.map((o) => (
+                <button key={o} className={`chip ${ans[k] === o ? "on" : ""}`} onClick={() => setAns((x) => ({ ...x, [k]: x[k] === o ? undefined : o }))} disabled={refining}>
+                  {o}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <button
+        className="btn primary"
+        disabled={!ready || refining}
+        onClick={() =>
+          onRefine(
+            qs
+              .map((q, k) => (ans[k] ? { q: q.q, a: ans[k] } : null))
+              .filter(Boolean)
+          )
+        }
+      >
+        <Icon name={refining ? "refresh" : "sparkle"} size={17} /> {refining ? t.qBusy : t.qBtn}
+      </button>
+    </section>
   );
 }
 
