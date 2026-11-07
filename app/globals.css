@@ -1745,3 +1745,34 @@ input, select, textarea { background-color: color-mix(in srgb, var(--paper) 80%,
 .intro .t-priv p, .fact-tile p { color: rgba(238, 248, 241, 0.78) !important; }
 @media (max-width: 760px) { .paste-hint { display: none; } }
 .glass-composer::before { left: -60vw !important; right: -60vw !important; }
+
+/* ═════════ Фон: нақты фото ═════════ */
+.aura { display: none; }
+.pbg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -3; animation: pbgIn 1.2s var(--ease) both; }
+@keyframes pbgIn { from { opacity: 0; transform: scale(1.04); } }
+.pbg-dark { display: none; }
+.pbg-veil { position: absolute; inset: 0; z-index: -2; background:
+  linear-gradient(90deg, rgba(240, 250, 243, 0.86) 0%, rgba(240, 250, 243, 0.62) 45%, rgba(240, 250, 243, 0.38) 100%),
+  linear-gradient(180deg, rgba(240, 250, 243, 0.2), rgba(236, 247, 239, 0.55)); }
+:root[data-theme="dark"] .pbg-light { display: none; }
+:root[data-theme="dark"] .pbg-dark { display: block; }
+:root[data-theme="dark"] .pbg-veil { background:
+  linear-gradient(90deg, rgba(4, 14, 8, 0.86) 0%, rgba(4, 14, 8, 0.6) 50%, rgba(4, 14, 8, 0.45) 100%),
+  linear-gradient(180deg, rgba(4, 14, 8, 0.25), rgba(4, 14, 8, 0.7)); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pbg-light { display: none; }
+  :root:not([data-theme="light"]) .pbg-dark { display: block; }
+  :root:not([data-theme="light"]) .pbg-veil { background:
+    linear-gradient(90deg, rgba(4, 14, 8, 0.86) 0%, rgba(4, 14, 8, 0.6) 50%, rgba(4, 14, 8, 0.45) 100%),
+    linear-gradient(180deg, rgba(4, 14, 8, 0.25), rgba(4, 14, 8, 0.7)); }
+}
+@media (max-width: 760px) {
+  .pbg-veil { background: linear-gradient(180deg, rgba(240, 250, 243, 0.72), rgba(240, 250, 243, 0.82)); }
+  :root[data-theme="dark"] .pbg-veil { background: linear-gradient(180deg, rgba(4, 14, 8, 0.7), rgba(4, 14, 8, 0.82)); }
+}
+@media (max-width: 760px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pbg-veil { background: linear-gradient(180deg, rgba(4, 14, 8, 0.7), rgba(4, 14, 8, 0.82)); }
+}
+/* Иллюстрациялар фото үстінде жұмсағырақ */
+.frond, .sun { opacity: 0.35; }
+.glass-chat::before { opacity: 0.55; }

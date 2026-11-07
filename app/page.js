@@ -1795,11 +1795,23 @@ function Backdrop() {
   const leaf = "M12 2C6 6 4 12 6 20c1-4 3-7 6-9-2 3-3 6-3 10 7-3 10-9 9-15-1-2-3-3-6-4Z";
   return (
     <div className="backdrop" aria-hidden="true">
-      {/* Шыны артындағы баяу қозғалатын түсті дақтар */}
-      <span className="aura a1" />
-      <span className="aura a2" />
-      <span className="aura a3" />
-      <span className="aura a4" />
+      {/* Фон: нақты өсімдік фотосы (жарық/қараңғы нұсқаға бөлек) */}
+      <img
+        className="pbg pbg-light"
+        src={photoUrl(SCENES.bgLight, 1920)}
+        srcSet={photoSet(SCENES.bgLight)}
+        sizes="100vw"
+        alt=""
+        fetchPriority="high"
+      />
+      <img
+        className="pbg pbg-dark"
+        src={photoUrl(SCENES.bgDark, 1920)}
+        srcSet={photoSet(SCENES.bgDark)}
+        sizes="100vw"
+        alt=""
+      />
+      <span className="pbg-veil" />
       <span className="sun" />
 
       {/* Сол жақ: жабайы дала қызғалдағы — сызылып, гүлдейді, тербеледі */}
