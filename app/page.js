@@ -241,6 +241,25 @@ const T = {
     ],
     weekTitle: "Апта жоспары",
     weekRest: "суару жоқ",
+    wk: {
+      today: "Бүгін",
+      tomorrow: "Ертең",
+      tasks: (n) => `${n} тапсырма`,
+      free: "Демалыс күні 🌿",
+      freeSub: "Бұл күні суару да, тыңайту да жоқ.",
+      water: "Суару",
+      fert: "Тыңайту",
+      late: (n) => `${n} күн кешікті`,
+      inDays: (n) => (n === 1 ? "ертең" : `${n} күннен кейін`),
+      doneAll: "Бүгінгі күтім толық орындалды!",
+      progress: (a, b) => `${a}/${b} орындалды`,
+      weekLoad: (n) => `Аптада ${n} тапсырма`,
+      busiest: "Ең қарбалас күн",
+      legendW: "суару",
+      legendF: "тыңайту",
+      done: "Орындалды",
+      doAll: "Барлығын белгілеу",
+    },
     statPlants: "Өсімдік",
     statWeek: "Осы аптада суарылды",
     statStreak: "Серия",
@@ -561,6 +580,25 @@ const T = {
     ],
     weekTitle: "План на неделю",
     weekRest: "без полива",
+    wk: {
+      today: "Сегодня",
+      tomorrow: "Завтра",
+      tasks: (n) => `${n} ${n === 1 ? "задача" : n < 5 ? "задачи" : "задач"}`,
+      free: "Выходной 🌿",
+      freeSub: "В этот день ни полива, ни подкормки.",
+      water: "Полив",
+      fert: "Подкормка",
+      late: (n) => `опоздание ${n} дн.`,
+      inDays: (n) => (n === 1 ? "завтра" : `через ${n} дн.`),
+      doneAll: "Уход на сегодня полностью выполнен!",
+      progress: (a, b) => `выполнено ${a}/${b}`,
+      weekLoad: (n) => `${n} задач за неделю`,
+      busiest: "Самый загруженный день",
+      legendW: "полив",
+      legendF: "подкормка",
+      done: "Готово",
+      doAll: "Отметить всё",
+    },
     statPlants: "Растений",
     statWeek: "Полито за неделю",
     statStreak: "Серия",
@@ -725,17 +763,162 @@ function wateredThisWeek(plants) {
   return plants.reduce((sum, p) => sum + plantLog(p).filter((x) => dayStart(new Date(x)) >= from).length, 0);
 }
 // Алдағы 7 күн: әр күні қай өсімдіктерді суару керек
-function weekPlan(plants) {
-  const days = Array.from({ length: 7 }, (_, i) => ({ date: new Date(dayStart() + i * DAY), items: [] }));
+// Апталық күтім жоспары: суару + тыңайту, бүгін орындалғандар да көрінеді
+function careWeek(plants) {
+  const today = dayStart();
+  const days = Array.from({ length: 7 }, (_, i) => ({ date: new Date(today + i * DAY), items: [] }));
   for (const p of plants) {
-    const left = daysLeft(p.lastWatered, p.waterEvery);
-    if (left === null) continue;
-    for (let d = Math.max(0, left); d < 7; d += p.waterEvery) {
-      days[d].items.push({ plant: p, late: left < 0 && d === 0 });
+    const wLeft = daysLeft(p.lastWatered, p.waterEvery);
+    if (wLeft !== null) {
+      if (dayStart(new Date(p.lastWatered)) === today && wLeft > 0) days[0].items.push({ plant: p, kind: "water", done: true });
+      for (let d = Math.max(0, wLeft); d < 7; d += p.waterEvery) {
+        days[d].items.push({ plant: p, kind: "water", late: d === 0 && wLeft < 0 ? -wLeft : 0 });
+      }
+    }
+    if (p.fertEvery > 0) {
+      const fLeft = daysLeft(p.lastFert || p.createdAt, p.fertEvery);
+      if (dayStart(new Date(p.lastFert || 0)) === today && fLeft > 0) days[0].items.push({ plant: p, kind: "fert", done: true });
+      if (fLeft !== null && fLeft < 7) days[Math.max(0, fLeft)].items.push({ plant: p, kind: "fert", late: fLeft < 0 ? -fLeft : 0 });
     }
   }
+  for (const d of days) d.items.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (b.late || 0) - (a.late || 0));
   return days;
 }
+
+function WeekPlanner({ t, plants, onWater, onFert, onBulk }) {
+  const w = t.wk;
+  const days = careWeek(plants);
+  const [sel, setSel] = useState(0);
+  const day = days[sel];
+  const max = Math.max(1, ...days.map((d) => d.items.length));
+  const total = days.reduce((n, d) => n + d.items.filter((x) => !x.done).length, 0);
+  const busiest = days.reduce((a, d, i) => (d.items.length > days[a].items.length ? i : a), 0);
+  const todayItems = days[0].items;
+  const doneToday = todayItems.filter((x) => x.done).length;
+  const pct = todayItems.length ? doneToday / todayItems.length : 1;
+  const pending = todayItems.filter((x) => !x.done);
+  const label = (i, d) =>
+    i === 0 ? w.today : i === 1 ? w.tomorrow : d.toLocaleDateString(t.locale, { weekday: "long" });
+
+  return (
+    <section className="wk">
+      <div className="wk-head">
+        <div>
+          <h3>{t.weekTitle}</h3>
+          <p className="wk-sub">
+            {w.weekLoad(total)}
+            {days[busiest].items.length > 1 && (
+              <> · {w.busiest}: <b>{label(busiest, days[busiest].date)}</b></>
+            )}
+          </p>
+        </div>
+        <div className="wk-legend">
+          <span><i className="lg-w" /> {w.legendW}</span>
+          <span><i className="lg-f" /> {w.legendF}</span>
+        </div>
+      </div>
+
+      <ol className="wk-strip" role="tablist">
+        {days.map((d, i) => {
+          const water = d.items.filter((x) => x.kind === "water").length;
+          const fert = d.items.filter((x) => x.kind === "fert").length;
+          const late = d.items.some((x) => x.late);
+          return (
+            <li key={i}>
+              <button
+                role="tab"
+                aria-selected={sel === i}
+                className={`wk-day ${sel === i ? "on" : ""} ${i === 0 ? "is-today" : ""} ${d.items.length ? "" : "free"}`}
+                onClick={() => setSel(i)}
+              >
+                <span className="wk-dow">{d.date.toLocaleDateString(t.locale, { weekday: "short" })}</span>
+                <span className="wk-num">{d.date.getDate()}</span>
+                <span className="wk-bar" aria-hidden="true">
+                  {water > 0 && <span className="b-w" style={{ height: `${(water / max) * 100}%` }} />}
+                  {fert > 0 && <span className="b-f" style={{ height: `${(fert / max) * 100}%` }} />}
+                  {!d.items.length && <Icon name="leaf" size={16} />}
+                </span>
+                <span className="wk-count">
+                  {d.items.length ? d.items.length : "·"}
+                  {late && <span className="wk-late" />}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div className="wk-panel" key={sel}>
+        <div className="wk-date">
+          {sel === 0 && todayItems.length > 0 ? (
+            <span className="wk-ring" style={{ "--p": pct }}>
+              <span>{Math.round(pct * 100)}%</span>
+            </span>
+          ) : (
+            <span className="wk-big">{day.date.getDate()}</span>
+          )}
+          <div>
+            <strong>{label(sel, day.date)}</strong>
+            <span>
+              {day.date.toLocaleDateString(t.locale, { day: "numeric", month: "long" })}
+              {day.items.length > 0 && ` · ${sel === 0 ? w.progress(doneToday, todayItems.length) : w.tasks(day.items.length)}`}
+            </span>
+            {sel === 0 && pending.length > 1 && (
+              <button className="wk-all" onClick={() => onBulk(pending)}>
+                <Icon name="check" size={15} /> {w.doAll}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {day.items.length === 0 ? (
+          <div className="wk-free">
+            <strong>{w.free}</strong>
+            <span>{w.freeSub}</span>
+          </div>
+        ) : sel === 0 && pct === 1 ? (
+          <div className="wk-free done">
+            <Icon name="check" size={22} />
+            <strong>{w.doneAll}</strong>
+          </div>
+        ) : null}
+
+        {day.items.length > 0 && (
+          <ul className="wk-tasks">
+            {day.items.map(({ plant, kind, late, done }) => {
+              const ph = plant.thumb || (photoForLatin(plant.latin) ? photoUrl(photoForLatin(plant.latin), 120, 120) : null);
+              return (
+                <li key={plant.id + kind} className={`wk-task k-${kind} ${done ? "done" : ""} ${late ? "late" : ""}`}>
+                  <span className="wk-ph">
+                    {ph ? <img src={ph} alt="" /> : <Icon name="plants" size={18} />}
+                    <span className="wk-kind"><Icon name={kind === "water" ? "drop" : "sprout"} size={12} /></span>
+                  </span>
+                  <span className="wk-tx">
+                    <strong>{plant.name}</strong>
+                    <span>
+                      {kind === "water" ? w.water : w.fert}
+                      {late ? <em> · {w.late(late)}</em> : sel > 0 ? ` · ${w.inDays(sel)}` : ""}
+                    </span>
+                  </span>
+                  {sel === 0 &&
+                    (done ? (
+                      <span className="wk-done"><Icon name="check" size={16} /> {w.done}</span>
+                    ) : (
+                      <button className="wk-act" onClick={() => (kind === "water" ? onWater(plant) : onFert(plant))}>
+                        <Icon name={kind === "water" ? "drop" : "sprout"} size={16} />
+                        <span className="wk-act-t">{kind === "water" ? t.watered : t.fertilized}</span>
+                      </button>
+                    ))}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
 
 function todayISO() {
   return new Date().toISOString();
@@ -2234,7 +2417,6 @@ function MyPlants({ t, lang, plants, onSave }) {
     if (b !== prev) store(BEST_KEY, String(b));
     setBest(b);
   }, [streak]);
-  const week = weekPlan(plants);
 
   return (
     <div className="page">
@@ -2284,28 +2466,28 @@ function MyPlants({ t, lang, plants, onSave }) {
         </section>
         <p className="streak-hint">{t.streakHint}</p>
 
-        <section className="week">
-          <h3>{t.weekTitle}</h3>
-          <ol className="days">
-            {week.map((d, i) => (
-              <li key={i} className={`day ${i === 0 ? "today-day" : ""} ${d.items.length ? "busy" : ""}`}>
-                <span className="dow">{d.date.toLocaleDateString(t.locale, { weekday: "short" })}</span>
-                <span className="dnum">{d.date.getDate()}</span>
-                <span className="dots">
-                  {d.items.slice(0, 3).map(({ plant, late }) => (
-                    <span key={plant.id} className={`dot ${late ? "late" : ""}`} title={plant.name}>
-                      {plant.thumb ? <img src={plant.thumb} alt={plant.name} /> : plant.name.slice(0, 1)}
-                    </span>
-                  ))}
-                  {d.items.length > 3 && <span className="dot more">+{d.items.length - 3}</span>}
-                </span>
-                <span className="dnames">
-                  {d.items.length ? d.items.map((x) => x.plant.name).join(", ") : t.weekRest}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </section>
+        <WeekPlanner
+          t={t}
+          plants={plants}
+          onWater={(p) => {
+            const now = todayISO();
+            update(p.id, { lastWatered: now, log: addToLog(p, now) });
+          }}
+          onFert={(p) => update(p.id, { lastFert: todayISO() })}
+          onBulk={(items) => {
+            const now = todayISO();
+            onSave(
+              plants.map((p) => {
+                const mine = items.filter((x) => x.plant.id === p.id);
+                if (!mine.length) return p;
+                let next = { ...p };
+                if (mine.some((x) => x.kind === "water")) next = { ...next, lastWatered: now, log: addToLog(p, now) };
+                if (mine.some((x) => x.kind === "fert")) next = { ...next, lastFert: now };
+                return next;
+              })
+            );
+          }}
+        />
 
       {plants.length === 0 ? (
         <section className="empty quick">
