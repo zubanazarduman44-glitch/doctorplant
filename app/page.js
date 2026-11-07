@@ -198,7 +198,7 @@ const T = {
     refTitle: "Анықтамалық",
     refTabs: { enc: "Энциклопедия", meds: "Препараттар", guide: "Нұсқаулық" },
     encSearch: "Өсімдікті іздеу немесе ЖИ-ден сұрау…",
-    encGroups: { all: "Барлығы", home: "Үй гүлдері", garden: "Бақша", kz: "Қазақстан флорасы" },
+    encGroups: { all: "Барлығы", home: "Үй гүлдері", garden: "Бақша", fruit: "Жеміс-жидек", flowers: "Бақ гүлдері", kz: "Қазақстан флорасы" },
     encAskAI: (q) => `«${q}» туралы ЖИ карточкасын жасау`,
     encLoading: "Карточка жасалуда…",
     encNotFound: "Мұндай өсімдік табылмады",
@@ -580,7 +580,7 @@ const T = {
     refTitle: "Справочник",
     refTabs: { enc: "Энциклопедия", meds: "Препараты", guide: "Инструкция" },
     encSearch: "Найти растение или спросить ИИ…",
-    encGroups: { all: "Все", home: "Комнатные", garden: "Огород", kz: "Флора Казахстана" },
+    encGroups: { all: "Все", home: "Комнатные", garden: "Огород", fruit: "Плодовые и ягоды", flowers: "Садовые цветы", kz: "Флора Казахстана" },
     encAskAI: (q) => `Создать карточку ИИ: «${q}»`,
     encLoading: "Создаём карточку…",
     encNotFound: "Такое растение не найдено",
@@ -4002,7 +4002,7 @@ function Encyclopedia({ t, lang, plants, onAddPlant, onAsk }) {
                 </span>
               ) : (
                 <span className="enc-mark">
-                  <Icon name={p.group === "garden" ? "sprout" : p.group === "kz" ? "shield" : "plants"} size={22} />
+                  <Icon name={{ garden: "sprout", kz: "shield", fruit: "leaf", flowers: "sparkle" }[p.group] || "plants"} size={22} />
                 </span>
               )}
               <strong>{p.name}</strong>
