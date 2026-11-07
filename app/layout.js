@@ -5,6 +5,8 @@ export const metadata = {
   description:
     "Tamyr: өсімдікті суретке түсіріңіз — ЖИ түрін, ауруын анықтап, күтім бойынша кеңес береді. Сфотографируйте растение — ИИ определит вид, болезнь и даст советы по уходу.",
   applicationName: "Tamyr",
+  appleWebApp: { capable: true, title: "Tamyr", statusBarStyle: "default" },
+  icons: { apple: "/apple-touch-icon.png" },
 };
 
 export const viewport = {

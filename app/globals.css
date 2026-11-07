@@ -1649,3 +1649,99 @@ body { background-color: var(--bg); background-image: var(--bg-mesh); background
   :root:not([data-theme="dark"]) .ticker { background: rgba(255, 255, 255, 0.45); }
   :root:not([data-theme="dark"]) .site-footer { background: transparent; }
 }
+
+/* ═════════ Шыны дизайн 3.0 ═════════ */
+:root {
+  --paper: rgba(255, 255, 255, 0.56);
+  --paper-2: rgba(232, 247, 237, 0.62);
+  --line: rgba(255, 255, 255, 0.75);
+  --edge: rgba(21, 110, 58, 0.1);
+  --glass-blur: blur(22px) saturate(1.7);
+  --card-hi: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+  --aura-1: rgba(74, 222, 128, 0.45);
+  --aura-2: rgba(250, 204, 21, 0.32);
+  --aura-3: rgba(45, 212, 191, 0.32);
+  --aura-4: rgba(163, 230, 53, 0.3);
+}
+:root[data-theme="dark"] {
+  --paper: rgba(16, 38, 26, 0.55);
+  --paper-2: rgba(30, 62, 44, 0.5);
+  --line: rgba(150, 240, 190, 0.12);
+  --edge: rgba(150, 240, 190, 0.08);
+  --glass-blur: blur(22px) saturate(1.5);
+  --card-hi: inset 0 1px 0 rgba(190, 255, 215, 0.12), inset 0 0 0 1px rgba(150, 240, 190, 0.1);
+  --bg-mesh: linear-gradient(180deg, #06120b, #081a10);
+  --aura-1: rgba(34, 197, 94, 0.28);
+  --aura-2: rgba(234, 179, 8, 0.14);
+  --aura-3: rgba(20, 184, 166, 0.22);
+  --aura-4: rgba(132, 204, 22, 0.16);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: rgba(16, 38, 26, 0.55);
+    --paper-2: rgba(30, 62, 44, 0.5);
+    --line: rgba(150, 240, 190, 0.12);
+    --edge: rgba(150, 240, 190, 0.08);
+    --glass-blur: blur(22px) saturate(1.5);
+    --card-hi: inset 0 1px 0 rgba(190, 255, 215, 0.12), inset 0 0 0 1px rgba(150, 240, 190, 0.1);
+    --bg-mesh: linear-gradient(180deg, #06120b, #081a10);
+    --aura-1: rgba(34, 197, 94, 0.28);
+    --aura-2: rgba(234, 179, 8, 0.14);
+    --aura-3: rgba(20, 184, 166, 0.22);
+    --aura-4: rgba(132, 204, 22, 0.16);
+  }
+}
+.aura { position: absolute; border-radius: 50%; filter: blur(70px); will-change: transform; }
+.a1 { width: 52vmax; height: 52vmax; left: -14vmax; top: -18vmax; background: var(--aura-1); animation: auraA 26s ease-in-out infinite alternate; }
+.a2 { width: 40vmax; height: 40vmax; right: -10vmax; top: 4vmax; background: var(--aura-2); animation: auraB 32s ease-in-out infinite alternate; }
+.a3 { width: 46vmax; height: 46vmax; right: 6vmax; bottom: -22vmax; background: var(--aura-3); animation: auraA 30s ease-in-out infinite alternate-reverse; }
+.a4 { width: 34vmax; height: 34vmax; left: 8vmax; bottom: -10vmax; background: var(--aura-4); animation: auraB 24s ease-in-out infinite alternate-reverse; }
+@keyframes auraA { to { transform: translate(8vmax, 6vmax) scale(1.12); } }
+@keyframes auraB { to { transform: translate(-7vmax, 8vmax) scale(0.9); } }
+
+/* Шыны беттер: бәрі бір стильде */
+.tile, .stat, .wk, .enc-card, .auth-card, .an-prog, .quick-add, .empty, .week, .wx, .weather, .plant-card, .pcard, .cam, .ctx-card, .topics, .glass-panel, .id-card, .site-footer .sf-top-btn, .product, .wk-panel, .wk-task, .wk-day, .badge, .chip, .seg, .icon-btn, .btn.ghost, .tabs {
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+}
+.tile, .stat, .wk, .enc-card, .auth-card, .an-prog, .cam, .topics, .product, .badge {
+  box-shadow: var(--card-hi), 0 0 0 1px var(--edge), var(--shadow) !important;
+}
+.wk-panel { background: color-mix(in srgb, var(--paper-2) 70%, transparent); box-shadow: var(--card-hi); }
+.wk-task { background: var(--paper); box-shadow: var(--card-hi), 0 0 0 1px var(--edge); }
+.tabs { background: var(--paper) !important; box-shadow: var(--card-hi), 0 12px 30px -18px rgba(10, 60, 30, 0.5) !important; }
+.topbar { background: color-mix(in srgb, var(--paper) 70%, transparent) !important; border-bottom: 1px solid var(--line) !important; }
+.btn.ghost { background: var(--paper); box-shadow: var(--card-hi), 0 0 0 1px var(--edge); }
+.chip { background: var(--paper); box-shadow: var(--card-hi), 0 0 0 1px var(--edge); }
+.sheet { background: color-mix(in srgb, #fdfefb 88%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+:root[data-theme="dark"] .sheet { background: rgba(18, 36, 26, 0.75); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sheet { background: rgba(18, 36, 26, 0.75); } }
+/* Шыны жылтыры: карточка үстінде жеңіл жарық жолағы */
+.tile::after, .stat::after, .enc-card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 38%); opacity: 0.7; }
+:root[data-theme="dark"] .tile::after, :root[data-theme="dark"] .stat::after, :root[data-theme="dark"] .enc-card::after { background: linear-gradient(135deg, rgba(190, 255, 215, 0.07), transparent 40%); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tile::after, :root:not([data-theme="light"]) .stat::after, :root:not([data-theme="light"]) .enc-card::after { background: linear-gradient(135deg, rgba(190, 255, 215, 0.07), transparent 40%); } }
+.tile, .stat, .enc-card { position: relative; }
+.t-scan::after { background: linear-gradient(180deg, transparent 45%, rgba(4, 22, 12, 0.55)) !important; opacity: 1 !important; }
+.intro .t-priv, .fact-tile { background: linear-gradient(150deg, rgba(19, 78, 44, 0.92), rgba(10, 45, 27, 0.92)) !important; }
+input, select, textarea { background-color: color-mix(in srgb, var(--paper) 80%, transparent); }
+@media (prefers-reduced-motion: reduce) { .aura { animation: none; } }
+@media (max-width: 760px) { .aura { filter: blur(50px); } }
+
+/* Күшейтулер */
+.paste-hint { margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+@media (hover: none) { .paste-hint { display: none; } }
+.share-res { grid-column: span 12; }
+.followups { display: flex; flex-wrap: wrap; gap: 8px; margin: -6px 0 0 48px; }
+.aq.fu { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px; font-size: 14px; }
+.pfilter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.pf-search { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; padding: 0 14px; height: 46px; border-radius: 999px; background: var(--paper); box-shadow: var(--card-hi), 0 0 0 1px var(--edge); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); color: var(--muted); }
+.pf-search:focus-within { box-shadow: inset 0 0 0 2px var(--primary); }
+.pf-search input { flex: 1; min-width: 0; border: 0; background: transparent !important; outline: none; height: 100%; color: var(--ink); }
+.pf-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.pf-none { text-align: center; padding: 10px; }
+@media (max-width: 760px) { .followups { margin-left: 0; } }
+.share-res { background: var(--paper) !important; color: var(--ink) !important; font-size: 17px !important; padding-top: 16px; padding-bottom: 16px; }
+.share-res svg:first-child { color: var(--primary); }
+.intro .t-priv, .fact-tile { color: #eef8f1 !important; }
+.intro .t-priv p, .fact-tile p { color: rgba(238, 248, 241, 0.78) !important; }
+@media (max-width: 760px) { .paste-hint { display: none; } }
+.glass-composer::before { left: -60vw !important; right: -60vw !important; }

@@ -241,6 +241,11 @@ const T = {
     ],
     weekTitle: "Апта жоспары",
     weekRest: "суару жоқ",
+    shareRes: "Нәтижемен бөлісу",
+    shared: "Көшірілді — енді жіберуге болады",
+    pasteHint: "Кеңес: суретті Ctrl+V арқылы қоюға да болады",
+    followUps: ["Толығырақ түсіндір", "Қадамдап жазып бер", "Үй жануарларына қауіпсіз бе?"],
+    pf: { search: "Өсімдікті іздеу…", all: "Барлығы", due: "Бүгін суару", fert: "Тыңайту керек", none: "Ештеңе табылмады" },
     wk: {
       today: "Бүгін",
       tomorrow: "Ертең",
@@ -581,6 +586,11 @@ const T = {
     ],
     weekTitle: "План на неделю",
     weekRest: "без полива",
+    shareRes: "Поделиться результатом",
+    shared: "Скопировано — можно отправить",
+    pasteHint: "Совет: фото можно вставить через Ctrl+V",
+    followUps: ["Объясни подробнее", "Распиши по шагам", "Безопасно ли для животных?"],
+    pf: { search: "Найти растение…", all: "Все", due: "Полить сегодня", fert: "Нужна подкормка", none: "Ничего не найдено" },
     wk: {
       today: "Сегодня",
       tomorrow: "Завтра",
@@ -1300,6 +1310,13 @@ export default function Home() {
     document.documentElement.lang = lang;
   }, [lang]);
 
+  // Телефонға орнату және интернетсіз ашылу үшін
+  useEffect(() => {
+    if ("serviceWorker" in navigator && location.protocol === "https:") {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
+
   /* ── Аккаунт / Аккаунт ── */
   const [authReady, setAuthReady] = useState(null); // null — тексерілуде, false — бапталмаған
   const [user, setUser] = useState(null);
@@ -1491,6 +1508,22 @@ export default function Home() {
       return next;
     });
   }
+
+  // Ctrl+V арқылы суретті қою (компьютерде ыңғайлы)
+  useEffect(() => {
+    if (tab !== "diagnose") return;
+    function onPaste(e) {
+      const item = [...(e.clipboardData?.items || [])].find((x) => x.type.startsWith("image/"));
+      if (!item) return;
+      const file = item.getAsFile();
+      if (file) {
+        e.preventDefault();
+        pickFile(file, images.length > 0 && images.length < 3);
+      }
+    }
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, [tab, images.length]);
 
   async function pickFile(file, append = false) {
     if (!file || !file.type?.startsWith("image/")) return;
@@ -1762,6 +1795,11 @@ function Backdrop() {
   const leaf = "M12 2C6 6 4 12 6 20c1-4 3-7 6-9-2 3-3 6-3 10 7-3 10-9 9-15-1-2-3-3-6-4Z";
   return (
     <div className="backdrop" aria-hidden="true">
+      {/* Шыны артындағы баяу қозғалатын түсті дақтар */}
+      <span className="aura a1" />
+      <span className="aura a2" />
+      <span className="aura a3" />
+      <span className="aura a4" />
       <span className="sun" />
 
       {/* Сол жақ: жабайы дала қызғалдағы — сызылып, гүлдейді, тербеледі */}
@@ -2045,6 +2083,7 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
                 </>
               )}
             </div>
+            {!image && <p className="paste-hint"><Icon name="image" size={14} /> {t.pasteHint}</p>}
             {loading && <AnalyzeProgress t={t} />}
           </div>
 
@@ -2356,6 +2395,7 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) 
           <Icon name="plus" size={20} />
         </button>
       )}
+      <ShareResult t={t} r={r} status={status} style={n()} />
       <button className="tile ask" style={n()} onClick={() => onAsk(entry)}>
         <Icon name="chat" size={24} />
         <span>{t.askAbout}</span>
@@ -2365,6 +2405,35 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) 
         <Feedback t={t} entry={entry} onPatch={onPatch} />
       </div>
     </article>
+  );
+}
+
+function ShareResult({ t, r, status, style }) {
+  const [done, setDone] = useState(false);
+  async function share() {
+    const lines = [
+      `🌿 ${r.plant_name || ""}${r.latin_name ? ` (${r.latin_name})` : ""} — ${t.statuses[status]}`,
+      `${t.diagnosis}: ${r.diagnosis}`,
+      ...(r.treatment?.length ? [`${t.treatment}:`, ...r.treatment.map((x, i) => `${i + 1}. ${x}`)] : []),
+      "",
+      `Tamyr — ${typeof window !== "undefined" ? window.location.origin : ""}`,
+    ];
+    const text = lines.join("\n");
+    try {
+      if (navigator.share) await navigator.share({ title: "Tamyr", text });
+      else {
+        await navigator.clipboard.writeText(text);
+        setDone(true);
+        setTimeout(() => setDone(false), 2500);
+      }
+    } catch {}
+  }
+  return (
+    <button className="tile ask share-res" style={style} onClick={share}>
+      <Icon name={done ? "check" : "share"} size={24} />
+      <span>{done ? t.shared : t.shareRes}</span>
+      <Icon name="arrow" size={20} />
+    </button>
   );
 }
 
@@ -2440,6 +2509,15 @@ function MyPlants({ t, lang, plants, onSave }) {
     (a, b) => (daysLeft(a.lastWatered, a.waterEvery) ?? 99) - (daysLeft(b.lastWatered, b.waterEvery) ?? 99)
   );
   const due = sorted.filter((p) => (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0).length;
+  const [pq, setPq] = useState("");
+  const [pfil, setPfil] = useState("all");
+  const shown = sorted.filter((p) => {
+    const q = pq.trim().toLowerCase();
+    if (q && !`${p.name} ${p.latin || ""}`.toLowerCase().includes(q)) return false;
+    if (pfil === "due") return (daysLeft(p.lastWatered, p.waterEvery) ?? 1) <= 0;
+    if (pfil === "fert") return p.fertEvery > 0 && (daysLeft(p.lastFert || p.createdAt, p.fertEvery) ?? 1) <= 0;
+    return true;
+  });
   const streak = calcStreak(plants);
   const [best, setBest] = useState(0);
   useEffect(() => {
@@ -2572,8 +2650,25 @@ function MyPlants({ t, lang, plants, onSave }) {
             <p>{due ? t.summaryDue(due) : t.summaryOk}</p>
           </section>
 
+          {plants.length >= 3 && (
+            <div className="pfilter">
+              <label className="pf-search">
+                <Icon name="search" size={18} />
+                <input value={pq} onChange={(e) => setPq(e.target.value)} placeholder={t.pf.search} aria-label={t.pf.search} />
+              </label>
+              <div className="pf-chips">
+                {["all", "due", "fert"].map((k) => (
+                  <button key={k} className={`chip ${pfil === k ? "on" : ""}`} onClick={() => setPfil(k)}>
+                    {t.pf[k]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {shown.length === 0 && <p className="muted pf-none">{t.pf.none}</p>}
+
           <ul className="plants">
-            {sorted.map((p) => (
+            {shown.map((p) => (
               <PlantCard
                 key={p.id}
                 t={t}
@@ -4482,6 +4577,15 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
               </div>
             </div>
           )
+        )}
+        {!busy && !err && messages.length > 0 && messages[lastIdx].role === "assistant" && (
+          <div className="followups">
+            {t.followUps.map((q) => (
+              <button key={q} className="aq fu" onClick={() => ask(q)}>
+                <Icon name="sparkle" size={14} /> {q}
+              </button>
+            ))}
+          </div>
         )}
         {busy && (
           <div className="msg assistant">
