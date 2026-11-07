@@ -1776,3 +1776,6 @@ input, select, textarea { background-color: color-mix(in srgb, var(--paper) 80%,
 /* Иллюстрациялар фото үстінде жұмсағырақ */
 .frond, .sun { opacity: 0.35; }
 .glass-chat::before { opacity: 0.55; }
+/* Градиент мәтін кейбір браузерлерде көрінбейді — тұтас түс */
+.hero-title .hw, .page-head h1 { background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important; color: var(--ink) !important; }
+.hero-title { text-shadow: 0 2px 24px color-mix(in srgb, var(--bg) 80%, transparent); }
