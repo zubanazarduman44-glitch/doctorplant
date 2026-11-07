@@ -22,6 +22,7 @@ Rules:
 - "products": fill ONLY if a fungicide/insecticide/fertilizer or biological product is really needed (otherwise empty array). For each product give: product_type (e.g. "copper-based fungicide"), active_ingredient (international name, e.g. "copper oxychloride"), search_query (short Russian query to search this product in a Kazakhstan online shop, e.g. "хлорокись меди фунгицид"), example_brands (1-3 brand names commonly sold in Kazakhstan/CIS garden shops, if you are not sure — leave empty), safety (one short safety note). NEVER give exact doses — the user must follow the label.
 - NEVER say whether a plant is safe to eat.
 - Mention if the plant is toxic to pets or children (only if well known).
+- "spots": if disease, pest or damage is VISIBLE, mark up to 5 most important affected areas. For each: box_2d = [ymin, xmin, ymax, xmax] normalized to 0-1000 relative to that image, image_index = which photo (0-based), label = 2-4 words in the answer language (e.g. "fungal spots", "pest eggs"). Boxes must tightly surround the visible symptom. If the plant looks healthy or the problem is not visible as an area — empty array.
 - Be concise (fast answer): symptoms, causes and treatment — at most 4 items each, each item one short sentence (max ~14 words). Care fields — one short sentence each.`;
 }
 
@@ -71,6 +72,18 @@ const SCHEMA = {
     fertilize_interval_days: {
       type: "INTEGER",
       description: "Typical days between feedings in the growing season (7-90), or 0 if not needed now.",
+    },
+    spots: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          box_2d: { type: "ARRAY", items: { type: "INTEGER" } },
+          image_index: { type: "INTEGER" },
+          label: { type: "STRING" },
+        },
+        required: ["box_2d", "label"],
+      },
     },
     toxicity_note: { type: "STRING" },
     photo_tip: { type: "STRING", description: "Empty if photo is good" },
@@ -131,6 +144,20 @@ export async function POST(req) {
     console.error("Parse error", text?.slice(0, 500));
     return Response.json({ error: "Жауапты оқу мүмкін болмады / Не удалось разобрать ответ" }, { status: 502 });
   }
+
+  // Белгілерді тексереміз: 0–1000 аралығы, дұрыс тәртіп
+  const nImg = Math.min(list.length, 3);
+  result.spots = (Array.isArray(result.spots) ? result.spots : [])
+    .map((sp) => {
+      const b = (sp?.box_2d || []).map((v) => Math.max(0, Math.min(1000, Math.round(Number(v)))));
+      if (b.length !== 4 || b.some((v) => !Number.isFinite(v))) return null;
+      const [y1, x1, y2, x2] = b;
+      if (y2 - y1 < 8 || x2 - x1 < 8) return null;
+      const idx = Number.isInteger(sp.image_index) && sp.image_index >= 0 && sp.image_index < nImg ? sp.image_index : 0;
+      return { box: [y1, x1, y2, x2], i: idx, label: String(sp.label || "").slice(0, 40) };
+    })
+    .filter(Boolean)
+    .slice(0, 5);
 
   // Базаға сақтаймыз (сурет сақталмайды — тек нәтиже)
   const id = await saveDiagnosis({ lang, clientId, result });

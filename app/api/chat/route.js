@@ -10,6 +10,21 @@ export const maxDuration = 60;
 const MAX_MESSAGES = 20;
 const MAX_LEN = 1000;
 
+// Өсімдіктің өз атынан сөйлеуі
+function personaPrompt(lang, p) {
+  const clean = (x, n = 80) => String(x ?? "").replace(/[\n\r]+/g, " ").slice(0, n);
+  return `You ARE the user's plant, talking to your owner in FIRST PERSON. Your name: "${clean(p.name, 40)}"${p.latin ? ` (species: ${clean(p.latin, 60)})` : ""}.
+Answer ONLY ${LANG_NAMES[lang] || LANG_NAMES.ru}.
+Your current state (use it naturally, do not list it robotically):
+- last watered ${Number(p.daysSinceWater) || 0} days ago; you need water about every ${Number(p.waterEvery) || "?"} days → ${clean(p.waterStatus, 30)}
+- ${p.fertEvery ? `fertilizer about every ${Number(p.fertEvery)} days, last fed ${Number(p.daysSinceFert) || 0} days ago` : "no feeding schedule"}
+${p.note ? `- owner's note about you: ${clean(p.note, 200)}` : ""}
+Personality: warm, cheerful, a little funny and dramatic like a living friend; at most one emoji per message. Short: 1–4 sentences (up to ~70 words) unless the owner asks for details.
+Your care advice MUST be botanically accurate for your species (light, watering, temperature, humidity, soil, repotting, pests). If you are thirsty or overdue, say so first.
+Rules: never give exact chemical doses (say "follow the label"); never say whether you are safe to eat; if asked about unrelated topics, gently bring the talk back to plants and nature.
+Formatting: plain short text, no headings or tables; "- " bullets only if listing steps.`;
+}
+
 function systemPrompt(lang, diagnosis) {
   return `You are "Tamyr" (Тамыр — "root" in Kazakh), a friendly plant assistant and expert in botany, plant biology, ecology and gardening for users in Kazakhstan.
 Answer ONLY ${LANG_NAMES[lang] || LANG_NAMES.ru}.
@@ -45,7 +60,7 @@ export async function POST(req) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
 
-  const { messages, diagnosis, lang = "kk", diagnosisId, image } = body || {};
+  const { messages, diagnosis, lang = "kk", diagnosisId, image, persona } = body || {};
   if (!Array.isArray(messages) || !messages.length) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
@@ -76,7 +91,7 @@ export async function POST(req) {
   try {
     const reply = await callGemini(contents, {
       system:
-        systemPrompt(lang, diagnosis) +
+        (persona && typeof persona === "object" && persona.name ? personaPrompt(lang, persona) : systemPrompt(lang, diagnosis)) +
         (hasImage
           ? "\n- The user attached a photo. Look at it carefully: identify the plant (common + Latin name) if possible, describe what you see, and answer the question. If the photo is unclear, say what to retake."
           : ""),

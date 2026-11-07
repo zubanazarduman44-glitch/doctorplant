@@ -311,6 +311,22 @@ const T = {
     tips: ["Күндізгі жарық", "Жапыраққа жақын", "Ауру жерін көрсетіңіз"],
     confidence: "Сенімділік",
     diagnosis: "Диагноз",
+    spotsTitle: "Ауру қай жерде",
+    spotsHint: "ЖИ суреттегі зақымданған жерлерді белгіледі",
+    spotsToggle: "Белгілерді жасыру",
+    spotsShow: "Белгілерді көрсету",
+    photoN: (n) => `${n}-сурет`,
+    mood: {
+      thirsty: (n) => `${n} күн шөлдеп тұрмын!`,
+      today: "Бүгін су ішкім келеді",
+      hungry: "Қарным ашты — тыңайтқыш керек",
+      happy: "Жақсымын, рақмет!",
+    },
+    talk: "Сөйлесу",
+    talkGroup: "Өсімдіктеріммен сөйлесу",
+    plantHi: (n) => `Сәлем! Мен — ${n} 🌿`,
+    plantAsk: "Менен бірдеңе сұрағың келе ме?",
+    plantQs: ["Қалайсың?", "Саған не керек?", "Сені қашан суарамын?", "Өзің туралы айтшы"],
     symptoms: "Белгілері",
     causes: "Себептері",
     treatment: "Не істеу керек",
@@ -656,6 +672,22 @@ const T = {
     tips: ["Дневной свет", "Близко к листу", "Покажите больное место"],
     confidence: "Уверенность",
     diagnosis: "Диагноз",
+    spotsTitle: "Где проблема",
+    spotsHint: "ИИ отметил поражённые места на фото",
+    spotsToggle: "Скрыть отметки",
+    spotsShow: "Показать отметки",
+    photoN: (n) => `Фото ${n}`,
+    mood: {
+      thirsty: (n) => `Я ${n} дн. без воды!`,
+      today: "Сегодня хочу пить",
+      hungry: "Проголодалось — нужна подкормка",
+      happy: "Мне хорошо, спасибо!",
+    },
+    talk: "Поговорить",
+    talkGroup: "Поговорить с растениями",
+    plantHi: (n) => `Привет! Я — ${n} 🌿`,
+    plantAsk: "Хочешь меня о чём-то спросить?",
+    plantQs: ["Как ты?", "Что тебе нужно?", "Когда тебя полить?", "Расскажи о себе"],
     symptoms: "Симптомы",
     causes: "Причины",
     treatment: "Что делать",
@@ -732,6 +764,7 @@ function daysLeft(lastISO, every) {
   return Math.round((last + every * DAY - dayStart()) / DAY);
 }
 const BEST_KEY = "osimdik_best_streak";
+const PLANT_CHATS_KEY = "osimdik_plant_chats";
 
 // Суару журналы (ескі өсімдіктерде журнал жоқ — соңғы суаруды аламыз)
 function plantLog(p) {
@@ -1032,6 +1065,38 @@ function compressImage(file, maxSize = 1024, quality = 0.82) {
     img.onerror = reject;
     img.src = url;
   });
+}
+
+// Суретті кішірейту (ауру белгілерін көрсету үшін сақтаймыз)
+function shrinkDataUrl(dataUrl, max = 640, quality = 0.74) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * k);
+      c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+// Өсімдіктің көңіл-күйі (карточка мен чат үшін)
+function plantMood(p, t) {
+  const left = daysLeft(p.lastWatered, p.waterEvery);
+  if (left !== null && left < 0) return { e: "😩", text: t.mood.thirsty(-left), k: "late" };
+  if (left === 0) return { e: "🥤", text: t.mood.today, k: "due" };
+  if (p.fertEvery > 0 && (daysLeft(p.lastFert || p.createdAt, p.fertEvery) ?? 1) <= 0) return { e: "🍽️", text: t.mood.hungry, k: "fert" };
+  return { e: "😊", text: t.mood.happy, k: "ok" };
+}
+
+function plantPhoto(p, size = 200) {
+  if (p.thumb) return p.thumb;
+  const id = photoForLatin(p.latin);
+  return id ? photoUrl(id, size, size) : null;
 }
 
 function thumbnail(dataUrl) {
@@ -1363,7 +1428,7 @@ export default function Home() {
       store(HISTORY_KEY, JSON.stringify(mh));
       const name = cloud?.display_name || u.name || "";
       setDisplayName(name);
-      await saveCloud(u.id, { plants: mp, history: mh, display_name: name });
+      await saveCloud(u.id, { plants: mp, history: mh.map(({ photos, ...h }) => h), display_name: name });
       syncedRef.current = true;
       setSync({ state: "saved", at: new Date() });
     } catch {
@@ -1375,7 +1440,7 @@ export default function Home() {
     if (!user || !syncedRef.current) return;
     setSync((x) => ({ ...x, state: "syncing" }));
     try {
-      await saveCloud(user.id, { plants, history, display_name: displayName, ...extra });
+      await saveCloud(user.id, { plants, history: history.map(({ photos, ...h }) => h), display_name: displayName, ...extra });
       setSync({ state: "saved", at: new Date() });
     } catch {
       setSync((x) => ({ ...x, state: "error" }));
@@ -1620,11 +1685,19 @@ export default function Home() {
     try {
       const thumbP = thumbnail(image);
       const data = await postJSON("/api/diagnose", { images, lang, clientId });
+      let photos = null;
+      if (data.spots?.length) {
+        photos = {};
+        for (const idx of [...new Set(data.spots.map((x) => x.i))]) {
+          if (images[idx]) photos[idx] = await shrinkDataUrl(images[idx]);
+        }
+      }
       const entry = {
         key: data.id || String(Date.now()),
         date: new Date().toISOString(),
         lang,
         thumb: await thumbP,
+        ...(photos ? { photos } : {}),
         result: data,
         chat: [],
         feedback: null,
@@ -1652,7 +1725,19 @@ export default function Home() {
     window.scrollTo({ top: 0 });
   }
 
-  const chatEntry = chatKey ? history.find((h) => h.key === chatKey) || null : null;
+  const chatPlant = chatKey?.startsWith("plant:") ? plants.find((p) => `plant:${p.id}` === chatKey) || null : null;
+  const chatEntry = chatKey && !chatPlant ? history.find((h) => h.key === chatKey) || null : null;
+  const [plantChats, setPlantChats] = useState({});
+  useEffect(() => {
+    try {
+      setPlantChats(JSON.parse(store(PLANT_CHATS_KEY) || "{}"));
+    } catch {}
+  }, []);
+  function talkTo(p) {
+    setChatKey(`plant:${p.id}`);
+    setTab("chat");
+    window.scrollTo({ top: 0 });
+  }
 
   return (
     <div className="app">
@@ -1735,20 +1820,28 @@ export default function Home() {
             onOpenPlants={() => setTab("plants")}
           />
         )}
-        {tab === "plants" && <MyPlants t={t} lang={lang} plants={plants} onSave={savePlants} />}
+        {tab === "plants" && <MyPlants t={t} lang={lang} plants={plants} onSave={savePlants} onTalk={talkTo} />}
         {tab === "chat" && (
           <ChatPage
             t={t}
             lang={lang}
             userName={user ? (displayName || user.name || "").split(" ")[0] : ""}
             history={history}
+            plants={plants}
+            plant={chatPlant}
             entry={chatEntry}
             onSelect={setChatKey}
-            messages={chatEntry ? chatEntry.chat || [] : generalChat}
+            messages={chatPlant ? plantChats[chatPlant.id] || [] : chatEntry ? chatEntry.chat || [] : generalChat}
             initialQuestion={pendingQ}
             onConsumed={() => setPendingQ(null)}
             setMessages={(msgs) => {
-              if (chatEntry) patchEntry(chatEntry.key, { chat: msgs });
+              if (chatPlant) {
+                setPlantChats((all) => {
+                  const next = { ...all, [chatPlant.id]: msgs.slice(-30) };
+                  store(PLANT_CHATS_KEY, JSON.stringify(next));
+                  return next;
+                });
+              } else if (chatEntry) patchEntry(chatEntry.key, { chat: msgs });
               else {
                 setGeneralChat(msgs);
                 store(GENERAL_CHAT_KEY, JSON.stringify(msgs));
@@ -2300,6 +2393,8 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) 
         {conf < 60 && <small>{t.lowConf}</small>}
       </section>
 
+      {r.spots?.length > 0 && entry.photos && <SpotView t={t} spots={r.spots} photos={entry.photos} style={n()} />}
+
       {r.treatment?.length > 0 && (
         <section className="tile treat" style={n()}>
           <h3 className="tile-title">{t.treatment}</h3>
@@ -2420,6 +2515,64 @@ function Result({ t, entry, onAsk, onPatch, onSavePlant, onOpenPlants, onMap }) 
   );
 }
 
+function SpotView({ t, spots, photos, style }) {
+  const idxs = [...new Set(spots.map((x) => x.i))].filter((i) => photos[i]);
+  const [cur, setCur] = useState(idxs[0] ?? 0);
+  const [show, setShow] = useState(true);
+  const [hover, setHover] = useState(-1);
+  if (!idxs.length) return null;
+  const mine = spots.map((sp, k) => ({ ...sp, n: k + 1 })).filter((sp) => sp.i === cur);
+  return (
+    <section className="tile wide spots" style={style}>
+      <div className="spots-head">
+        <div>
+          <h3 className="tile-title">{t.spotsTitle}</h3>
+          <p className="muted">{t.spotsHint}</p>
+        </div>
+        <button className="btn ghost small" onClick={() => setShow((x) => !x)}>
+          <Icon name={show ? "x" : "search"} size={15} /> {show ? t.spotsToggle : t.spotsShow}
+        </button>
+      </div>
+      {idxs.length > 1 && (
+        <div className="pf-chips">
+          {idxs.map((i) => (
+            <button key={i} className={`chip ${cur === i ? "on" : ""}`} onClick={() => setCur(i)}>
+              {t.photoN(i + 1)}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="spots-body">
+        <div className="spot-img">
+          <img src={photos[cur]} alt="" />
+          {show &&
+            mine.map((sp) => {
+              const [y1, x1, y2, x2] = sp.box;
+              return (
+                <span
+                  key={sp.n}
+                  className={`spot ${hover === sp.n ? "hl" : ""}`}
+                  style={{ top: `${y1 / 10}%`, left: `${x1 / 10}%`, height: `${(y2 - y1) / 10}%`, width: `${(x2 - x1) / 10}%`, "--d": `${sp.n * 0.15}s` }}
+                  onMouseEnter={() => setHover(sp.n)}
+                  onMouseLeave={() => setHover(-1)}
+                >
+                  <b>{sp.n}</b>
+                </span>
+              );
+            })}
+        </div>
+        <ol className="spot-list">
+          {mine.map((sp) => (
+            <li key={sp.n} className={hover === sp.n ? "hl" : ""} onMouseEnter={() => setHover(sp.n)} onMouseLeave={() => setHover(-1)}>
+              <b>{sp.n}</b> {sp.label}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
 function ShareResult({ t, r, status, style }) {
   const [done, setDone] = useState(false);
   async function share() {
@@ -2495,7 +2648,7 @@ function Feedback({ t, entry, onPatch }) {
 }
 
 /* ───────────── Менің өсімдіктерім ───────────── */
-function MyPlants({ t, lang, plants, onSave }) {
+function MyPlants({ t, lang, plants, onSave, onTalk }) {
   const [editing, setEditing] = useState(null); // null | "new" | plant
   const [perm, setPerm] = useState("default");
 
@@ -2692,6 +2845,7 @@ function MyPlants({ t, lang, plants, onSave }) {
                 onFert={() => update(p.id, { lastFert: todayISO() })}
                 onEdit={() => setEditing(p)}
                 onDelete={() => onSave(plants.filter((x) => x.id !== p.id))}
+                onTalk={() => onTalk?.(p)}
               />
             ))}
           </ul>
@@ -2721,7 +2875,8 @@ function MyPlants({ t, lang, plants, onSave }) {
   );
 }
 
-function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete }) {
+function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete, onTalk }) {
+  const mood = plantMood(plant, t);
   const [confirm, setConfirm] = useState(false);
   const left = daysLeft(plant.lastWatered, plant.waterEvery) ?? 0;
   const fertLeft = plant.fertEvery ? daysLeft(plant.lastFert, plant.fertEvery) : null;
@@ -2752,6 +2907,14 @@ function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete }) {
           )}
         </div>
       </div>
+
+      <button className={`plant-mood m-${mood.k}`} onClick={onTalk} title={t.talk}>
+        <span className="pm-e">{mood.e}</span>
+        <span className="pm-t">«{mood.text}»</span>
+        <span className="pm-cta">
+          <Icon name="chat" size={14} /> {t.talk}
+        </span>
+      </button>
 
       {plant.note && <p className="plant-note">{plant.note}</p>}
 
@@ -4239,7 +4402,7 @@ function MapAddForm({ t, history, pos, onCancel, onSubmit }) {
 }
 
 /* ───────────── Кеңесші (чат) ───────────── */
-function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMessages, initialQuestion, onConsumed }) {
+function ChatPage({ t, lang, userName, history, plants = [], plant, entry, onSelect, messages, setMessages, initialQuestion, onConsumed }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -4328,7 +4491,7 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
 
   useEffect(() => {
     setErr("");
-  }, [entry?.key]);
+  }, [entry?.key, plant?.id]);
 
   // Анықтамалықтан келген сұрақты бірден жібереміз
   useEffect(() => {
@@ -4356,8 +4519,20 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
       const data = await postJSON("/api/chat", {
         messages: list.map(({ role, text }) => ({ role, text })),
         image: image || null,
-        diagnosis: entry?.result || null,
-        diagnosisId: entry?.result?.id,
+        diagnosis: plant ? null : entry?.result || null,
+        diagnosisId: plant ? undefined : entry?.result?.id,
+        persona: plant
+          ? {
+              name: plant.name,
+              latin: plant.latin || "",
+              daysSinceWater: Math.max(0, Math.round((dayStart() - dayStart(new Date(plant.lastWatered))) / DAY)),
+              waterEvery: plant.waterEvery,
+              waterStatus: plantMood(plant, t).k,
+              fertEvery: plant.fertEvery || 0,
+              daysSinceFert: plant.lastFert ? Math.max(0, Math.round((dayStart() - dayStart(new Date(plant.lastFert))) / DAY)) : 0,
+              note: plant.note || "",
+            }
+          : null,
         lang,
       });
       setMessages([...list, { role: "assistant", text: data.reply }]);
@@ -4399,7 +4574,9 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
 
   const current = t.topics.find((x) => x.id === topic) || t.topics[0];
   const lastIdx = messages.length - 1;
-  const quick = entry ? t.chatSuggestPlant : t.topics.map((x) => x.qs[0]).slice(0, 4);
+  const quick = plant ? t.plantQs : entry ? t.chatSuggestPlant : t.topics.map((x) => x.qs[0]).slice(0, 4);
+  const pPhoto = plant ? plantPhoto(plant, 240) : null;
+  const pMood = plant ? plantMood(plant, t) : null;
 
   async function share(textToShare) {
     try {
@@ -4430,13 +4607,26 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
         <span className="ch-spacer" />
         <label className="ctx-pill">
           <span className="sr-only">{t.chatAbout}</span>
-          <select value={entry?.key || ""} onChange={(e) => onSelect(e.target.value || null)}>
+          <select value={plant ? `plant:${plant.id}` : entry?.key || ""} onChange={(e) => onSelect(e.target.value || null)}>
             <option value="">Tamyr · {t.chatGeneral}</option>
-            {history.map((h) => (
-              <option key={h.key} value={h.key}>
-                {h.result?.plant_name || "—"} · {new Date(h.date).toLocaleDateString()}
-              </option>
-            ))}
+            {plants.length > 0 && (
+              <optgroup label={t.talkGroup}>
+                {plants.map((p) => (
+                  <option key={p.id} value={`plant:${p.id}`}>
+                    🌿 {p.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {history.length > 0 && (
+              <optgroup label={t.recentTitle}>
+                {history.map((h) => (
+                  <option key={h.key} value={h.key}>
+                    {h.result?.plant_name || "—"} · {new Date(h.date).toLocaleDateString()}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
           <Icon name="chevron" size={16} />
         </label>
@@ -4463,17 +4653,34 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
         )}
 
         {messages.length === 0 && !busy && (
-          <div className="ai-hero">
-            <Orb />
+          <div className={`ai-hero ${plant ? "is-plant" : ""}`}>
+            {plant ? (
+              <span className={`plant-orb m-${pMood.k}`}>
+                {pPhoto ? <img src={pPhoto} alt="" /> : <Icon name="plants" size={56} />}
+                <span className="plant-emoji">{pMood.e}</span>
+              </span>
+            ) : (
+              <Orb />
+            )}
             <h1 className="ai-greet">
-              <span>{t.aiHi}{userName ? `, ${userName}` : ""},</span> {t.aiAsk}
+              {plant ? (
+                <>
+                  <span>{t.plantHi(plant.name)}</span> {t.plantAsk}
+                </>
+              ) : (
+                <>
+                  <span>{t.aiHi}{userName ? `, ${userName}` : ""},</span> {t.aiAsk}
+                </>
+              )}
             </h1>
-            <p className="ai-sub">{t.chatEmpty}</p>
-            <button className={`tools-chip ${tools ? "on" : ""}`} onClick={() => setTools((x) => !x)} aria-expanded={tools}>
-              <Icon name="sparkle" size={17} /> {t.aiTools}
-            </button>
+            <p className="ai-sub">{plant ? `${pMood.e} ${pMood.text}` : t.chatEmpty}</p>
+            {!plant && (
+              <button className={`tools-chip ${tools ? "on" : ""}`} onClick={() => setTools((x) => !x)} aria-expanded={tools}>
+                <Icon name="sparkle" size={17} /> {t.aiTools}
+              </button>
+            )}
 
-            {!tools && (
+            {(!tools || plant) && (
               <div className="ai-quick">
                 {quick.map((q) => (
                   <button key={q} className="aq" onClick={() => ask(q)}>
@@ -4483,7 +4690,7 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
               </div>
             )}
 
-            {tools && !entry && (
+            {tools && !entry && !plant && (
               <section className="topics glass-panel">
                 <div className="topic-tabs" role="tablist">
                   {t.topics.map((x) => (
@@ -4509,7 +4716,7 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
                 </div>
               </section>
             )}
-            {tools && entry && (
+            {tools && entry && !plant && (
               <div className="ai-quick">
                 {t.chatSuggestPlant.map((q) => (
                   <button key={q} className="aq" onClick={() => ask(q)}>
@@ -4519,7 +4726,7 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
               </div>
             )}
 
-            <aside className="fact glass-panel">
+            {!plant && <aside className="fact glass-panel">
               <span className="fact-icon">
                 <Icon name="bulb" size={20} />
               </span>
@@ -4530,16 +4737,20 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
                   {t.factAsk} <Icon name="arrow" size={15} />
                 </button>
               </div>
-            </aside>
+            </aside>}
           </div>
         )}
 
         {messages.map((m, i) =>
           m.role === "assistant" ? (
-            <div key={i} className="msg assistant">
-              <Orb size="mini" />
+            <div key={i} className={`msg assistant ${plant ? "from-plant" : ""}`}>
+              {plant ? (
+                <span className="plant-mini">{pPhoto ? <img src={pPhoto} alt="" /> : <Icon name="plants" size={16} />}</span>
+              ) : (
+                <Orb size="mini" />
+              )}
               <div className="ai-body">
-                <span className="ai-name">{t.aiName}</span>
+                <span className="ai-name">{plant ? `${plant.name} ${pMood.e}` : t.aiName}</span>
                 <div className="ai-text">
                   <RichText text={m.text} />
                 </div>
@@ -4590,7 +4801,7 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
             </div>
           )
         )}
-        {!busy && !err && messages.length > 0 && messages[lastIdx].role === "assistant" && (
+        {!busy && !err && !plant && messages.length > 0 && messages[lastIdx].role === "assistant" && (
           <div className="followups">
             {t.followUps.map((q) => (
               <button key={q} className="aq fu" onClick={() => ask(q)}>
@@ -4601,9 +4812,13 @@ function ChatPage({ t, lang, userName, history, entry, onSelect, messages, setMe
         )}
         {busy && (
           <div className="msg assistant">
-            <Orb size="mini" />
+            {plant ? (
+              <span className="plant-mini">{pPhoto ? <img src={pPhoto} alt="" /> : <Icon name="plants" size={16} />}</span>
+            ) : (
+              <Orb size="mini" />
+            )}
             <div className="ai-body">
-              <span className="ai-name">{t.aiName}</span>
+              <span className="ai-name">{plant ? plant.name : t.aiName}</span>
               <div className="typing">
                 <span />
                 <span />

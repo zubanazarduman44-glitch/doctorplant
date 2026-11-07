@@ -1779,3 +1779,48 @@ input, select, textarea { background-color: color-mix(in srgb, var(--paper) 80%,
 /* Градиент мәтін кейбір браузерлерде көрінбейді — тұтас түс */
 .hero-title .hw, .page-head h1 { background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important; color: var(--ink) !important; }
 .hero-title { text-shadow: 0 2px 24px color-mix(in srgb, var(--bg) 80%, transparent); }
+
+/* ───────── Ауру орнын белгілеу ───────── */
+.spots { grid-column: span 12; }
+.spots-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.spots-head .tile-title { margin-bottom: 2px; }
+.spots-head p { font-size: 14px; }
+.spots .pf-chips { margin-bottom: 12px; }
+.spots-body { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(200px, 1fr); gap: 18px; align-items: start; }
+.spot-img { position: relative; border-radius: 18px; overflow: hidden; line-height: 0; box-shadow: 0 0 0 1px var(--edge), var(--shadow); background: #000; }
+.spot-img img { width: 100%; height: auto; display: block; }
+.spot {
+  position: absolute; border-radius: 14px; border: 2.5px solid #ffd54a; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35), 0 0 18px 2px rgba(255, 213, 74, 0.55), inset 0 0 0 999px rgba(255, 213, 74, 0.08);
+  animation: spotIn 0.6s var(--ease) both, spotPulse 2.4s ease-in-out infinite; animation-delay: var(--d), calc(var(--d) + 0.6s); transition: box-shadow 0.2s, border-color 0.2s;
+}
+.spot b { position: absolute; top: -12px; left: -12px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; line-height: 1; color: #1c1203; background: #ffd54a; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+.spot.hl { border-color: #fff; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4), 0 0 26px 6px rgba(255, 255, 255, 0.7), inset 0 0 0 999px rgba(255, 255, 255, 0.12); }
+@keyframes spotIn { from { opacity: 0; transform: scale(1.4); } }
+@keyframes spotPulse { 50% { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35), 0 0 28px 6px rgba(255, 213, 74, 0.75), inset 0 0 0 999px rgba(255, 213, 74, 0.14); } }
+.spot-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.spot-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--paper-2); font-weight: 600; transition: background 0.2s; cursor: default; }
+.spot-list li.hl { background: var(--amber-soft); }
+.spot-list b { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: #ffd54a; color: #1c1203; }
+@media (max-width: 760px) { .spots-body { grid-template-columns: 1fr; } }
+
+/* ───────── Өсімдікпен сөйлесу ───────── */
+.plant-mood {
+  width: 100%; display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px; border-radius: 16px 16px 16px 4px; text-align: left;
+  background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--edge); transition: transform 0.2s var(--ease), box-shadow 0.2s;
+}
+.plant-mood:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1.5px var(--primary); }
+.pm-e { font-size: 22px; line-height: 1; }
+.pm-t { flex: 1; min-width: 0; font-family: var(--serif); font-style: italic; font-size: 15px; }
+.pm-cta { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--on-primary); background: var(--btn-grad, var(--primary)); }
+.plant-mood.m-late { background: color-mix(in srgb, var(--danger) 10%, var(--paper-2)); }
+.plant-mood.m-due { background: color-mix(in srgb, var(--amber) 12%, var(--paper-2)); }
+.plant-orb { position: relative; width: 170px; height: 170px; border-radius: 50%; padding: 6px; background: conic-gradient(from 200deg, #5fd893, #1e9d5a, #b9f0c9, #5fd893); box-shadow: 0 26px 50px -18px rgba(22, 128, 68, 0.55); animation: orbFloat 6s ease-in-out infinite; display: grid; place-items: center; color: var(--primary); }
+.plant-orb img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--paper); }
+.plant-orb.m-late { background: conic-gradient(from 200deg, #ff8a7a, #c62828, #ffc9c0, #ff8a7a); }
+.plant-orb.m-due { background: conic-gradient(from 200deg, #ffd27a, #d97706, #ffe9b8, #ffd27a); }
+.plant-emoji { position: absolute; right: 2px; bottom: 6px; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; background: var(--paper); box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35); animation: wobble 3s ease-in-out infinite; }
+@keyframes wobble { 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+.plant-mini { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--primary); }
+.plant-mini img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 860px) { .plant-orb { width: 128px; height: 128px; } .plant-emoji { width: 40px; height: 40px; font-size: 22px; } }
+@media (prefers-reduced-motion: reduce) { .spot, .plant-orb, .plant-emoji { animation: none; } }
