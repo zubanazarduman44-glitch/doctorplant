@@ -2033,3 +2033,5 @@ input, select, textarea { background-color: color-mix(in srgb, var(--paper) 80%,
 }
 .gh-shelf { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 @media (max-width: 600px) { .gh-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tr-note { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--primary); background: var(--primary-soft); }
+.tr-note svg { animation: spin 1.2s linear infinite; }

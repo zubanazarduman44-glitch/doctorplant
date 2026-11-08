@@ -241,6 +241,7 @@ const T = {
     ],
     weekTitle: "Апта жоспары",
     weekRest: "суару жоқ",
+    translating: "Нәтиже қазақ тіліне аударылып жатыр…",
     gh: {
       title: "Менің жылыжайым",
       sum: (n, bad) => (bad ? `${n} өсімдік · ${bad} күтім күтіп тұр` : `${n} өсімдік · бәрі жайнап тұр 🌿`),
@@ -635,6 +636,7 @@ const T = {
     ],
     weekTitle: "План на неделю",
     weekRest: "без полива",
+    translating: "Переводим результат на русский…",
     gh: {
       title: "Моя оранжерея",
       sum: (n, bad) => (bad ? `${n} растений · ${bad} ждут ухода` : `${n} растений · все цветут 🌿`),
@@ -1192,6 +1194,33 @@ function plantMood(p, t) {
   if (left === 0) return { e: "🥤", text: t.mood.today, k: "due" };
   if (p.fertEvery > 0 && (daysLeft(p.lastFert || p.createdAt, p.fertEvery) ?? 1) <= 0) return { e: "🍽️", text: t.mood.hungry, k: "fert" };
   return { e: "😊", text: t.mood.happy, k: "ok" };
+}
+
+// Нәтижені ағымдағы тілде көрсету (аударма бар болса)
+function entryView(e, lang) {
+  if (!e || !e.lang || e.lang === lang || !e.tr?.[lang]) return e;
+  return { ...e, result: { ...e.result, ...e.tr[lang] } };
+}
+
+// Белгілі өсімдік аттарын тілге қарай ауыстыру (пайдаланушы өзі өзгертпеген болса)
+let NAME_MAP = null;
+function plantDisplayName(p, lang) {
+  if (!p?.latin) return p?.name;
+  if (!NAME_MAP) {
+    NAME_MAP = {};
+    const add = (latin, kk, ru) => {
+      const k = latin.toLowerCase();
+      NAME_MAP[k] = NAME_MAP[k] || { kk: new Set(), ru: new Set(), main: {} };
+      if (kk) { NAME_MAP[k].kk.add(kk); NAME_MAP[k].main.kk = NAME_MAP[k].main.kk || kk; }
+      if (ru) { NAME_MAP[k].ru.add(ru); NAME_MAP[k].main.ru = NAME_MAP[k].main.ru || ru; }
+    };
+    T.kk.quick.forEach(([name, latin], i) => add(latin, name, T.ru.quick[i]?.[0]));
+    PLANTS.forEach((x) => add(x.latin, x.kk.name, x.ru.name));
+  }
+  const m = NAME_MAP[p.latin.toLowerCase()];
+  if (!m || !m.main[lang]) return p.name;
+  const known = m.kk.has(p.name) || m.ru.has(p.name);
+  return known ? m.main[lang] : p.name;
 }
 
 function plantPhoto(p, size = 200) {
@@ -1821,6 +1850,35 @@ export default function Home() {
     };
   }
 
+  // Тіл ауысқанда ашық тұрған нәтижені аударамыз (бір рет, кэшпен)
+  const [translating, setTranslating] = useState(false);
+  const trBusy = useRef(new Set());
+  useEffect(() => {
+    const e = current;
+    if (!e?.result || !e.lang || e.lang === lang || e.tr?.[lang]) return;
+    const key = `${e.key}:${lang}`;
+    if (trBusy.current.has(key)) return;
+    trBusy.current.add(key);
+    setTranslating(true);
+    postJSON("/api/translate", { data: e.result, to: lang })
+      .then((d) => {
+        if (!d?.result) return;
+        const tr = { ...(e.tr || {}), [lang]: d.result };
+        setCurrent((c) => (c && c.key === e.key ? { ...c, tr } : c));
+        patchEntry(e.key, { tr });
+      })
+      .catch(() => {})
+      .finally(() => {
+        trBusy.current.delete(key);
+        setTranslating(false);
+      });
+  }, [lang, current?.key, current?.lang]);
+  const historyView = history.map((h) => entryView(h, lang));
+  const plantsView = plants.map((p) => {
+    const n = plantDisplayName(p, lang);
+    return n === p.name ? p : { ...p, name: n };
+  });
+
   // Нақтылау: ЖИ сұрақтарына жауаптармен қайта талдау
   const [refining, setRefining] = useState(false);
   async function refine(answers) {
@@ -1948,7 +2006,8 @@ export default function Home() {
             onRemove={removeImage}
             loading={loading}
             error={error}
-            current={current}
+            current={entryView(current, lang)}
+            translating={translating}
             onPick={pickFile}
             onShot={pickDataUrl}
             onAnalyze={analyze}
@@ -1956,7 +2015,7 @@ export default function Home() {
             onAsk={askAbout}
             onSavePlant={addPlantFromEntry}
             onMap={mapEntry}
-            history={history}
+            history={historyView}
             onOpenEntry={openEntry}
             onClearHistory={() => saveHistory([])}
             onRefine={refine}
@@ -1964,16 +2023,16 @@ export default function Home() {
             onOpenPlants={() => setTab("plants")}
           />
         )}
-        {tab === "plants" && <MyPlants t={t} lang={lang} plants={plants} onSave={savePlants} onTalk={talkTo} />}
+        {tab === "plants" && <MyPlants t={t} lang={lang} plants={plantsView} onSave={savePlants} onTalk={talkTo} />}
         {tab === "chat" && (
           <ChatPage
             t={t}
             lang={lang}
             userName={user ? (displayName || user.name || "").split(" ")[0] : ""}
-            history={history}
-            plants={plants}
-            plant={chatPlant}
-            entry={chatEntry}
+            history={historyView}
+            plants={plantsView}
+            plant={chatPlant ? { ...chatPlant, name: plantDisplayName(chatPlant, lang) } : null}
+            entry={entryView(chatEntry, lang)}
             onSelect={setChatKey}
             messages={chatPlant ? plantChats[chatPlant.id] || [] : chatEntry ? chatEntry.chat || [] : generalChat}
             initialQuestion={pendingQ}
@@ -2254,7 +2313,7 @@ function FileInputs({ fileRef, camRef, onPick }) {
   );
 }
 
-function Diagnose({ t, image, images = [], onRemove, loading, error, current, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants, onMap, history = [], onOpenEntry, onClearHistory, onRefine, refining }) {
+function Diagnose({ t, image, images = [], onRemove, loading, error, current, translating, onPick, onShot, onAnalyze, onPatch, onAsk, onSavePlant, onOpenPlants, onMap, history = [], onOpenEntry, onClearHistory, onRefine, refining }) {
   const fileRef = useRef(null);
   const camRef = useRef(null);
   const [drag, setDrag] = useState(false);
@@ -2484,6 +2543,11 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, on
                 <Icon name="camera" size={18} /> {t.camera}
               </button>
             </div>
+          )}
+          {translating && (
+            <p className="tr-note" role="status">
+              <Icon name="refresh" size={15} /> {t.translating}
+            </p>
           )}
           <Result
             t={t}
