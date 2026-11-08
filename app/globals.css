@@ -2139,3 +2139,200 @@ img, video { max-width: 100%; }
 @media (max-width: 760px) {
   .pbg-veil { background: linear-gradient(180deg, rgba(240, 250, 243, 0.6), rgba(240, 250, 243, 0.74)); }
 }
+
+/* ═════════ Карта 2.0: белгілер, ескерту, флора ═════════ */
+/* Қараңғы нұсқада енді арнайы қараңғы карта қолданылады — инверсия керек емес */
+.leaflet-tile-pane { filter: none !important; }
+.map-modes { display: inline-flex; margin: 0 0 14px; padding: 4px; border-radius: 999px; }
+.map-modes button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; font-weight: 700; }
+.map-wrap.flora .map-box { height: min(56vh, 520px); }
+
+/* Белгілер (тамшы пішінді) */
+.tpin-wrap { background: none; border: 0; }
+.tpin {
+  position: relative; display: grid; place-items: center; width: 30px; height: 30px; margin: 1px;
+  border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); transform-origin: center;
+  background: var(--pc); border: 2.5px solid #fff;
+  box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.45), inset 0 -3px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.18s var(--ease);
+}
+.tpin svg { transform: rotate(45deg); }
+.leaflet-marker-icon:hover .tpin { transform: rotate(-45deg) scale(1.15); }
+.tpin.mine { border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.45), 0 6px 14px -4px rgba(0, 0, 0, 0.45); }
+.tpin.fresh { animation: pinDrop 0.6s var(--ease) both; }
+.tpin.new { --pc: #f59e0b !important; animation: pinDrop 0.5s var(--ease) both; cursor: grab; }
+.tpin.new::after, .tpin.fresh::after {
+  content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 3px solid var(--pc);
+  animation: pinPulse 1.6s ease-out infinite; transform: rotate(45deg);
+}
+@keyframes pinDrop { from { transform: rotate(-45deg) translate(18px, -18px) scale(0.4); opacity: 0; } }
+@keyframes pinPulse { from { opacity: 0.8; transform: scale(0.6); } to { opacity: 0; transform: scale(1.5); } }
+.fpin {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f472b6, #be185d); border: 2.5px solid #fff;
+  box-shadow: 0 6px 16px -4px rgba(190, 24, 93, 0.6);
+}
+.fpin.now { background: radial-gradient(circle at 35% 30%, #4ade80, #15803d); box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.25), 0 6px 16px -4px rgba(21, 128, 61, 0.6); }
+.lg-mine { background: #fff !important; box-shadow: 0 0 0 3px #fbbf24; }
+
+/* Попап */
+.pop { gap: 3px; min-width: 190px; max-width: 250px; }
+.pop-st { align-self: flex-start; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; color: #fff; background: var(--pc, #15803d); margin-bottom: 2px; }
+.pop-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pop-btn {
+  display: inline-flex; align-items: center; padding: 6px 11px; border-radius: 999px; font: 700 12.5px var(--sans);
+  background: var(--primary-soft); color: var(--primary); text-decoration: none; border: 0; cursor: pointer;
+}
+.pop-btn:hover { background: var(--primary); color: #fff; }
+.pop-btn.danger { background: rgba(198, 40, 40, 0.1); color: var(--danger); }
+.pop-btn.danger:hover { background: var(--danger); color: #fff; }
+.leaflet-container a.pop-btn { color: var(--primary); }
+.leaflet-container a.pop-btn:hover { color: #fff; }
+
+/* Белгі қою панелі */
+.map-wrap.picking .map-box, .map-wrap.picking .leaflet-container { cursor: crosshair; }
+.map-wrap.picking { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.7), var(--shadow); }
+.map-hint {
+  position: absolute; left: 12px; top: 12px; z-index: 600; max-width: calc(100% - 400px);
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px;
+  background: #f59e0b; color: #1c1203; font-weight: 700; font-size: 14px; box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.5);
+  animation: hintIn 0.4s var(--ease) both;
+}
+@keyframes hintIn { from { opacity: 0; transform: translateY(-8px); } }
+.map-panel {
+  position: absolute; right: 12px; top: 12px; bottom: 12px; z-index: 650; width: min(360px, calc(100% - 24px));
+  display: flex; flex-direction: column; gap: 12px; padding: 16px; overflow-y: auto; overscroll-behavior: contain;
+  border-radius: var(--r-lg); background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  box-shadow: var(--card-hi), 0 0 0 1px var(--edge, var(--line)), 0 24px 50px -20px rgba(0, 0, 0, 0.45);
+  animation: panelIn 0.35s var(--ease) both;
+}
+@keyframes panelIn { from { opacity: 0; transform: translateX(16px); } }
+.map-panel .form-head { display: flex; align-items: center; justify-content: space-between; }
+.map-panel .form-head h2 { display: inline-flex; align-items: center; gap: 8px; font-size: 20px; margin: 0; }
+.map-panel .field { display: grid; gap: 6px; margin: 0; }
+.map-panel .field > span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.map-panel .form-actions { margin-top: auto; display: flex; gap: 8px; justify-content: flex-end; padding-top: 4px; }
+.mp-loc {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 12px; border-radius: var(--r-md);
+  background: var(--amber-soft); color: var(--warn); font-size: 13px; font-weight: 600;
+}
+.mp-loc span { flex: 1 1 140px; }
+.mp-loc.ok { background: var(--primary-soft); color: var(--primary); }
+.mp-recent { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+.mp-rc {
+  position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; max-width: 160px;
+  padding: 4px 12px 4px 4px; border-radius: 999px; background: var(--paper-2); font-size: 13px; font-weight: 600; color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.mp-rc img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.mp-rc span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mp-rc i { position: absolute; left: 24px; bottom: 3px; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #fff; }
+.mp-rc.on { box-shadow: inset 0 0 0 2px var(--primary); background: var(--primary-soft); }
+.mp-latin { font-family: var(--serif); color: var(--muted); font-size: 13px; }
+.mp-status { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.mp-status button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 6px; border-radius: var(--r-sm);
+  background: var(--paper-2); color: var(--ink); font-size: 13px; font-weight: 700; box-shadow: inset 0 0 0 1px var(--line);
+}
+.mp-status button i { width: 10px; height: 10px; border-radius: 50%; background: var(--pc); flex: none; }
+.mp-status button.on { background: var(--pc); color: #fff; box-shadow: 0 6px 14px -8px var(--pc); }
+.mp-status button.on i { background: #fff; }
+.mp-priv { margin: 0; }
+
+/* Жақын маңдағы ауру ескертуі */
+.near-banner, .risk-card {
+  display: flex; align-items: flex-start; gap: 12px; margin: 0 0 14px; padding: 14px 16px; border-radius: var(--r-lg);
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.85), rgba(255, 237, 213, 0.8));
+  box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.35), 0 14px 30px -22px rgba(180, 83, 9, 0.6);
+  color: #4a2a05; animation: hintIn 0.45s var(--ease) both;
+}
+.near-banner.hot { background: linear-gradient(135deg, rgba(254, 226, 226, 0.9), rgba(255, 237, 213, 0.85)); box-shadow: inset 0 0 0 1px rgba(198, 40, 40, 0.35), 0 14px 30px -22px rgba(198, 40, 40, 0.6); }
+.near-ic { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: #f59e0b; color: #fff; }
+.near-banner.hot .near-ic, .risk-card .near-ic { background: var(--danger); }
+.near-text { flex: 1; display: grid; gap: 4px; min-width: 0; }
+.near-text .muted { color: #7a4a12 !important; }
+.near-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.near-chip { padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.7); font-size: 12.5px; font-weight: 600; }
+.near-yours { font-weight: 700; color: #9a1c1c; font-size: 13.5px; }
+.near-acts { display: flex; align-items: center; gap: 6px; flex: none; }
+.near-acts .icon-btn { width: 34px; height: 34px; background: rgba(255, 255, 255, 0.6); color: #7a4a12; }
+.risk-card { flex-direction: column; gap: 10px; }
+.risk-card header { display: flex; align-items: center; gap: 10px; }
+.risk-card h3 { margin: 0; font-size: 18px; color: #6b1010; }
+.risk-row { display: grid; gap: 8px; padding: 10px 12px; border-radius: var(--r-md); background: rgba(255, 255, 255, 0.65); }
+.risk-row p { margin: 0; font-size: 14.5px; }
+.risk-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.risk-acts .btn.ghost, .near-acts .btn.ghost { background: rgba(255, 255, 255, 0.8); }
+:root[data-theme="dark"] .near-banner, :root[data-theme="dark"] .risk-card { background: linear-gradient(135deg, rgba(120, 70, 10, 0.35), rgba(90, 40, 10, 0.35)); color: #fde7c2; }
+:root[data-theme="dark"] .near-banner.hot { background: linear-gradient(135deg, rgba(130, 25, 25, 0.4), rgba(90, 40, 10, 0.35)); }
+:root[data-theme="dark"] .near-text .muted, :root[data-theme="dark"] .near-acts .icon-btn { color: #f3c98b !important; }
+:root[data-theme="dark"] .near-chip, :root[data-theme="dark"] .risk-row, :root[data-theme="dark"] .near-acts .icon-btn { background: rgba(0, 0, 0, 0.25); }
+:root[data-theme="dark"] .near-yours, :root[data-theme="dark"] .risk-card h3 { color: #fca5a5; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .near-banner, :root:not([data-theme="light"]) .risk-card { background: linear-gradient(135deg, rgba(120, 70, 10, 0.35), rgba(90, 40, 10, 0.35)); color: #fde7c2; }
+  :root:not([data-theme="light"]) .near-banner.hot { background: linear-gradient(135deg, rgba(130, 25, 25, 0.4), rgba(90, 40, 10, 0.35)); }
+  :root:not([data-theme="light"]) .near-text .muted, :root:not([data-theme="light"]) .near-acts .icon-btn { color: #f3c98b !important; }
+  :root:not([data-theme="light"]) .near-chip, :root:not([data-theme="light"]) .risk-row, :root:not([data-theme="light"]) .near-acts .icon-btn { background: rgba(0, 0, 0, 0.25); }
+  :root:not([data-theme="light"]) .near-yours, :root:not([data-theme="light"]) .risk-card h3 { color: #fca5a5; }
+}
+
+/* Қазақстан флорасы */
+.flora { margin-top: 18px; display: grid; gap: 14px; }
+.flora-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 14px; }
+.fr-card {
+  display: flex; flex-direction: column; border-radius: var(--r-lg); overflow: hidden; background: var(--paper);
+  box-shadow: var(--card-hi), 0 0 0 1px var(--edge, var(--line)), var(--shadow);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.fr-card:hover { transform: translateY(-3px); }
+.fr-card.now { box-shadow: var(--card-hi), 0 0 0 2px rgba(34, 197, 94, 0.55), var(--shadow); }
+.fr-photo { position: relative; aspect-ratio: 16 / 10; background: #1d3a28; }
+.fr-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fr-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.35)); pointer-events: none; }
+.fr-now, .fr-red {
+  position: absolute; z-index: 1; top: 10px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.fr-now { left: 10px; background: rgba(22, 163, 74, 0.92); color: #fff; }
+.fr-red { right: 10px; background: rgba(198, 40, 40, 0.88); color: #fff; }
+.fr-body { display: grid; gap: 8px; padding: 14px 16px 16px; flex: 1; align-content: start; }
+.fr-region { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 700; color: var(--primary); }
+.fr-body h3 { margin: 0; font-family: var(--serif); font-size: 20px; line-height: 1.2; }
+.fr-body p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.fr-species { display: flex; flex-wrap: wrap; gap: 6px; }
+.fr-species span { padding: 3px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-size: 12.5px; font-weight: 700; }
+.fr-months { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; margin-top: 2px; }
+.fr-months i { height: 7px; border-radius: 4px; background: var(--line); }
+.fr-months i.on { background: linear-gradient(90deg, #22c55e, #15803d); }
+.fr-months i.cur { outline: 2px solid var(--amber); outline-offset: 1px; }
+.fr-best { font-size: 12.5px; color: var(--muted); }
+.fr-best::first-letter { text-transform: uppercase; }
+.fr-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.fr-acts .btn { text-decoration: none; }
+.flora-rules { display: flex; gap: 6px; align-items: flex-start; }
+.flora-empty { text-align: center; padding: 20px; }
+
+@media (max-width: 760px) {
+  .map-modes { display: flex; width: 100%; }
+  .map-modes button { flex: 1; justify-content: center; padding: 9px 8px; font-size: 13.5px; }
+  .map-hint { max-width: calc(100% - 80px); font-size: 13px; }
+  .map-panel {
+    position: relative; inset: auto; width: auto; margin: 0; border-radius: 0; animation: none;
+    box-shadow: inset 0 1px 0 var(--line); background: var(--paper);
+  }
+  .map-wrap.picking .map-box { height: 46vh; }
+  .near-banner { flex-wrap: wrap; }
+  .near-acts { width: 100%; justify-content: space-between; }
+}
+.map-wrap { scroll-margin-top: 84px; }
+.legend i.lg-mine { background: #fff !important; border: 3px solid #fbbf24; box-sizing: border-box; }
+/* Leaflet қабаттары (z-index 400–1000) сайттың шапкасы мен төменгі мәзірінің үстіне шықпауы үшін */
+.map-wrap { isolation: isolate; z-index: 0; }
+.map-hint { left: 58px; }
+@media (max-width: 760px) {
+  .map-fab { position: absolute; right: 12px; bottom: 12px; min-height: 50px; z-index: 600; }
+  .map-overlay.soft { bottom: 76px; }
+  .map-hint { max-width: calc(100% - 128px); }
+}

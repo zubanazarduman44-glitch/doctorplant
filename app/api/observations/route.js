@@ -1,6 +1,6 @@
 // Өсімдіктер картасы: белгілерді оқу және қосу
 // Карта растений: чтение и добавление отметок
-import { listObservations, addObservation, countRecentObservations } from "../../../lib/db";
+import { listObservations, addObservation, countRecentObservations, deleteObservation } from "../../../lib/db";
 
 export const runtime = "nodejs";
 
@@ -67,4 +67,16 @@ export async function POST(req) {
     );
   }
   return Response.json({ ok: true, item: row });
+}
+
+// Өз белгісін өшіру / Удаление своей отметки
+export async function DELETE(req) {
+  const { searchParams } = new URL(req.url);
+  const id = clean(searchParams.get("id"), 64);
+  const clientId = clean(searchParams.get("clientId"), 64);
+  if (!/^[0-9a-f-]{36}$/i.test(id) || !clientId) return Response.json({ error: "Bad request" }, { status: 400 });
+  const n = await deleteObservation(id, clientId);
+  if (n < 0) return Response.json({ error: "Өшіру мүмкін болмады / Не удалось удалить" }, { status: 503 });
+  if (n === 0) return Response.json({ error: "Белгі табылмады / Отметка не найдена" }, { status: 404 });
+  return Response.json({ ok: true });
 }

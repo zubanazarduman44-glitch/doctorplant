@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CITIES, PLANTS, ACTIVES, REGISTRY_URL } from "./data";
 import { photoUrl, photoSet, PLANT_PHOTOS, photoForLatin, SCENES } from "./photos";
+import { FLORA_ROUTES } from "./flora";
 import {
   getAuthConfig,
   signInWithGoogle,
@@ -91,7 +92,7 @@ const T = {
     ],
     mapTitle: "Өсімдіктер картасы",
     mapSub: "Қалаңызда қай жерде қандай өсімдіктер өсетінін және қандай аурулар таралып жатқанын көріңіз.",
-    mapFilters: { all: "Барлығы", sick: "Ауру", healthy: "Сау", protected: "Қызыл кітап" },
+    mapFilters: { all: "Барлығы", sick: "Ауру", healthy: "Сау", protected: "Қызыл кітап", mine: "Менікі" },
     mapSearch: "Өсімдік атауы бойынша сүзу",
     mapCount: (n) => `Аймақта ${n} белгі`,
     mapTopDisease: (x) => `Жиі кездесетін мәселе: ${x}`,
@@ -171,6 +172,41 @@ const T = {
     mapPickHint: "Өсімдік тұрған жерді картадан басыңыз",
     mapPicked: "Орын картадан таңдалды.",
     mapLocate: "Мені табу",
+    mapModes: { marks: "Белгілер", flora: "Қазақстан флорасы" },
+    pinTitle: "Жаңа белгі",
+    pinTapMap: "Картадан өсімдік тұрған жерді басыңыз",
+    pinDrag: "Орын таңдалды — белгіні сүйреп дәлдеуге болады",
+    pinFromHistory: "Соңғы диагноздардан таңдау",
+    pinName: "Өсімдік атауы",
+    pinNamePh: "мысалы: Қызанақ",
+    pinWhat: "Не байқадыңыз?",
+    pinWhatPh: "мысалы: жапырақта қоңыр дақтар",
+    pinSaved: "Белгі картаға қойылды!",
+    pinMine: "Сіздің белгіңіз",
+    pinDelete: "Өшіру",
+    pinDeleteAsk: "Бұл белгіні өшіреміз бе?",
+    pinSimilar: "Менде де осындай",
+    pinSimilarQ: (p, d) => `Менің ${p} өсімдігімде де «${d}» белгілері бар сияқты. Қалай тексеремін және не істеймін?`,
+    nearTitle: (n) => `Жақын маңда ${n} ауру белгісі`,
+    nearSub: (km, days) => `${km} км радиуста, соңғы ${days} күнде`,
+    nearYours: (names) => `Сіздің өсімдіктеріңізге қатысты: ${names}`,
+    nearShow: "Картадан көрсету",
+    nearRiskTitle: "Жақын маңда ауру таралып жатыр",
+    nearRisk: (p, d, km) => `Сізден ~${km} км жерде «${d}» тіркелді. ${p} өсімдігіңізді тексеріп шығыңыз.`,
+    nearAsk: "Қалай қорғаймын?",
+    nearAskQ: (p, d) => `Жаныма жақын жерде «${d}» таралып жатыр. ${p} өсімдігімді қалай қорғаймын, алдын алу үшін не істеуім керек?`,
+    floraTitle: "Қазақстан флорасы",
+    floraSub: "Жабайы өсімдіктерді өз көзіңізбен көруге болатын орындар. Маусымын таңдап, жолға шығыңыз!",
+    floraSeasons: { all: "Барлығы", now: "Қазір маусымда", spring: "Көктем", summer: "Жаз", autumn: "Күз" },
+    floraNow: "Қазір маусым",
+    floraBest: "Ең жақсы уақыты",
+    floraRoute: "Жол сілтеме",
+    floraOnMap: "Картадан",
+    floraRedBook: "Қызыл кітап түрлері",
+    floraRules: "Жабайы өсімдіктерді жұлмаңыз және қазып алмаңыз — Қызыл кітаптағы түрлер заңмен қорғалады. Қорықтар мен ұлттық парктерге кіру ақылы немесе рұқсатпен болуы мүмкін, алдын ала тексеріңіз.",
+    floraEmpty: "Бұл маусымға маршрут жоқ",
+    monthsFull: ["қаңтар", "ақпан", "наурыз", "сәуір", "мамыр", "маусым", "шілде", "тамыз", "қыркүйек", "қазан", "қараша", "желтоқсан"],
+    ago: (n) => (n <= 0 ? "бүгін" : n === 1 ? "кеше" : `${n} күн бұрын`),
     recentTitle: "Соңғы талдаулар",
     showAll: "Барлығын көру",
     showLess: "Жасыру",
@@ -520,7 +556,7 @@ const T = {
     ],
     mapTitle: "Карта растений",
     mapSub: "Смотрите, где в вашем городе растут какие растения и где распространяются болезни.",
-    mapFilters: { all: "Все", sick: "Больные", healthy: "Здоровые", protected: "Красная книга" },
+    mapFilters: { all: "Все", sick: "Больные", healthy: "Здоровые", protected: "Красная книга", mine: "Мои" },
     mapSearch: "Фильтр по названию растения",
     mapCount: (n) => `Отметок в районе: ${n}`,
     mapTopDisease: (x) => `Чаще всего: ${x}`,
@@ -600,6 +636,41 @@ const T = {
     mapPickHint: "Нажмите на карте место, где растёт растение",
     mapPicked: "Место выбрано на карте.",
     mapLocate: "Найти меня",
+    mapModes: { marks: "Отметки", flora: "Флора Казахстана" },
+    pinTitle: "Новая отметка",
+    pinTapMap: "Нажмите на карте, где растёт растение",
+    pinDrag: "Место выбрано — отметку можно перетащить точнее",
+    pinFromHistory: "Выбрать из последних диагнозов",
+    pinName: "Название растения",
+    pinNamePh: "например: Томат",
+    pinWhat: "Что вы заметили?",
+    pinWhatPh: "например: бурые пятна на листьях",
+    pinSaved: "Отметка добавлена на карту!",
+    pinMine: "Ваша отметка",
+    pinDelete: "Удалить",
+    pinDeleteAsk: "Удалить эту отметку?",
+    pinSimilar: "У меня так же",
+    pinSimilarQ: (p, d) => `Похоже, у моего растения «${p}» тоже признаки «${d}». Как проверить и что делать?`,
+    nearTitle: (n) => `Рядом ${n} отметок о болезнях`,
+    nearSub: (km, days) => `в радиусе ${km} км, за последние ${days} дней`,
+    nearYours: (names) => `Касается ваших растений: ${names}`,
+    nearShow: "Показать на карте",
+    nearRiskTitle: "Рядом распространяется болезнь",
+    nearRisk: (p, d, km) => `В ~${km} км от вас отмечено «${d}». Проверьте своё растение «${p}».`,
+    nearAsk: "Как защитить?",
+    nearAskQ: (p, d) => `Рядом со мной распространяется «${d}». Как защитить моё растение «${p}» и что сделать для профилактики?`,
+    floraTitle: "Флора Казахстана",
+    floraSub: "Места, где дикие растения можно увидеть своими глазами. Выберите сезон и отправляйтесь в путь!",
+    floraSeasons: { all: "Все", now: "Сезон сейчас", spring: "Весна", summer: "Лето", autumn: "Осень" },
+    floraNow: "Сейчас сезон",
+    floraBest: "Лучшее время",
+    floraRoute: "Маршрут",
+    floraOnMap: "На карте",
+    floraRedBook: "Виды Красной книги",
+    floraRules: "Не срывайте и не выкапывайте дикие растения — виды из Красной книги охраняются законом. Вход в заповедники и нацпарки может быть платным или по разрешению — уточняйте заранее.",
+    floraEmpty: "Для этого сезона маршрутов нет",
+    monthsFull: ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"],
+    ago: (n) => (n <= 0 ? "сегодня" : n === 1 ? "вчера" : `${n} дн. назад`),
     recentTitle: "Последние анализы",
     showAll: "Показать все",
     showLess: "Свернуть",
@@ -949,7 +1020,7 @@ const T = {
     ],
     mapTitle: "Plant map",
     mapSub: "See which plants grow where in your city and where diseases are spreading.",
-    mapFilters: { all: "All", sick: "Sick", healthy: "Healthy", protected: "Red Book" },
+    mapFilters: { all: "All", sick: "Sick", healthy: "Healthy", protected: "Red Book", mine: "Mine" },
     mapSearch: "Filter by plant name",
     mapCount: (n) => `Markers in this area: ${n}`,
     mapTopDisease: (x) => `Most common: ${x}`,
@@ -1029,6 +1100,41 @@ const T = {
     mapPickHint: "Tap the place on the map where the plant grows",
     mapPicked: "Location selected on the map.",
     mapLocate: "Find me",
+    mapModes: { marks: "Pins", flora: "Flora of Kazakhstan" },
+    pinTitle: "New pin",
+    pinTapMap: "Tap the map where the plant grows",
+    pinDrag: "Location set — drag the pin to fine-tune it",
+    pinFromHistory: "Pick from recent diagnoses",
+    pinName: "Plant name",
+    pinNamePh: "e.g. Tomato",
+    pinWhat: "What did you notice?",
+    pinWhatPh: "e.g. brown spots on the leaves",
+    pinSaved: "Pin added to the map!",
+    pinMine: "Your pin",
+    pinDelete: "Delete",
+    pinDeleteAsk: "Delete this pin?",
+    pinSimilar: "Mine has this too",
+    pinSimilarQ: (p, d) => `My ${p} seems to have signs of "${d}" too. How do I check and what should I do?`,
+    nearTitle: (n) => `${n} disease reports nearby`,
+    nearSub: (km, days) => `within ${km} km, in the last ${days} days`,
+    nearYours: (names) => `Relevant to your plants: ${names}`,
+    nearShow: "Show on map",
+    nearRiskTitle: "A disease is spreading nearby",
+    nearRisk: (p, d, km) => `"${d}" was reported ~${km} km from you. Check your ${p}.`,
+    nearAsk: "How do I protect it?",
+    nearAskQ: (p, d) => `"${d}" is spreading near me. How do I protect my ${p} and what can I do to prevent it?`,
+    floraTitle: "Flora of Kazakhstan",
+    floraSub: "Places where you can see wild plants with your own eyes. Pick a season and hit the road!",
+    floraSeasons: { all: "All", now: "In season now", spring: "Spring", summer: "Summer", autumn: "Autumn" },
+    floraNow: "In season now",
+    floraBest: "Best time",
+    floraRoute: "Directions",
+    floraOnMap: "On map",
+    floraRedBook: "Red Book species",
+    floraRules: "Don't pick or dig up wild plants — Red Book species are protected by law. Reserves and national parks may charge an entry fee or require a permit, so check ahead.",
+    floraEmpty: "No routes for this season",
+    monthsFull: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    ago: (n) => (n <= 0 ? "today" : n === 1 ? "yesterday" : `${n} days ago`),
     recentTitle: "Recent analyses",
     showAll: "Show all",
     showLess: "Show less",
@@ -2271,7 +2377,10 @@ export default function Home() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) return reject(new Error(t.geoDenied));
       navigator.geolocation.getCurrentPosition(
-        (p) => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
+        (p) => {
+          saveGeo(p.coords.latitude, p.coords.longitude);
+          resolve({ lat: p.coords.latitude, lon: p.coords.longitude });
+        },
         () => reject(new Error(t.geoDenied)),
         { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 }
       );
@@ -2279,7 +2388,7 @@ export default function Home() {
   }
   async function addToMap({ plant_name, latin_name, health_status, diagnosis, red_book }, chosen) {
     const pos = chosen || (await getPosition());
-    await postJSON("/api/observations", {
+    const res = await postJSON("/api/observations", {
       ...pos,
       plant_name,
       latin_name,
@@ -2289,7 +2398,16 @@ export default function Home() {
       clientId,
       lang,
     });
-    return pos;
+    const id = res?.item?.id ?? null;
+    if (id != null) addMyMark(id);
+    return { ...pos, id };
+  }
+  async function deleteMark(id) {
+    const r = await fetch(`/api/observations?id=${encodeURIComponent(id)}&clientId=${encodeURIComponent(clientId)}`, { method: "DELETE" });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.error || `HTTP ${r.status}`);
+    }
   }
   async function mapEntry(entry) {
     const r = entry.result || {};
@@ -2526,7 +2644,9 @@ export default function Home() {
             onOpenPlants={() => setTab("plants")}
           />
         )}
-        {tab === "plants" && <MyPlants t={t} lang={lang} plants={plantsView} onSave={savePlants} onTalk={talkTo} />}
+        {tab === "plants" && (
+          <MyPlants t={t} lang={lang} plants={plantsView} onSave={savePlants} onTalk={talkTo} onAsk={askQuestion} onMap={() => setTab("map")} />
+        )}
         {tab === "chat" && (
           <ChatPage
             t={t}
@@ -2555,7 +2675,9 @@ export default function Home() {
             }}
           />
         )}
-        {tab === "map" && <PlantMap t={t} lang={lang} history={history} onAdd={addToMap} />}
+        {tab === "map" && (
+          <PlantMap t={t} lang={lang} history={history} plants={plantsView} onAdd={addToMap} onDelete={deleteMark} onAsk={askQuestion} />
+        )}
         {tab === "about" && (
           <Reference t={t} lang={lang} plants={plants} onAddPlant={addPlantSimple} onAsk={askQuestion} />
         )}
@@ -3526,7 +3648,7 @@ function Feedback({ t, entry, onPatch }) {
 }
 
 /* ───────────── Менің өсімдіктерім ───────────── */
-function MyPlants({ t, lang, plants, onSave, onTalk }) {
+function MyPlants({ t, lang, plants, onSave, onTalk, onAsk, onMap }) {
   const [editing, setEditing] = useState(null); // null | "new" | plant
   const [perm, setPerm] = useState("default");
 
@@ -3580,6 +3702,8 @@ function MyPlants({ t, lang, plants, onSave, onTalk }) {
       </header>
 
       <Weather t={t} lang={lang} />
+
+      {onAsk && <NearbyRisk t={t} lang={lang} plants={plants} onAsk={onAsk} onMap={onMap} />}
 
       <Greenhouse
         t={t}
@@ -5236,6 +5360,183 @@ function jitter(id, k) {
   return ((h % 1000) / 1000 - 0.5) * 0.003;
 }
 
+/* ── Карта көмекшілері ── */
+const MY_MARKS_KEY = "tamyr_my_marks";
+const GEO_KEY = "tamyr_geo";
+const RISK_SEEN_KEY = "tamyr_risk_seen";
+const KZ_BOUNDS = [
+  [40.6, 46.5],
+  [55.4, 87.3],
+];
+const TILE_URLS = {
+  light: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+};
+const TILE_ATTR =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const PIN_LEAF = "M12 3C7 6 5.5 10.5 7 17c1-3 2.6-5.3 5-7-1.6 2.4-2.4 4.8-2.4 8C15 16 17.4 11.4 16.6 6.6 15.6 5 14 4 12 3Z";
+const FLORA_SVG =
+  '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 21v-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M12 14c-3.2 0-5-2.4-5-6l2.5 1.6L12 6l2.5 3.6L17 8c0 3.6-1.8 6-5 6Z" fill="#fff"/></svg>';
+
+function readJSON(key, fallback) {
+  try {
+    return JSON.parse(store(key) || "null") ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+function myMarks() {
+  const v = readJSON(MY_MARKS_KEY, []);
+  return Array.isArray(v) ? v.map(String) : [];
+}
+function addMyMark(id) {
+  if (id == null) return;
+  const s = myMarks();
+  if (!s.includes(String(id))) store(MY_MARKS_KEY, JSON.stringify([String(id), ...s].slice(0, 300)));
+}
+function removeMyMark(id) {
+  store(MY_MARKS_KEY, JSON.stringify(myMarks().filter((x) => x !== String(id))));
+}
+function saveGeo(lat, lon) {
+  store(GEO_KEY, JSON.stringify({ lat: +(+lat).toFixed(3), lon: +(+lon).toFixed(3), at: Date.now() }));
+}
+function readGeo() {
+  const g = readJSON(GEO_KEY, null);
+  // 30 күннен ескі орынды пайдаланбаймыз
+  return g && Number.isFinite(g.lat) && Date.now() - (g.at || 0) < 30 * 86_400_000 ? g : null;
+}
+function kmBetween(a, b) {
+  const R = 6371;
+  const r = (x) => (x * Math.PI) / 180;
+  const dLat = r(b.lat - a.lat);
+  const dLon = r(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const isSick = (s) => s === "sick" || s === "needs_attention";
+function relDays(iso, t) {
+  const d = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 86_400_000));
+  return t.ago ? t.ago(d) : new Date(iso).toLocaleDateString();
+}
+function monthName(m, t) {
+  return t.monthsFull?.[m - 1] || String(m);
+}
+function isDarkTheme() {
+  if (typeof document === "undefined") return false;
+  const th = document.documentElement.dataset.theme;
+  if (th) return th === "dark";
+  return Boolean(window.matchMedia?.("(prefers-color-scheme: dark)").matches);
+}
+// Жақын маңдағы ауру белгілері
+function nearbyRisk(items, ref, { km = 3, days = 30 } = {}) {
+  const since = Date.now() - days * 86_400_000;
+  const near = items.filter(
+    (it) =>
+      isSick(it.health_status) &&
+      !it.protected &&
+      new Date(it.created_at).getTime() >= since &&
+      kmBetween(ref, { lat: +it.lat, lon: +it.lon }) <= km
+  );
+  const by = {};
+  for (const it of near) {
+    const label = (it.diagnosis || it.plant_name || "").trim();
+    if (!label) continue;
+    const k = label.toLowerCase();
+    (by[k] ||= { label, n: 0 }).n++;
+  }
+  return { near, groups: Object.values(by).sort((a, b) => b.n - a.n) };
+}
+// Атауды латынша тектің атына келтіру (Томат = Қызанақ = Tomato)
+function genusOf(name, latin) {
+  const g = (x) => (x || "").toLowerCase().trim().split(/\s+/)[0];
+  if (latin) return g(latin);
+  const n = (name || "").toLowerCase().trim();
+  if (!n) return "";
+  const p = PLANTS.find((x) => ["kk", "ru", "en"].some((l) => (x[l]?.name || "").toLowerCase() === n));
+  return p ? g(p.latin) : "";
+}
+function plantMatches(plant, it) {
+  const a = genusOf(plant.name, plant.latin);
+  const b = genusOf(it.plant_name, it.latin_name);
+  if (a && b) return a === b;
+  const n = (x) => (x || "").toLowerCase().trim();
+  return Boolean(n(plant.name)) && n(plant.name) === n(it.plant_name);
+}
+function pinIcon(L, status, { mine, fresh, fresh2 } = {}) {
+  const color = MARK_COLORS[status] || MARK_COLORS.unknown;
+  return L.divIcon({
+    className: "tpin-wrap",
+    html: `<span class="tpin${mine ? " mine" : ""}${fresh ? " fresh" : ""}${fresh2 ? " new" : ""}" style="--pc:${color}"><svg viewBox="0 0 24 24" width="15" height="15"><path d="${PIN_LEAF}" fill="#fff"/></svg></span>`,
+    iconSize: [32, 40],
+    iconAnchor: [16, 38],
+    popupAnchor: [0, -34],
+  });
+}
+// Попап мазмұны — тек DOM арқылы (пайдаланушы мәтіні HTML ретінде енгізілмейді)
+function popNode({ title, latin, badge, badgeColor, lines = [], foot, actions = [], link }) {
+  const box = document.createElement("div");
+  box.className = "pop";
+  if (badge) {
+    const st = document.createElement("span");
+    st.className = "pop-st";
+    st.style.setProperty("--pc", badgeColor || "#15803d");
+    st.textContent = badge;
+    box.appendChild(st);
+  }
+  const b = document.createElement("strong");
+  b.textContent = title;
+  box.appendChild(b);
+  if (latin) {
+    const i = document.createElement("em");
+    i.textContent = latin;
+    box.appendChild(i);
+  }
+  for (const l of lines) {
+    if (!l) continue;
+    const d = document.createElement("span");
+    d.textContent = l;
+    box.appendChild(d);
+  }
+  if (foot) {
+    const ft = document.createElement("time");
+    ft.textContent = foot;
+    box.appendChild(ft);
+  }
+  if (actions.length || link) {
+    const row = document.createElement("div");
+    row.className = "pop-acts";
+    for (const a of actions) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `pop-btn ${a.cls || ""}`;
+      btn.textContent = a.label;
+      btn.addEventListener("click", a.onClick);
+      row.appendChild(btn);
+    }
+    if (link) {
+      const a = document.createElement("a");
+      a.className = "pop-btn";
+      a.href = link.href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = link.label;
+      row.appendChild(a);
+    }
+    box.appendChild(row);
+  }
+  return box;
+}
+function directionsUrl(r) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}`;
+}
+function speciesName(s, lang) {
+  if (s.id) {
+    const p = PLANTS.find((x) => x.id === s.id);
+    if (p) return { name: p[lang]?.name || p.ru.name, latin: p.latin };
+  }
+  return { name: s[lang] || s.ru || s.latin, latin: s.latin };
+}
+
 function MapButton({ t, entry, onMap, style }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -5272,36 +5573,75 @@ function MapButton({ t, entry, onMap, style }) {
   );
 }
 
-function PlantMap({ t, lang, history, onAdd }) {
+function PlantMap({ t, lang, history, plants = [], onAdd, onDelete, onAsk }) {
   const boxRef = useRef(null);
+  const wrapRef = useRef(null);
   const mapRef = useRef(null);
+  const tileRef = useRef(null);
   const layerRef = useRef(null);
+  const floraRef = useRef(null);
+  const floraMarks = useRef({});
+  const tempRef = useRef(null);
+  const addingRef = useRef(false);
   const [city, setCity] = useState("almaty");
   const [center, setCenter] = useState(null);
   const [items, setItems] = useState([]);
   const [state, setState] = useState("loading");
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState("");
+  const [mode, setMode] = useState("marks"); // marks | flora
   const [adding, setAdding] = useState(false);
-  const [reload, setReload] = useState(0);
-  const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState(null);
-  const [locErr, setLocErr] = useState("");
-  const pickingRef = useRef(false);
-  const tempRef = useRef(null);
-  useEffect(() => {
-    pickingRef.current = picking;
-  }, [picking]);
-  const coarse = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
+  const [locating, setLocating] = useState(false);
+  const [reload, setReload] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [toast, setToast] = useState("");
+  const [freshId, setFreshId] = useState(null);
+  const [mine, setMine] = useState([]);
+  const [riskOff, setRiskOff] = useState(false);
 
   useEffect(() => {
+    setMine(myMarks());
     const saved = store(CITY_KEY);
     const c = CITIES.find((x) => x.id === saved) || CITIES[0];
     setCity(c.id);
     setCenter({ lat: c.lat, lon: c.lon });
   }, []);
 
-  // Картаны бір рет құрамыз
+  useEffect(() => {
+    addingRef.current = adding;
+  }, [adding]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(""), 2800);
+    return () => clearTimeout(id);
+  }, [toast]);
+
+  // Жаңа белгі (сүйреуге болады)
+  function placePin(pos, fly) {
+    const L = window.L;
+    const map = mapRef.current;
+    if (!L || !map) return;
+    if (tempRef.current) tempRef.current.setLatLng([pos.lat, pos.lon]);
+    else {
+      tempRef.current = L.marker([pos.lat, pos.lon], { draggable: true, icon: pinIcon(L, "unknown", { fresh2: true }), zIndexOffset: 1000 }).addTo(map);
+      tempRef.current.on("dragend", (e) => {
+        const ll = e.target.getLatLng();
+        setPicked({ lat: ll.lat, lon: ll.lng });
+      });
+    }
+    setPicked(pos);
+    if (fly) map.flyTo([pos.lat, pos.lon], Math.max(map.getZoom(), 15), { duration: 0.8 });
+  }
+  function clearPin() {
+    tempRef.current?.remove();
+    tempRef.current = null;
+    setPicked(null);
+  }
+
+  // Картаны бір рет құрамыз. МАҢЫЗДЫ: map-box className-ын React өзгертпеуі керек —
+  // әйтпесе Leaflet-тің өз класстары өшіп, карта жоғалып кетеді.
   useEffect(() => {
     if (!center || mapRef.current) return;
     let cancelled = false;
@@ -5313,31 +5653,39 @@ function PlantMap({ t, lang, history, onAdd }) {
           12
         );
         map.on("click", (e) => {
-          if (pickingRef.current) {
-            const pos = { lat: e.latlng.lat, lon: e.latlng.lng };
-            tempRef.current?.remove();
-            tempRef.current = L.circleMarker([pos.lat, pos.lon], { radius: 14, color: "#d97706", weight: 3, fillColor: "#f59e0b", fillOpacity: 0.5 }).addTo(map);
-            setPicked(pos);
-            setPicking(false);
-            setAdding(true);
-          } else {
-            map.scrollWheelZoom.enable();
-          }
+          if (addingRef.current) placePin({ lat: e.latlng.lat, lon: e.latlng.lng });
+          else map.scrollWheelZoom.enable();
         });
         map.on("mouseout", () => map.scrollWheelZoom.disable());
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 18,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        tileRef.current = L.tileLayer(TILE_URLS[isDarkTheme() ? "dark" : "light"], {
+          maxZoom: 19,
+          subdomains: "abcd",
+          attribution: TILE_ATTR,
         }).addTo(map);
         layerRef.current = L.layerGroup().addTo(map);
+        floraRef.current = L.layerGroup();
         mapRef.current = map;
-        setReload((x) => x + 1);
+        setReady(true);
       })
       .catch(() => setState("error"));
     return () => {
       cancelled = true;
     };
   }, [center]);
+
+  // Тақырып ауысқанда карта түсі де ауысады
+  useEffect(() => {
+    if (!ready) return;
+    const sync = () => tileRef.current?.setUrl(TILE_URLS[isDarkTheme() ? "dark" : "light"]);
+    const mo = new MutationObserver(sync);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
+    mq?.addEventListener?.("change", sync);
+    return () => {
+      mo.disconnect();
+      mq?.removeEventListener?.("change", sync);
+    };
+  }, [ready]);
 
   useEffect(
     () => () => {
@@ -5352,7 +5700,6 @@ function PlantMap({ t, lang, history, onAdd }) {
     if (!center) return;
     let cancelled = false;
     setState((s) => (s === "error" ? s : "loading"));
-    mapRef.current?.setView([center.lat, center.lon], mapRef.current.getZoom() < 11 ? 12 : mapRef.current.getZoom());
     fetch(`/api/observations?lat=${center.lat}&lon=${center.lon}&r=0.35`)
       .then((r) => r.json())
       .then((d) => {
@@ -5366,68 +5713,149 @@ function PlantMap({ t, lang, history, onAdd }) {
     };
   }, [center, reload]);
 
+  // Қала ауысқанда картаны жылжыту
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !center || mode !== "marks") return;
+    map.setView([center.lat, center.lon], map.getZoom() < 11 ? 12 : map.getZoom());
+  }, [center, ready]);
+
   const needle = q.trim().toLowerCase();
   const shown = items.filter(
     (it) =>
       (filter === "all" ||
-        (filter === "sick" && (it.health_status === "sick" || it.health_status === "needs_attention")) ||
+        (filter === "sick" && isSick(it.health_status)) ||
         (filter === "healthy" && it.health_status === "healthy") ||
-        (filter === "protected" && it.protected)) &&
+        (filter === "protected" && it.protected) ||
+        (filter === "mine" && mine.includes(String(it.id)))) &&
       (!needle || `${it.plant_name} ${it.latin_name || ""}`.toLowerCase().includes(needle))
   );
 
-  // Белгілерді салу (мәтін DOM арқылы — HTML енгізілмейді)
+  async function removeMark(id) {
+    if (!window.confirm(t.pinDeleteAsk)) return;
+    try {
+      await onDelete(id);
+      removeMyMark(id);
+      setMine(myMarks());
+      mapRef.current?.closePopup();
+      setItems((xs) => xs.filter((x) => String(x.id) !== String(id)));
+    } catch (e) {
+      setToast(e.message);
+    }
+  }
+
+  // Белгілерді салу
   useEffect(() => {
     const L = typeof window !== "undefined" ? window.L : null;
     if (!L || !layerRef.current) return;
     layerRef.current.clearLayers();
+    let freshMarker = null;
     for (const it of shown) {
       const color = MARK_COLORS[it.health_status] || MARK_COLORS.unknown;
-      const m = L.circleMarker([+it.lat + jitter(it.id, "a"), +it.lon + jitter(it.id, "b")], {
-        radius: it.protected ? 18 : coarse ? 12 : 9,
-        color: it.protected ? "#b45309" : "#ffffff",
-        weight: it.protected ? 2 : 2,
-        dashArray: it.protected ? "4 4" : null,
-        fillColor: color,
-        fillOpacity: it.protected ? 0.35 : 0.85,
-      });
-      const box = document.createElement("div");
-      box.className = "pop";
-      const b = document.createElement("strong");
-      b.textContent = it.plant_name;
-      box.appendChild(b);
-      if (it.latin_name) {
-        const i = document.createElement("em");
-        i.textContent = it.latin_name;
-        box.appendChild(i);
-      }
-      const st = document.createElement("span");
-      st.className = "pop-st";
-      st.style.color = color;
-      st.textContent = (t.statuses[it.health_status] || "") + (it.protected ? ` · ${t.mapProtected}` : "");
-      box.appendChild(st);
-      if (it.diagnosis && it.health_status !== "healthy") {
-        const d = document.createElement("span");
-        d.textContent = it.diagnosis;
-        box.appendChild(d);
-      }
-      const dt = document.createElement("time");
-      dt.textContent = new Date(it.created_at).toLocaleDateString();
-      box.appendChild(dt);
-      m.bindPopup(box);
+      const isMine = mine.includes(String(it.id));
+      const ll = [+it.lat + jitter(it.id, "a"), +it.lon + jitter(it.id, "b")];
+      const m = it.protected
+        ? L.circle([+it.lat, +it.lon], { radius: 2500, color: "#b45309", weight: 2, dashArray: "6 6", fillColor: "#f59e0b", fillOpacity: 0.12 })
+        : L.marker(ll, { icon: pinIcon(L, it.health_status, { mine: isMine, fresh: String(it.id) === String(freshId) }), riseOnHover: true });
+      const actions = [];
+      if (isSick(it.health_status) && it.diagnosis && onAsk)
+        actions.push({ label: t.pinSimilar, onClick: () => onAsk(t.pinSimilarQ(it.plant_name, it.diagnosis)) });
+      if (isMine) actions.push({ label: t.pinDelete, cls: "danger", onClick: () => removeMark(it.id) });
+      m.bindPopup(
+        popNode({
+          title: it.plant_name,
+          latin: it.latin_name,
+          badge: (t.statuses[it.health_status] || "") + (it.protected ? ` · ${t.mapProtected}` : ""),
+          badgeColor: color,
+          lines: [it.diagnosis && it.health_status !== "healthy" ? it.diagnosis : "", isMine ? `★ ${t.pinMine}` : ""],
+          foot: relDays(it.created_at, t),
+          actions,
+        }),
+        { autoPanPaddingTopLeft: L.point(60, 20), autoPanPaddingBottomRight: L.point(20, 70) }
+      );
       m.addTo(layerRef.current);
+      if (String(it.id) === String(freshId)) freshMarker = m;
     }
-  }, [shown.length, filter, needle, items, reload]);
+    if (freshMarker) setTimeout(() => freshMarker.openPopup(), 650);
+  }, [items, filter, needle, mine, freshId, reload, t]);
+
+  // Флора маршруттары қабаты
+  const month = new Date().getMonth() + 1;
+  useEffect(() => {
+    const L = typeof window !== "undefined" ? window.L : null;
+    const map = mapRef.current;
+    if (!L || !map || !floraRef.current) return;
+    floraRef.current.clearLayers();
+    floraMarks.current = {};
+    for (const r of FLORA_ROUTES) {
+      const tx = r[lang] || r.ru;
+      const now = r.months.includes(month);
+      const m = L.marker([r.lat, r.lon], {
+        icon: L.divIcon({
+          className: "tpin-wrap",
+          html: `<span class="fpin${now ? " now" : ""}">${FLORA_SVG}</span>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+          popupAnchor: [0, -18],
+        }),
+        riseOnHover: true,
+      });
+      m.bindPopup(
+        popNode({
+          title: tx.name,
+          badge: now ? t.floraNow : tx.region,
+          badgeColor: now ? "#15803d" : "#6b7c72",
+          lines: [r.species.map((s) => speciesName(s, lang).name).join(", "), `${t.floraBest}: ${r.months.map((x) => monthName(x, t)).join(", ")}`],
+          link: { href: directionsUrl(r), label: t.floraRoute },
+        }),
+        { autoPanPaddingTopLeft: L.point(60, 20), autoPanPaddingBottomRight: L.point(20, 20) }
+      );
+      m.addTo(floraRef.current);
+      floraMarks.current[r.id] = m;
+    }
+  }, [ready, lang, t]);
+
+  // Режим ауысу
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (mode === "flora") {
+      map.removeLayer(layerRef.current);
+      floraRef.current.addTo(map);
+      map.fitBounds(KZ_BOUNDS, { padding: [10, 10] });
+      setAdding(false);
+      clearPin();
+    } else {
+      map.removeLayer(floraRef.current);
+      layerRef.current.addTo(map);
+      if (center) map.setView([center.lat, center.lon], 12);
+    }
+  }, [mode, ready]);
+
+  function locateMe(then) {
+    if (!navigator.geolocation) return setToast(t.geoDenied);
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        setLocating(false);
+        const pos = { lat: p.coords.latitude, lon: p.coords.longitude };
+        saveGeo(pos.lat, pos.lon);
+        then(pos);
+      },
+      () => {
+        setLocating(false);
+        setToast(t.geoDenied);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 }
+    );
+  }
 
   function choose(v) {
     if (v === "geo") {
-      navigator.geolocation?.getCurrentPosition(
-        (p) => {
-          setCity("geo");
-          setCenter({ lat: +p.coords.latitude.toFixed(4), lon: +p.coords.longitude.toFixed(4) });
-        },
-        () => {}
-      );
+      locateMe((pos) => {
+        setCity("geo");
+        setCenter({ lat: +pos.lat.toFixed(4), lon: +pos.lon.toFixed(4) });
+      });
       return;
     }
     const c = CITIES.find((x) => x.id === v);
@@ -5437,178 +5865,267 @@ function PlantMap({ t, lang, history, onAdd }) {
     setCenter({ lat: c.lat, lon: c.lon });
   }
 
+  function startAdding() {
+    setMode("marks");
+    setAdding(true);
+    setFilter("all");
+    mapRef.current?.closePopup();
+    wrapRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  function stopAdding() {
+    setAdding(false);
+    clearPin();
+  }
+
   // Статистика: ең жиі кездесетін мәселе
   const counts = {};
   for (const it of items) {
-    if ((it.health_status === "sick" || it.health_status === "needs_attention") && it.diagnosis) {
+    if (isSick(it.health_status) && it.diagnosis) {
       const k = it.diagnosis.toLowerCase();
       counts[k] = (counts[k] || 0) + 1;
     }
   }
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
 
+  // Жақын маңдағы ауру
+  const refPos = center;
+  const riskKm = city === "geo" ? 3 : 8;
+  const risk = refPos ? nearbyRisk(items, refPos, { km: riskKm }) : { near: [], groups: [] };
+  const yours = plants.filter((p) => risk.near.some((it) => plantMatches(p, it))).map((p) => plantDisplayName(p, lang));
+
   return (
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>{t.mapTitle}</h1>
-          <p className="muted page-sub">{t.mapSub}</p>
+          <h1>{mode === "flora" ? t.floraTitle : t.mapTitle}</h1>
+          <p className="muted page-sub">{mode === "flora" ? t.floraSub : t.mapSub}</p>
         </div>
       </header>
 
-      {adding && (
-        <MapAddForm
-          t={t}
-          history={history}
-          pos={picked}
-          onCancel={() => {
-            setAdding(false);
-            setPicked(null);
-            tempRef.current?.remove();
-          }}
-          onSubmit={async (row) => {
-            const pos = await onAdd(row, picked);
-            setAdding(false);
-            setPicked(null);
-            tempRef.current?.remove();
-            setCenter({ lat: +pos.lat.toFixed(4), lon: +pos.lon.toFixed(4) });
-            setReload((x) => x + 1);
-          }}
-        />
-      )}
-
-      <div className="map-tools">
-        <label className="ctx">
-          <span className="sr-only">{t.mapTitle}</span>
-          <select value={city} onChange={(e) => choose(e.target.value)}>
-            {city === "geo" && <option value="geo">{t.myLocation}</option>}
-            {CITIES.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c[lang] || c.ru}
-              </option>
-            ))}
-            {city !== "geo" && <option value="geo">{t.myLocation}</option>}
-          </select>
-        </label>
-        <div className="search grow">
-          <Icon name="search" size={18} />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.mapSearch} aria-label={t.mapSearch} />
-        </div>
-      </div>
-      <div className="chips">
-        {Object.entries(t.mapFilters).map(([k, label]) => (
-          <button key={k} className={`chip ${filter === k ? "on" : ""}`} onClick={() => setFilter(k)}>
-            {label}
+      <div className="seg map-modes" role="tablist">
+        {Object.entries(t.mapModes).map(([k, label]) => (
+          <button key={k} role="tab" aria-selected={mode === k} className={mode === k ? "on" : ""} onClick={() => setMode(k)}>
+            <Icon name={k === "flora" ? "sprout" : "pin"} size={16} /> {label}
           </button>
         ))}
       </div>
 
-      <section className="map-wrap">
-        <div ref={boxRef} className={`map-box ${picking ? "picking" : ""}`} />
+      {mode === "marks" && (
+        <>
+          {risk.groups.length > 0 && !riskOff && (
+            <section className={`near-banner ${yours.length ? "hot" : ""}`} role="status">
+              <span className="near-ic">
+                <Icon name="alert" size={20} />
+              </span>
+              <div className="near-text">
+                <strong>{t.nearTitle(risk.near.length)}</strong>
+                <span className="muted small">{t.nearSub(riskKm, 30)}</span>
+                <div className="near-chips">
+                  {risk.groups.slice(0, 4).map((g) => (
+                    <span key={g.label} className="near-chip">
+                      {g.label}
+                      {g.n > 1 && <b> ×{g.n}</b>}
+                    </span>
+                  ))}
+                </div>
+                {yours.length > 0 && <span className="near-yours">{t.nearYours(yours.join(", "))}</span>}
+              </div>
+              <div className="near-acts">
+                <button
+                  className="btn primary small"
+                  onClick={() => {
+                    setFilter("sick");
+                    mapRef.current?.flyTo([refPos.lat, refPos.lon], 13, { duration: 0.8 });
+                    wrapRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                  }}
+                >
+                  <Icon name="map" size={15} /> {t.nearShow}
+                </button>
+                <button className="icon-btn" aria-label={t.cancel} onClick={() => setRiskOff(true)}>
+                  <Icon name="x" size={16} />
+                </button>
+              </div>
+            </section>
+          )}
 
-        <button
-          className="map-locate"
-          aria-label={t.mapLocate}
-          title={t.mapLocate}
-          onClick={() =>
-            navigator.geolocation?.getCurrentPosition(
-              (p) => {
-                setLocErr("");
-                setCity("geo");
-                setCenter({ lat: +p.coords.latitude.toFixed(4), lon: +p.coords.longitude.toFixed(4) });
-              },
-              () => setLocErr(t.geoDenied)
-            )
-          }
-        >
-          <Icon name="locate" size={20} />
-        </button>
-
-        {picking ? (
-          <div className="map-pickbar" role="status">
-            <span>
-              <Icon name="pin" size={18} /> {t.mapPickHint}
-            </span>
-            <div className="pickbar-actions">
-              <button
-                className="btn ghost small"
-                onClick={() => {
-                  setPicking(false);
-                  setPicked(null);
-                  setAdding(true);
-                }}
-              >
-                <Icon name="locate" size={15} /> {t.myLocation}
-              </button>
-              <button className="btn ghost small" onClick={() => setPicking(false)}>
-                {t.cancel}
-              </button>
+          <div className="map-tools">
+            <label className="ctx">
+              <span className="sr-only">{t.mapTitle}</span>
+              <select value={city} onChange={(e) => choose(e.target.value)}>
+                {city === "geo" && <option value="geo">{t.myLocation}</option>}
+                {CITIES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c[lang] || c.ru}
+                  </option>
+                ))}
+                {city !== "geo" && <option value="geo">{t.myLocation}</option>}
+              </select>
+            </label>
+            <div className="search grow">
+              <Icon name="search" size={18} />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.mapSearch} aria-label={t.mapSearch} />
             </div>
           </div>
-        ) : (
-          <button className="map-fab" onClick={() => setPicking(true)}>
+          <div className="chips">
+            {Object.entries(t.mapFilters)
+              .filter(([k]) => k !== "mine" || mine.length > 0)
+              .map(([k, label]) => (
+                <button key={k} className={`chip ${filter === k ? "on" : ""}`} onClick={() => setFilter(k)}>
+                  {label}
+                </button>
+              ))}
+          </div>
+        </>
+      )}
+
+      <section ref={wrapRef} className={`map-wrap ${adding ? "picking" : ""} ${mode === "flora" ? "flora" : ""}`}>
+        <div ref={boxRef} className="map-box" />
+
+        {mode === "marks" && (
+          <button
+            className="map-locate"
+            aria-label={t.mapLocate}
+            title={t.mapLocate}
+            disabled={locating}
+            onClick={() =>
+              locateMe((pos) => {
+                setCity("geo");
+                setCenter({ lat: +pos.lat.toFixed(4), lon: +pos.lon.toFixed(4) });
+              })
+            }
+          >
+            <Icon name="locate" size={20} />
+          </button>
+        )}
+
+        {mode === "marks" && !adding && (
+          <button className="map-fab" onClick={startAdding}>
             <Icon name="plus" size={22} /> <span>{t.mapAdd}</span>
           </button>
         )}
-        {locErr && <div className="map-toast">{locErr}</div>}
-        {state === "loading" && <div className="map-overlay">{t.mapLoading}</div>}
+        {adding && !picked && (
+          <div className="map-hint" role="status">
+            <Icon name="pin" size={16} /> {t.pinTapMap}
+          </div>
+        )}
+        {adding && (
+          <MapAddPanel
+            t={t}
+            lang={lang}
+            history={history}
+            plants={plants}
+            pos={picked}
+            locating={locating}
+            onMyLocation={() => locateMe((pos) => placePin(pos, true))}
+            onCancel={stopAdding}
+            onSubmit={async (row) => {
+              const res = await onAdd(row, picked);
+              stopAdding();
+              if (res?.id != null) {
+                addMyMark(res.id);
+                setMine(myMarks());
+                setFreshId(res.id);
+              }
+              setToast(t.pinSaved);
+              setReload((x) => x + 1);
+              setTimeout(() => wrapRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+            }}
+          />
+        )}
+        {toast && <div className="map-toast">{toast}</div>}
+        {mode === "marks" && state === "loading" && <div className="map-overlay">{t.mapLoading}</div>}
         {state === "error" && <div className="map-overlay">{t.mapError}</div>}
-        {state === "notcfg" && <div className="map-overlay">{t.mapNotConfigured}</div>}
-        {state === "ok" && items.length === 0 && <div className="map-overlay soft">{t.mapEmpty}</div>}
+        {mode === "marks" && state === "notcfg" && <div className="map-overlay">{t.mapNotConfigured}</div>}
+        {mode === "marks" && state === "ok" && items.length === 0 && !adding && <div className="map-overlay soft">{t.mapEmpty}</div>}
       </section>
 
-      <section className="map-info">
-        <div className="legend">
-          {["healthy", "needs_attention", "sick"].map((k) => (
-            <span key={k}>
-              <i style={{ background: MARK_COLORS[k] }} /> {t.statuses[k]}
+      {mode === "marks" ? (
+        <section className="map-info">
+          <div className="legend">
+            {["healthy", "needs_attention", "sick"].map((k) => (
+              <span key={k}>
+                <i style={{ background: MARK_COLORS[k] }} /> {t.statuses[k]}
+              </span>
+            ))}
+            <span>
+              <i className="lg-protected" /> {t.mapProtected}
             </span>
-          ))}
-          <span>
-            <i className="lg-protected" /> {t.mapProtected}
-          </span>
-        </div>
-        <p className="map-stats">
-          <strong>{t.mapCount(shown.length)}</strong>
-          {top && <span> · {t.mapTopDisease(top[0])}</span>}
-        </p>
-        <p className="muted small">
-          <Icon name="shield" size={14} /> {t.mapPrivacy}
-        </p>
-      </section>
+            {mine.length > 0 && (
+              <span>
+                <i className="lg-mine" /> {t.pinMine}
+              </span>
+            )}
+          </div>
+          <p className="map-stats">
+            <strong>{t.mapCount(shown.length)}</strong>
+            {top && <span> · {t.mapTopDisease(top[0])}</span>}
+          </p>
+          <p className="muted small">
+            <Icon name="shield" size={14} /> {t.mapPrivacy}
+          </p>
+        </section>
+      ) : (
+        <FloraRoutes
+          t={t}
+          lang={lang}
+          onFocus={(r) => {
+            const map = mapRef.current;
+            wrapRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (!map) return;
+            map.flyTo([r.lat, r.lon], r.zoom, { duration: 1.1 });
+            setTimeout(() => floraMarks.current[r.id]?.openPopup(), 1200);
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function MapAddForm({ t, history, pos, onCancel, onSubmit }) {
+function MapAddPanel({ t, lang, history, plants, pos, locating, onMyLocation, onCancel, onSubmit }) {
   const [pick, setPick] = useState("");
   const [name, setName] = useState("");
+  const [latin, setLatin] = useState("");
   const [status, setStatus] = useState("healthy");
+  const [note, setNote] = useState("");
+  const [redBook, setRedBook] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
-  function onPick(key) {
-    setPick(key);
-    const h = history.find((x) => x.key === key);
-    if (h) {
-      setName(h.result?.plant_name || "");
-      setStatus(h.result?.health_status || "unknown");
-    }
+  const recent = history.filter((h) => h.result?.is_plant !== false && h.result?.plant_name).slice(0, 6);
+  const known = [
+    ...plants.map((p) => ({ name: plantDisplayName(p, lang), latin: p.latin || "" })),
+    ...PLANTS.map((p) => ({ name: p[lang]?.name || p.ru.name, latin: p.latin })),
+  ];
+
+  function fromHistory(h) {
+    const r = entryView(h, lang)?.result || h.result || {};
+    setPick(h.key);
+    setName(r.plant_name || "");
+    setLatin(r.latin_name || "");
+    setStatus(["healthy", "needs_attention", "sick"].includes(r.health_status) ? r.health_status : "unknown");
+    setNote(r.health_status !== "healthy" ? r.diagnosis || "" : "");
+    setRedBook(Boolean(r.red_book_kz));
+  }
+  function onName(v) {
+    setName(v);
+    setPick("");
+    setRedBook(false);
+    const k = known.find((x) => x.name.toLowerCase() === v.trim().toLowerCase());
+    setLatin(k?.latin || "");
   }
 
   async function submit(e) {
     e.preventDefault();
-    if (!name.trim()) return;
-    const h = history.find((x) => x.key === pick);
+    if (!name.trim() || !pos) return;
     setBusy(true);
     setErr("");
     try {
       await onSubmit({
         plant_name: name.trim(),
-        latin_name: h?.result?.latin_name || "",
+        latin_name: latin,
         health_status: status,
-        diagnosis: h?.result?.diagnosis || "",
-        red_book: Boolean(h?.result?.red_book_kz),
+        diagnosis: status === "healthy" ? "" : note.trim(),
+        red_book: redBook,
       });
     } catch (e2) {
       setErr(e2.message);
@@ -5617,59 +6134,237 @@ function MapAddForm({ t, history, pos, onCancel, onSubmit }) {
   }
 
   return (
-    <div className="modal" role="dialog" aria-modal="true" aria-label={t.mapPickTitle} onClick={onCancel}>
-      <form className="sheet-form" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
-        <header className="form-head">
-          <h2>{t.mapPickTitle}</h2>
-          <button type="button" className="icon-btn" onClick={onCancel} aria-label={t.cancel}>
-            <Icon name="x" size={18} />
-          </button>
-        </header>
-        {history.length > 0 && (
-          <label className="field">
-            <span>{t.mapPickFromHistory}</span>
-            <select value={pick} onChange={(e) => onPick(e.target.value)}>
-              <option value="">{t.mapPickNone}</option>
-              {history.map((h) => (
-                <option key={h.key} value={h.key}>
-                  {h.result?.plant_name || "—"} · {new Date(h.date).toLocaleDateString()}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        <label className="field">
-          <span>{t.mapPickName}</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required />
-        </label>
-        <label className="field">
-          <span>{t.mapPickStatus}</span>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
-            {["healthy", "needs_attention", "sick", "unknown"].map((k) => (
-              <option key={k} value={k}>
-                {t.statuses[k]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <p className="muted small">
-          <Icon name={pos ? "pin" : "locate"} size={14} /> {pos ? t.mapPicked : t.mapHere} {t.mapPrivacy}
-        </p>
-        {err && (
-          <p className="alert small">
-            <Icon name="alert" size={16} /> {err}
-          </p>
-        )}
-        <div className="form-actions">
-          <button type="button" className="btn ghost" onClick={onCancel}>
-            {t.cancel}
-          </button>
-          <button type="submit" className="btn primary" disabled={busy}>
-            <Icon name="map" size={16} /> {busy ? "…" : t.mapSave}
-          </button>
+    <form className="map-panel" onSubmit={submit} aria-label={t.pinTitle}>
+      <header className="form-head">
+        <h2>
+          <Icon name="pin" size={18} /> {t.pinTitle}
+        </h2>
+        <button type="button" className="icon-btn" onClick={onCancel} aria-label={t.cancel}>
+          <Icon name="x" size={18} />
+        </button>
+      </header>
+
+      <div className={`mp-loc ${pos ? "ok" : ""}`}>
+        <Icon name={pos ? "check" : "pin"} size={16} />
+        <span>{pos ? t.pinDrag : t.pinTapMap}</span>
+        <button type="button" className="btn ghost small" onClick={onMyLocation} disabled={locating}>
+          <Icon name="locate" size={14} /> {locating ? "…" : t.myLocation}
+        </button>
+      </div>
+
+      {recent.length > 0 && (
+        <div className="field">
+          <span>{t.pinFromHistory}</span>
+          <div className="mp-recent">
+            {recent.map((h) => {
+              const r = entryView(h, lang)?.result || h.result;
+              return (
+                <button type="button" key={h.key} className={`mp-rc ${pick === h.key ? "on" : ""}`} onClick={() => fromHistory(h)}>
+                  {h.thumb ? <img src={h.thumb} alt="" /> : <Icon name="leaf" size={16} />}
+                  <span>{r.plant_name}</span>
+                  <i style={{ background: MARK_COLORS[r.health_status] || MARK_COLORS.unknown }} />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </form>
-    </div>
+      )}
+
+      <label className="field">
+        <span>{t.pinName}</span>
+        <input value={name} onChange={(e) => onName(e.target.value)} placeholder={t.pinNamePh} maxLength={80} list="pin-names" required />
+        <datalist id="pin-names">
+          {[...new Set(known.map((k) => k.name))].map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+        {latin && <em className="mp-latin">{latin}</em>}
+      </label>
+
+      <div className="field">
+        <span>{t.mapPickStatus}</span>
+        <div className="mp-status">
+          {["healthy", "needs_attention", "sick"].map((k) => (
+            <button type="button" key={k} className={status === k ? "on" : ""} style={{ "--pc": MARK_COLORS[k] }} onClick={() => setStatus(k)}>
+              <i /> {t.statuses[k]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {status !== "healthy" && (
+        <label className="field">
+          <span>{t.pinWhat}</span>
+          <input value={note} onChange={(e) => setNote(e.target.value)} placeholder={t.pinWhatPh} maxLength={160} />
+        </label>
+      )}
+
+      <p className="muted small mp-priv">
+        <Icon name="shield" size={14} /> {t.mapPrivacy}
+      </p>
+      {err && (
+        <p className="alert small">
+          <Icon name="alert" size={16} /> {err}
+        </p>
+      )}
+      <div className="form-actions">
+        <button type="button" className="btn ghost" onClick={onCancel}>
+          {t.cancel}
+        </button>
+        <button type="submit" className="btn primary" disabled={busy || !pos || !name.trim()}>
+          <Icon name="map" size={16} /> {busy ? "…" : t.mapSave}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function FloraRoutes({ t, lang, onFocus }) {
+  const [season, setSeason] = useState("all");
+  const month = new Date().getMonth() + 1;
+  const SEASONS = { spring: [3, 4, 5], summer: [6, 7, 8], autumn: [9, 10, 11] };
+  const list = FLORA_ROUTES.filter((r) =>
+    season === "all" ? true : season === "now" ? r.months.includes(month) : r.months.some((m) => SEASONS[season].includes(m))
+  ).sort((a, b) => Number(b.months.includes(month)) - Number(a.months.includes(month)));
+
+  return (
+    <section className="flora">
+      <div className="chips">
+        {Object.entries(t.floraSeasons).map(([k, label]) => (
+          <button key={k} className={`chip ${season === k ? "on" : ""}`} onClick={() => setSeason(k)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {list.length === 0 && <p className="muted flora-empty">{t.floraEmpty}</p>}
+      <div className="flora-grid">
+        {list.map((r) => {
+          const tx = r[lang] || r.ru;
+          const now = r.months.includes(month);
+          return (
+            <article key={r.id} className={`fr-card ${now ? "now" : ""}`}>
+              <div className="fr-photo">
+                <img src={photoUrl(r.photo, 800, 500)} srcSet={photoSet(r.photo, 1800)} sizes="(max-width: 760px) 100vw, 420px" alt={tx.name} loading="lazy" />
+                {now && <span className="fr-now">{t.floraNow}</span>}
+                {r.redBook && <span className="fr-red">{t.floraRedBook}</span>}
+              </div>
+              <div className="fr-body">
+                <span className="fr-region">
+                  <Icon name="pin" size={13} /> {tx.region}
+                </span>
+                <h3>{tx.name}</h3>
+                <p>{tx.text}</p>
+                <div className="fr-species">
+                  {r.species.map((s) => {
+                    const sp = speciesName(s, lang);
+                    return (
+                      <span key={sp.latin} title={sp.latin}>
+                        {sp.name}
+                      </span>
+                    );
+                  })}
+                </div>
+                <div className="fr-months" aria-label={`${t.floraBest}: ${r.months.map((m) => monthName(m, t)).join(", ")}`}>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                    <i key={m} className={`${r.months.includes(m) ? "on" : ""} ${m === month ? "cur" : ""}`} title={monthName(m, t)} />
+                  ))}
+                </div>
+                <span className="fr-best">
+                  {t.floraBest}: {r.months.map((m) => monthName(m, t)).join(", ")}
+                </span>
+                <div className="fr-acts">
+                  <button className="btn ghost small" onClick={() => onFocus(r)}>
+                    <Icon name="map" size={15} /> {t.floraOnMap}
+                  </button>
+                  <a className="btn primary small" href={directionsUrl(r)} target="_blank" rel="noopener noreferrer">
+                    <Icon name="locate" size={15} /> {t.floraRoute}
+                  </a>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <p className="muted small flora-rules">
+        <Icon name="shield" size={14} /> {t.floraRules}
+      </p>
+    </section>
+  );
+}
+
+// «Менің өсімдіктерім» бетіндегі ескерту: жақын маңда өз өсімдігіңе қауіпті ауру тіркелсе
+function NearbyRisk({ t, lang, plants, onAsk, onMap }) {
+  const [risks, setRisks] = useState([]);
+  const sig = plants.map((p) => `${p.id}:${p.latin || p.name}`).join("|");
+  useEffect(() => {
+    if (!plants.length) return;
+    const geo = readGeo();
+    const c = geo || CITIES.find((x) => x.id === store(CITY_KEY));
+    if (!c) return;
+    const ref = { lat: c.lat, lon: c.lon };
+    const km = geo ? 3 : 8;
+    let off = false;
+    fetch(`/api/observations?lat=${ref.lat}&lon=${ref.lon}&r=0.12`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (off) return;
+        const { near } = nearbyRisk(d.items || [], ref, { km });
+        const out = [];
+        for (const p of plants) {
+          const hits = near.filter((it) => plantMatches(p, it));
+          if (!hits.length) continue;
+          const diag = hits.find((h) => h.diagnosis)?.diagnosis || t.statuses.sick;
+          const dist = Math.min(...hits.map((h) => kmBetween(ref, { lat: +h.lat, lon: +h.lon })));
+          out.push({ plant: p, diag, km: Math.max(0.5, Math.round(dist * 10) / 10), ids: hits.map((h) => String(h.id)) });
+        }
+        setRisks(out);
+        // Жаңа қауіп туралы бір рет хабарлама
+        if (out.length && typeof Notification !== "undefined" && Notification.permission === "granted") {
+          const seen = readJSON(RISK_SEEN_KEY, []);
+          const fresh = out.filter((r) => r.ids.some((id) => !seen.includes(id)));
+          if (fresh.length) {
+            try {
+              new Notification(t.nearRiskTitle, {
+                body: fresh.map((r) => t.nearRisk(plantDisplayName(r.plant, lang), r.diag, r.km)).join("\n"),
+                tag: "tamyr-risk",
+              });
+            } catch {}
+            store(RISK_SEEN_KEY, JSON.stringify([...new Set([...seen, ...fresh.flatMap((r) => r.ids)])].slice(-300)));
+          }
+        }
+      })
+      .catch(() => {});
+    return () => {
+      off = true;
+    };
+  }, [sig]);
+
+  if (!risks.length) return null;
+  return (
+    <section className="risk-card" role="status">
+      <header>
+        <span className="near-ic">
+          <Icon name="alert" size={20} />
+        </span>
+        <h3>{t.nearRiskTitle}</h3>
+      </header>
+      {risks.map((r) => {
+        const pn = plantDisplayName(r.plant, lang);
+        return (
+          <div key={r.plant.id} className="risk-row">
+            <p>{t.nearRisk(pn, r.diag, r.km)}</p>
+            <div className="risk-acts">
+              <button className="btn primary small" onClick={() => onAsk(t.nearAskQ(pn, r.diag))}>
+                <Icon name="chat" size={15} /> {t.nearAsk}
+              </button>
+              <button className="btn ghost small" onClick={onMap}>
+                <Icon name="map" size={15} /> {t.nearShow}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </section>
   );
 }
 
