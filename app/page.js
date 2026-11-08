@@ -242,6 +242,40 @@ const T = {
     weekTitle: "Апта жоспары",
     weekRest: "суару жоқ",
     translating: "Нәтиже қазақ тіліне аударылып жатыр…",
+    pv: {
+      title: "PlantVision",
+      sub: "Өсімдік тұрған ортаны камерамен тексер: жарық, терезе, жапырақ",
+      which: "Қай өсімдік?",
+      general: "Жалпы орын",
+      meter: "Жарықты өлшеу",
+      meterHint: "Телефонды өсімдіктің жапырағы тұрған жерге ұстап, камераны терезеге қарат",
+      meterSave: "Өлшемді алу",
+      levels: { dark: "Қараңғы", low: "Аз жарық", medium: "Шашыраңқы", bright: "Жарық", direct_sun: "Тікелей күн" },
+      need: "Бұл өсімдікке керегі",
+      approx: "Шамамен өлшем — камера жарықты өзі реттейді",
+      photo: "Орынды суретке түсіру",
+      upload: "Сурет жүктеу",
+      analyze: "Ортаны талдау",
+      busy: "Ортаны қарап жатырмын…",
+      score: "Орын бағасы",
+      qLight: "Жарық жеткілікті ме?",
+      qWindow: "Терезеге тым жақын ба?",
+      qLeaf: "Жапырақта өзгеріс бар ма?",
+      yes: "Иә",
+      no: "Жоқ",
+      win: { too_close: "Тым жақын", ok: "Қашықтығы дұрыс", too_far: "Тым алыс", unknown: "Анықталмады" },
+      risks: "Байқалған қауіптер",
+      tips: "Не істеу керек",
+      save: "Өсімдікке сақтау",
+      saved: "Сақталды ✓",
+      again: "Қайта тексеру",
+      sensors: "Датчиктер",
+      soon: "Жақында: Bluetooth/Wi-Fi датчигін қосуға болады",
+      temp: "Температура",
+      hum: "Ылғалдылық",
+      soil: "Топырақ ылғалы",
+      last: (n, d) => `PlantVision: ${n}/100 · ${d}`,
+    },
     gh: {
       title: "Менің жылыжайым",
       sum: (n, bad) => (bad ? `${n} өсімдік · ${bad} күтім күтіп тұр` : `${n} өсімдік · бәрі жайнап тұр 🌿`),
@@ -637,6 +671,40 @@ const T = {
     weekTitle: "План на неделю",
     weekRest: "без полива",
     translating: "Переводим результат на русский…",
+    pv: {
+      title: "PlantVision",
+      sub: "Проверьте условия камерой: свет, окно, листья",
+      which: "Какое растение?",
+      general: "Просто место",
+      meter: "Измерить свет",
+      meterHint: "Держите телефон на месте листьев растения, камерой к окну",
+      meterSave: "Зафиксировать",
+      levels: { dark: "Темно", low: "Мало света", medium: "Рассеянный", bright: "Светло", direct_sun: "Прямое солнце" },
+      need: "Нужно этому растению",
+      approx: "Примерная оценка — камера сама подстраивает яркость",
+      photo: "Сфотографировать место",
+      upload: "Загрузить фото",
+      analyze: "Анализировать место",
+      busy: "Изучаю условия…",
+      score: "Оценка места",
+      qLight: "Хватает ли света?",
+      qWindow: "Не слишком ли близко к окну?",
+      qLeaf: "Есть ли изменения на листьях?",
+      yes: "Да",
+      no: "Нет",
+      win: { too_close: "Слишком близко", ok: "Расстояние в норме", too_far: "Слишком далеко", unknown: "Не определено" },
+      risks: "Замеченные риски",
+      tips: "Что сделать",
+      save: "Сохранить в растение",
+      saved: "Сохранено ✓",
+      again: "Проверить снова",
+      sensors: "Датчики",
+      soon: "Скоро: подключение Bluetooth/Wi-Fi датчика",
+      temp: "Температура",
+      hum: "Влажность",
+      soil: "Влажность почвы",
+      last: (n, d) => `PlantVision: ${n}/100 · ${d}`,
+    },
     gh: {
       title: "Моя оранжерея",
       sum: (n, bad) => (bad ? `${n} растений · ${bad} ждут ухода` : `${n} растений · все цветут 🌿`),
@@ -3090,6 +3158,8 @@ function MyPlants({ t, lang, plants, onSave, onTalk }) {
         onAdd={() => setEditing("new")}
       />
 
+      <PlantVision t={t} lang={lang} plants={plants} onSaveEnv={(id, env) => update(id, { env })} />
+
       {editing && (
         <PlantForm
           t={t}
@@ -3262,6 +3332,274 @@ function MyPlants({ t, lang, plants, onSave, onTalk }) {
   );
 }
 
+// Жарық өлшегіш: камера кадрының орташа жарықтығы (шамамен)
+const LIGHT_LEVELS = ["dark", "low", "medium", "bright", "direct_sun"];
+function lightLevel(v) {
+  return v < 12 ? "dark" : v < 30 ? "low" : v < 55 ? "medium" : v < 80 ? "bright" : "direct_sun";
+}
+function LightMeter({ t, need, onDone, onClose }) {
+  const p = t.pv;
+  const videoRef = useRef(null);
+  const [val, setVal] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    let stream;
+    let timer;
+    let ema = null;
+    (async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        const track = stream.getVideoTracks()[0];
+        // Мүмкін болса экспозицияны бекітеміз — өлшем дәлірек
+        try {
+          await track.applyConstraints({ advanced: [{ exposureMode: "manual" }] });
+        } catch {}
+        const v = videoRef.current;
+        v.srcObject = stream;
+        await v.play().catch(() => {});
+        const c = document.createElement("canvas");
+        c.width = 48;
+        c.height = 36;
+        const ctx = c.getContext("2d", { willReadFrequently: true });
+        timer = setInterval(() => {
+          if (!v.videoWidth) return;
+          ctx.drawImage(v, v.videoWidth * 0.2, v.videoHeight * 0.2, v.videoWidth * 0.6, v.videoHeight * 0.6, 0, 0, 48, 36);
+          const d = ctx.getImageData(0, 0, 48, 36).data;
+          let sum = 0;
+          for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+          const y = (sum / (d.length / 4) / 255) * 100;
+          ema = ema === null ? y : ema * 0.7 + y * 0.3;
+          setVal(Math.round(ema));
+        }, 250);
+      } catch {
+        setErr(t.camError);
+      }
+    })();
+    return () => {
+      clearInterval(timer);
+      stream?.getTracks().forEach((tr) => tr.stop());
+    };
+  }, []);
+  const lv = val === null ? null : lightLevel(val);
+  const needZones = need === 1 ? ["low", "medium"] : need === 2 ? ["medium", "bright"] : need === 3 ? ["bright", "direct_sun"] : [];
+  return (
+    <div className="pv-meter">
+      <div className="pv-cam">
+        <video ref={videoRef} playsInline muted />
+        <span className="pv-target" aria-hidden="true" />
+        {err && <p className="pv-err">{err}</p>}
+      </div>
+      <div className="pv-gauge">
+        <p className="muted small-note">{p.meterHint}</p>
+        <div className="pv-scale">
+          {LIGHT_LEVELS.map((l) => (
+            <span key={l} className={`z z-${l} ${needZones.includes(l) ? "need" : ""} ${lv === l ? "on" : ""}`}>
+              {p.levels[l]}
+            </span>
+          ))}
+          {val !== null && <i className="pv-needle" style={{ left: `${Math.min(98, Math.max(2, val))}%` }} />}
+        </div>
+        {needZones.length > 0 && <p className="pv-need"><span /> {p.need}</p>}
+        <div className="pv-read">
+          <strong>{val === null ? "…" : `${val}/100`}</strong>
+          <span>{lv ? p.levels[lv] : ""}</span>
+        </div>
+        <p className="muted small-note">{p.approx}</p>
+        <div className="pv-btns">
+          <button className="btn primary small" disabled={val === null} onClick={() => onDone({ value: val, level: lv })}>
+            <Icon name="check" size={15} /> {p.meterSave}
+          </button>
+          <button className="btn ghost small" onClick={onClose}>
+            <Icon name="x" size={15} /> {t.cancel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PlantVision({ t, lang, plants, onSaveEnv }) {
+  const p = t.pv;
+  const [pid, setPid] = useState(plants[0]?.id || "");
+  const [photo, setPhoto] = useState(null);
+  const [meter, setMeter] = useState(false);
+  const [light, setLight] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState(null);
+  const [err, setErr] = useState("");
+  const [saved, setSaved] = useState(false);
+  const camRef = useRef(null);
+  const fileRef = useRef(null);
+  const plant = plants.find((x) => x.id === pid) || null;
+  const info = plant ? PLANTS.find((x) => x.latin.toLowerCase() === (plant.latin || "").toLowerCase()) : null;
+  const need = info?.light || 0;
+
+  async function pick(file) {
+    if (!file) return;
+    setRes(null);
+    setSaved(false);
+    try {
+      setPhoto(await compressImage(file, 1024, 0.82));
+    } catch {}
+  }
+  async function analyze() {
+    if (!photo) return;
+    setBusy(true);
+    setErr("");
+    setRes(null);
+    try {
+      const d = await postJSON("/api/environment", {
+        image: photo,
+        lang,
+        plant: plant ? { name: plant.name, latin: plant.latin, lightNeed: need } : null,
+        light,
+      });
+      setRes(d);
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  const Check = ({ q, ok, label, note }) => (
+    <li className={`pv-q ${ok ? "ok" : "warn"}`}>
+      <span className="pv-ic"><Icon name={ok ? "check" : "alert"} size={15} /></span>
+      <div>
+        <strong>{q}</strong>
+        <span className="pv-ans">{label}</span>
+        {note && <p>{note}</p>}
+      </div>
+    </li>
+  );
+
+  return (
+    <section className="pv">
+      <div className="pv-head">
+        <span className="pv-logo"><Icon name="search" size={20} /></span>
+        <div>
+          <h3>{p.title}</h3>
+          <p>{p.sub}</p>
+        </div>
+      </div>
+
+      <div className="pv-row">
+        <label className="pv-sel">
+          <span>{p.which}</span>
+          <select value={pid} onChange={(e) => { setPid(e.target.value); setRes(null); }}>
+            <option value="">{p.general}</option>
+            {plants.map((x) => (
+              <option key={x.id} value={x.id}>{x.name}</option>
+            ))}
+          </select>
+        </label>
+        <div className="pv-actions">
+          <button className={`btn ghost small ${light ? "has" : ""}`} onClick={() => setMeter((m) => !m)}>
+            <Icon name="sun" size={16} /> {light ? `${p.levels[light.level]} · ${light.value}/100` : p.meter}
+          </button>
+          <button className="btn ghost small" onClick={() => camRef.current?.click()}>
+            <Icon name="camera" size={16} /> {p.photo}
+          </button>
+          <button className="btn ghost small" onClick={() => fileRef.current?.click()}>
+            <Icon name="upload" size={16} /> {p.upload}
+          </button>
+          <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ""; }} />
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ""; }} />
+        </div>
+      </div>
+
+      {meter && (
+        <LightMeter
+          t={t}
+          need={need}
+          onClose={() => setMeter(false)}
+          onDone={(l) => {
+            setLight(l);
+            setMeter(false);
+          }}
+        />
+      )}
+
+      {photo && (
+        <div className={`pv-work ${busy ? "busy" : ""}`}>
+          <div className="pv-photo">
+            <img src={photo} alt="" />
+            {busy && <ScanHud t={t} />}
+          </div>
+          <div className="pv-side">
+            {!res && (
+              <button className="btn primary" onClick={analyze} disabled={busy}>
+                <Icon name="sparkle" size={17} /> {busy ? p.busy : p.analyze}
+              </button>
+            )}
+            {err && <p className="pv-err">{err}</p>}
+            {res && (
+              <div className="pv-res">
+                <div className="pv-score">
+                  <span className="pv-ring" style={{ "--p": res.score / 100, "--c": res.score >= 70 ? "var(--primary)" : res.score >= 45 ? "var(--amber)" : "var(--danger)" }}>
+                    <b>{res.score}</b>
+                  </span>
+                  <div>
+                    <span className="muted">{p.score}</span>
+                    <p>{res.summary}</p>
+                  </div>
+                </div>
+                <ul className="pv-qs">
+                  <Check q={p.qLight} ok={res.light_ok} label={`${res.light_ok ? p.yes : p.no} · ${p.levels[res.light_level] || ""}`} note={res.light_note} />
+                  <Check q={p.qWindow} ok={res.window_close === "ok" || res.window_close === "unknown"} label={p.win[res.window_close] || ""} note={res.window_note} />
+                  <Check q={p.qLeaf} ok={!res.leaf_changes} label={res.leaf_changes ? p.yes : p.no} note={res.leaf_note} />
+                </ul>
+                {res.risks?.length > 0 && (
+                  <div className="pv-risks">
+                    <span className="muted">{p.risks}</span>
+                    <div className="pf-chips">
+                      {res.risks.map((r) => <span key={r} className="chip warnchip">{r}</span>)}
+                    </div>
+                  </div>
+                )}
+                {res.tips?.length > 0 && (
+                  <div className="pv-tips">
+                    <span className="muted">{p.tips}</span>
+                    <ol>{res.tips.map((x) => <li key={x}>{x}</li>)}</ol>
+                  </div>
+                )}
+                <div className="pv-btns">
+                  {plant && (
+                    <button
+                      className="btn primary small"
+                      disabled={saved}
+                      onClick={() => {
+                        onSaveEnv(plant.id, { date: todayISO(), score: res.score, light: res.light_level, summary: res.summary });
+                        setSaved(true);
+                      }}
+                    >
+                      <Icon name="check" size={15} /> {saved ? p.saved : p.save}
+                    </button>
+                  )}
+                  <button className="btn ghost small" onClick={() => { setRes(null); setPhoto(null); setLight(null); }}>
+                    <Icon name="refresh" size={15} /> {p.again}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="pv-sensors">
+        <span className="pv-sens-t">{p.sensors}</span>
+        {[["temp", "sun", "°C"], ["hum", "drop", "%"], ["soil", "sprout", "%"]].map(([k, ic, u]) => (
+          <div key={k} className="pv-sensor">
+            <Icon name={ic} size={18} />
+            <span>{p[k]}</span>
+            <b>— {u}</b>
+          </div>
+        ))}
+        <span className="pv-soon">{p.soon}</span>
+      </div>
+    </section>
+  );
+}
+
 // «Менің жылыжайым»: өсімдіктер шыны жылыжайдағы сөреде тұрады
 function Greenhouse({ t, plants, onWater, onFert, onTalk, onAdd }) {
   const g = t.gh;
@@ -3410,6 +3748,11 @@ function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete, onTalk }) {
         </span>
       </button>
 
+      {plant.env && (
+        <p className="plant-env">
+          <Icon name="search" size={13} /> {t.pv.last(plant.env.score, new Date(plant.env.date).toLocaleDateString(t.locale))}
+        </p>
+      )}
       {plant.note && <p className="plant-note">{plant.note}</p>}
 
       <div className="plant-actions">
