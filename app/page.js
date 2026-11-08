@@ -2005,6 +2005,7 @@ export default function Home() {
 
   useEffect(() => {
     document.documentElement.lang = lang;
+    document.title = { kk: "Tamyr — өсімдік дәрігері", ru: "Tamyr — доктор растений", en: "Tamyr — plant doctor" }[lang] || document.title;
   }, [lang]);
 
   // Телефонға орнату және интернетсіз ашылу үшін
