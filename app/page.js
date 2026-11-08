@@ -5368,12 +5368,9 @@ const KZ_BOUNDS = [
   [40.6, 46.5],
   [55.4, 87.3],
 ];
-const TILE_URLS = {
-  light: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-};
-const TILE_ATTR =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+// OpenStreetMap — кілтсіз тегін карта (қараңғы нұсқада CSS сүзгісімен күңгірттеледі)
+const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const PIN_LEAF = "M12 3C7 6 5.5 10.5 7 17c1-3 2.6-5.3 5-7-1.6 2.4-2.4 4.8-2.4 8C15 16 17.4 11.4 16.6 6.6 15.6 5 14 4 12 3Z";
 const FLORA_SVG =
   '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 21v-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M12 14c-3.2 0-5-2.4-5-6l2.5 1.6L12 6l2.5 3.6L17 8c0 3.6-1.8 6-5 6Z" fill="#fff"/></svg>';
@@ -5420,12 +5417,6 @@ function relDays(iso, t) {
 }
 function monthName(m, t) {
   return t.monthsFull?.[m - 1] || String(m);
-}
-function isDarkTheme() {
-  if (typeof document === "undefined") return false;
-  const th = document.documentElement.dataset.theme;
-  if (th) return th === "dark";
-  return Boolean(window.matchMedia?.("(prefers-color-scheme: dark)").matches);
 }
 // Жақын маңдағы ауру белгілері
 function nearbyRisk(items, ref, { km = 3, days = 30 } = {}) {
@@ -5657,11 +5648,7 @@ function PlantMap({ t, lang, history, plants = [], onAdd, onDelete, onAsk }) {
           else map.scrollWheelZoom.enable();
         });
         map.on("mouseout", () => map.scrollWheelZoom.disable());
-        tileRef.current = L.tileLayer(TILE_URLS[isDarkTheme() ? "dark" : "light"], {
-          maxZoom: 19,
-          subdomains: "abcd",
-          attribution: TILE_ATTR,
-        }).addTo(map);
+        tileRef.current = L.tileLayer(TILE_URL, { maxZoom: 19, attribution: TILE_ATTR }).addTo(map);
         layerRef.current = L.layerGroup().addTo(map);
         floraRef.current = L.layerGroup();
         mapRef.current = map;
@@ -5672,20 +5659,6 @@ function PlantMap({ t, lang, history, plants = [], onAdd, onDelete, onAsk }) {
       cancelled = true;
     };
   }, [center]);
-
-  // Тақырып ауысқанда карта түсі де ауысады
-  useEffect(() => {
-    if (!ready) return;
-    const sync = () => tileRef.current?.setUrl(TILE_URLS[isDarkTheme() ? "dark" : "light"]);
-    const mo = new MutationObserver(sync);
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
-    mq?.addEventListener?.("change", sync);
-    return () => {
-      mo.disconnect();
-      mq?.removeEventListener?.("change", sync);
-    };
-  }, [ready]);
 
   useEffect(
     () => () => {

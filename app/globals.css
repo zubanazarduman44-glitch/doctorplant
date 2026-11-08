@@ -2141,8 +2141,6 @@ img, video { max-width: 100%; }
 }
 
 /* ═════════ Карта 2.0: белгілер, ескерту, флора ═════════ */
-/* Қараңғы нұсқада енді арнайы қараңғы карта қолданылады — инверсия керек емес */
-.leaflet-tile-pane { filter: none !important; }
 .map-modes { display: inline-flex; margin: 0 0 14px; padding: 4px; border-radius: 999px; }
 .map-modes button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; font-weight: 700; }
 .map-wrap.flora .map-box { height: min(56vh, 520px); }
