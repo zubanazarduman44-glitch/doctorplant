@@ -877,6 +877,435 @@ const T = {
     lowConf: "ИИ не уверен — попробуйте прислать ещё одно фото с другого ракурса",
     theme: "Тема",
   },
+  en: {
+    brand: "Tamyr",
+    nav: { diagnose: "Diagnose", plants: "Plants", map: "Map", chat: "Assistant", history: "History", about: "Guide" },
+    navHint: {
+      diagnose: "Photo analysis",
+      chat: "Botany and ecology",
+      history: "Past analyses",
+      about: "How it works",
+    },
+    plantsTitle: "My plants",
+    plantsEmpty: "Add your plants — we'll remind you when to water them.",
+    addPlant: "Add plant",
+    saveToPlants: "Add to my plants",
+    savedToPlants: "Added to your plants",
+    watered: "Watered",
+    fertilized: "Fed",
+    dueToday: "Water today",
+    dueIn: (n) => (n === 1 ? "Water tomorrow" : `Water in ${n} days`),
+    overdue: (n) => `Watering ${n} ${n === 1 ? "day" : "days"} overdue`,
+    fertDue: "Time to feed",
+    everyN: (n) => `every ${n} ${n === 1 ? "day" : "days"}`,
+    summaryDue: (n) => `To water today: ${n}`,
+    summaryOk: "Everything is watered today",
+    lastWatered: "Last watered",
+    fName: "Name",
+    fPhoto: "Photo",
+    fWater: "Water every (days)",
+    fFert: "Feed every (days, 0 — not needed)",
+    fLast: "Last watering date",
+    fNote: "Note",
+    fNotePh: "E.g. on the windowsill, water more often in summer",
+    save: "Save",
+    cancel: "Cancel",
+    edit: "Edit",
+    del: "Delete",
+    delConfirm: "Yes, delete",
+    calendar: "Add to calendar",
+    calendarHint: "Your phone calendar will remind you to water at 9:00 — even when the site is closed.",
+    notify: "Turn on notifications",
+    notifyOn: "Notifications are on",
+    notifyDenied: "Allow notifications in your browser settings",
+    notifyHint: "When you open the site, it reminds you which plants need water.",
+    notifyTitle: "Time to water your plants",
+    remindersTitle: "Reminders",
+    topics: [
+      { id: "care", icon: "drop", title: "Care", qs: ["Why are the leaves turning yellow?", "When should I repot houseplants?", "How should I feed tomatoes?", "Which plant suits a dark room?"] },
+      { id: "bio", icon: "leaf", title: "Botany", qs: ["How does photosynthesis work?", "What is pollination?", "How do plants move water up?", "Why do leaves change colour in autumn?"] },
+      { id: "eco", icon: "sprout", title: "Ecology", qs: ["What would happen to plants without bees?", "What is desertification?", "Why are invasive species dangerous?", "How do I make compost?"] },
+      { id: "kz", icon: "shield", title: "Flora of Kazakhstan", qs: ["Which plants are in Kazakhstan's Red Book?", "Tell me about wild tulips", "Why is the Sievers apple important?", "Why is saxaul valuable?"] },
+    ],
+    factTitle: "Fact of the day",
+    factAsk: "Ask for details",
+    attach: "Attach a photo",
+    removePhoto: "Remove photo",
+    photoQuestion: "What plant is this?",
+    copy: "Copy",
+    copied: "Copied",
+    retry: "Retry",
+    facts: [
+      "The ancestor of the domestic apple is the wild Sievers apple (Malus sieversii), which grows in the Trans-Ili and Dzungarian Alatau mountains.",
+      "More than 30 species of wild tulips grow in Kazakhstan, including Greig's tulip.",
+      "A Venus flytrap snaps shut only after its hairs are touched twice within a short time.",
+      "The sensitive plant (Mimosa pudica) folds its leaves within seconds of being touched.",
+      "Some bamboo species can grow up to 90 cm in a single day.",
+      "Leaves turn yellow in autumn because chlorophyll breaks down, revealing yellow and orange pigments that were there all along.",
+      "A young sunflower head follows the sun, while a mature one stops and faces east.",
+      "About half of the oxygen in Earth's atmosphere is produced by microscopic ocean algae — phytoplankton.",
+      "When attacked by pests, many plants release volatile compounds that 'warn' their neighbours.",
+      "Bristlecone pines are among the oldest trees on Earth — some are more than 4,800 years old.",
+    ],
+    mapTitle: "Plant map",
+    mapSub: "See which plants grow where in your city and where diseases are spreading.",
+    mapFilters: { all: "All", sick: "Sick", healthy: "Healthy", protected: "Red Book" },
+    mapSearch: "Filter by plant name",
+    mapCount: (n) => `Markers in this area: ${n}`,
+    mapTopDisease: (x) => `Most common: ${x}`,
+    mapEmpty: "No markers here yet. Be the first to mark your plant!",
+    mapAdd: "Mark a plant",
+    mapPrivacy: "Locations are stored to ~500 m accuracy, and to ~5 km for Red Book species. Photos are never published.",
+    mapProtected: "Red Book (location hidden)",
+    mapLoading: "Loading the map…",
+    mapError: "Couldn't load the map",
+    mapNotConfigured: "The map database isn't set up yet",
+    showOnMap: "Show on the map",
+    shownOnMap: "Added to the map",
+    showOnMapHint: "Other people in your city will see this plant and its condition. The location is shown approximately.",
+    geoDenied: "Couldn't get your location. Allow location access in your browser.",
+    mapPickTitle: "Which plant do you want to mark?",
+    mapPickFromHistory: "Choose from history",
+    mapPickNone: "— not selected —",
+    mapPickName: "Or type a name",
+    mapPickStatus: "Condition",
+    mapSave: "Mark",
+    mapHere: "The marker is placed roughly at your current location.",
+    footerTag: "An AI helper for plants: diagnosis, care, map and advice — in Kazakh, Russian and English.",
+    footerSections: "Sections",
+    footerAbout: "About",
+    footerTop: "Back to top",
+    login: "Sign in",
+    profile: {
+      title: "Profile",
+      guestTitle: "Tamyr account",
+      guestSub: "Sign in with Google (Gmail) in one tap — your account is created automatically.",
+      perks: [
+        ["cloud", "Your plants and history are saved in the cloud"],
+        ["sprout", "Open them the same way on your phone and computer"],
+        ["trophy", "Achievements and personal stats"],
+      ],
+      google: "Sign in with Google",
+      privacy: "We only see your name and email. No passwords are stored.",
+      notReady: "Sign-in isn't set up yet — it will work once the developer enables Google sign-in.",
+      since: "On Tamyr since",
+      editName: "Change name",
+      save: "Save",
+      stats: { plants: "Plants", diag: "Diagnoses", streak: "Best streak", mapped: "On the map" },
+      days: "days",
+      badgesTitle: "Achievements",
+      badges: {
+        first: ["First diagnosis", "Checked the first plant"],
+        five: ["Gardener", "Added 5 plants"],
+        week: ["Caring", "7-day streak"],
+        mapper: ["Explorer", "Marked a plant on the map"],
+        healer: ["Healer", "Found a sick plant"],
+        rare: ["Red Book", "Spotted a rare plant"],
+      },
+      syncTitle: "Cloud backup",
+      syncing: "Saving…",
+      synced: "Saved",
+      syncErr: "Couldn't save — check your internet connection",
+      syncNow: "Save now",
+      settings: "Settings",
+      language: "Language",
+      theme: "Theme",
+      light: "Light",
+      dark: "Dark",
+      logout: "Sign out",
+      wipe: "Delete cloud data",
+      wipeConfirm: "All your cloud data will be deleted (data on this device stays). Continue?",
+      wiped: "Cloud data deleted",
+      loginErr: "Couldn't sign in",
+    },
+    voiceAsk: "Ask by voice",
+    voiceHint: "Tap the microphone and ask in Kazakh, Russian or English",
+    listening: "Listening…",
+    voiceStop: "Send",
+    transcribing: "Recognising speech…",
+    micDenied: "No access to the microphone. Allow it in your browser settings.",
+    voiceUnsupported: "This browser doesn't support voice recording.",
+    noSpeech: "No speech recognised, please try again.",
+    mapPickHint: "Tap the place on the map where the plant grows",
+    mapPicked: "Location selected on the map.",
+    mapLocate: "Find me",
+    recentTitle: "Recent analyses",
+    showAll: "Show all",
+    showLess: "Show less",
+    addPhoto: "Add photo",
+    photosHint: "Up to 3 photos: whole plant, top and underside of a leaf",
+    progressTitle: "Treatment progress",
+    progressHint: "In a few days, photograph the plant again — the AI will assess the changes.",
+    progressBtn: "Check again",
+    progressChecking: "Comparing…",
+    verdicts: { improved: "Improved", same: "No change", worse: "Got worse", unclear: "Unclear" },
+    dayN: (n) => (n === 0 ? "Today" : `Day ${n}`),
+    progressStart: "Initial diagnosis",
+    weatherTitle: "Weather and alerts",
+    myLocation: "My location",
+    weatherLoading: "Loading the weather…",
+    weatherError: "Couldn't load the weather",
+    weatherSource: "Data: Open-Meteo",
+    wFrost: (x) => `Frost down to ${x}°C: cover seedlings and garden plants, move flowers away from cold windows.`,
+    wCold: (x) => `${x}°C at night: bring warmth-loving plants indoors.`,
+    wHeat: (x) => `Heat ${x}°C: water in the morning or evening and shade from the sun.`,
+    wRain: (x) => `Rain ${x} mm: skip watering the garden.`,
+    wWind: (x) => `Strong wind ${x} km/h: tie up tall plants.`,
+    wDry: "Dry and hot in the coming days: water the garden more often.",
+    wOk: "The weather in the coming days is good for plants.",
+    refTitle: "Guide",
+    refTabs: { enc: "Encyclopedia", meds: "Products", guide: "How it works" },
+    encSearch: "Find a plant or ask the AI…",
+    encGroups: { all: "All", home: "Houseplants", garden: "Vegetable garden", fruit: "Fruit and berries", flowers: "Garden flowers", kz: "Flora of Kazakhstan" },
+    encAskAI: (q) => `Create an AI card: “${q}”`,
+    encLoading: "Creating the card…",
+    encNotFound: "No such plant found",
+    encAIBadge: "This card was created by AI — read it critically",
+    lightLabels: ["Shade", "Indirect light", "Sun"],
+    diffLabels: ["Easy", "Medium", "Hard"],
+    fLightE: "Light",
+    fWaterE: "Watering",
+    fTempE: "Temperature",
+    fDiffE: "Care",
+    fToxicE: "Toxicity",
+    fKzE: "In Kazakhstan",
+    fFactE: "Fun fact",
+    fTipE: "Top tip",
+    daysRange: (a, b) => (a === b ? `every ${a} days` : `every ${a}–${b} days`),
+    encAdd: "Add to my plants",
+    encAdded: "Added",
+    encAsk: "Ask the assistant",
+    encAskQ: (n) => `Tell me more about ${n}: care, diseases, propagation`,
+    encBack: "All plants",
+    medsIntro:
+      "Products are grouped by active ingredient; brand names are only examples. Before buying, check that the product is registered in Kazakhstan on the official list, and take the dose from the label.",
+    medsRegistry: "List of approved pesticides (2025–2035)",
+    medsCats: { all: "All", fungicide: "Fungicides", insecticide: "Insecticides", bio: "Biologicals", fertilizer: "Fertilizers" },
+    medsSearch: "Search by problem: aphids, powdery mildew, chlorosis…",
+    medsFor: "Helps against",
+    medsHow: "How it works",
+    medsSafety: "Safety",
+    medsEmpty: "Nothing found",
+    quickTitle: "Add popular plants in one click",
+    quick: [
+      ["Monstera", "Monstera deliciosa", 7, 14],
+      ["Rubber plant", "Ficus elastica", 10, 30],
+      ["Aloe", "Aloe vera", 21, 0],
+      ["Peace lily", "Spathiphyllum", 5, 14],
+      ["Snake plant", "Sansevieria", 14, 30],
+      ["Orchid", "Phalaenopsis", 7, 14],
+      ["Tomato", "Solanum lycopersicum", 3, 14],
+      ["Cactus", "Cactaceae", 21, 0],
+    ],
+    weekTitle: "Week plan",
+    weekRest: "no watering",
+    translating: "Translating the result into English…",
+    pv: {
+      title: "PlantVision",
+      sub: "Check the spot with your camera: light, window, leaves",
+      which: "Which plant?",
+      general: "Just the spot",
+      meter: "Measure light",
+      meterHint: "Hold the phone where the plant's leaves are, with the camera facing the window",
+      meterSave: "Lock reading",
+      levels: { dark: "Dark", low: "Low light", medium: "Indirect", bright: "Bright", direct_sun: "Direct sun" },
+      need: "What this plant needs",
+      approx: "Approximate — the camera adjusts brightness automatically",
+      photo: "Photograph the spot",
+      upload: "Upload photo",
+      analyze: "Analyze the spot",
+      busy: "Checking the conditions…",
+      score: "Spot score",
+      qLight: "Is there enough light?",
+      qWindow: "Is it too close to the window?",
+      qLeaf: "Any changes on the leaves?",
+      yes: "Yes",
+      no: "No",
+      win: { too_close: "Too close", ok: "Distance is fine", too_far: "Too far", unknown: "Not determined" },
+      risks: "Risks spotted",
+      tips: "What to do",
+      save: "Save to plant",
+      saved: "Saved ✓",
+      again: "Check again",
+      sensors: "Sensors",
+      soon: "Coming soon: connect a Bluetooth/Wi-Fi sensor",
+      temp: "Temperature",
+      hum: "Humidity",
+      soil: "Soil moisture",
+      last: (n, d) => `PlantVision: ${n}/100 · ${d}`,
+    },
+    gh: {
+      title: "My greenhouse",
+      sum: (n, bad) => (bad ? `${n} ${n === 1 ? "plant" : "plants"} · ${bad} need care` : `${n} ${n === 1 ? "plant" : "plants"} · all thriving 🌿`),
+      empty: "The greenhouse is empty — plant your first one",
+      add: "Plant",
+      water: "Water",
+      fert: "Feed",
+      talk: "Talk",
+      card: "Card",
+      thanks: "Thank you! 💧",
+      tapHint: "Tap a plant to take care of it",
+    },
+    shareRes: "Share the result",
+    shared: "Copied — ready to send",
+    pasteHint: "Tip: you can also paste a photo with Ctrl+V",
+    followUps: ["Explain in more detail", "Give me step-by-step instructions", "Is it safe for pets?"],
+    pf: { search: "Find a plant…", all: "All", due: "Water today", fert: "Needs feeding", none: "Nothing found" },
+    wk: {
+      today: "Today",
+      tomorrow: "Tomorrow",
+      tasks: (n) => `${n} ${n === 1 ? "task" : "tasks"}`,
+      free: "Day off 🌿",
+      freeSub: "No watering or feeding on this day.",
+      water: "Water",
+      fert: "Feed",
+      late: (n) => `${n} ${n === 1 ? "day" : "days"} late`,
+      inDays: (n) => (n === 1 ? "tomorrow" : `in ${n} days`),
+      doneAll: "All of today's care is done!",
+      progress: (a, b) => `${a}/${b} done`,
+      weekLoad: (n) => `${n} ${n === 1 ? "task" : "tasks"} this week`,
+      busiest: "Busiest day",
+      legendW: "water",
+      legendF: "feed",
+      done: "Done",
+      doAll: "Mark all done",
+    },
+    statPlants: "Plants",
+    statWeek: "Watered this week",
+    statStreak: "Streak",
+    statBest: "Record",
+    nDays: (n) => `${n} ${n === 1 ? "day" : "days"}`,
+    nTimes: (n) => `${n} ${n === 1 ? "time" : "times"}`,
+    streakHint: "How many days in a row no plant has been overdue",
+    locale: "en-GB",
+    heroTitle: "What's wrong with your plant?",
+    heroText: "Take a close-up photo of a leaf — we'll identify the species and disease and tell you what to do.",
+    sheetSpecies: "Species",
+    sheetDate: "Date",
+    sheetPending: "not identified",
+    fShootTitle: "How to take the photo",
+    scanKicker: "How Tamyr sees it",
+    scanName: "Monstera",
+    scanStatus: "Healthy · 96% confidence",
+    scanTip: "Next watering: in 5 days",
+    gallery: [["Houseplants", "monstera"], ["Vegetables", "tomato"], ["Flowers", "orchid"], ["Fruit trees", "sieversii"]],
+    aiHi: "Hi",
+    aiAsk: "how can I help you today?",
+    aiTools: "Tools",
+    aiNew: "New chat",
+    share: "Share",
+    good: "Good answer",
+    bad: "Bad answer",
+    editQ: "Edit",
+    aiName: "Tamyr AI",
+    fFindTitle: "What we identify",
+    fFind: ["Plant species", "Disease and its cause", "Treatment steps", "Products sold in Kazakhstan"],
+    fPrivTitle: "Your photo isn't stored",
+    fPrivText: "The photo is resized in your browser and location data is removed. It is sent to the server only for analysis.",
+    upload: "Upload photo",
+    uploadSub: "or drag it here",
+    camera: "Camera",
+    shoot: "Capture",
+    close: "Close",
+    camError: "Couldn't open the camera. Allow camera access in your browser or upload a photo file.",
+    camHint: "Fit the leaf inside the frame",
+    change: "Another photo",
+    analyze: "Analyze",
+    analyzing: "Examining the leaf…",
+    anSteps: ["Sending the photo", "Identifying the species", "Checking its health", "Preparing advice"],
+    tips: ["Daylight", "Close to the leaf", "Show the affected area"],
+    confidence: "Confidence",
+    diagnosis: "Diagnosis",
+    scanTxt: "SCANNING",
+    ac: {
+      healthy: "Plant is healthy",
+      detected: "Disease detected",
+      attention: "Needs attention",
+      conf: (n) => `diagnosis probability ${n}%`,
+      treat: "Treat now",
+      more: "Learn more",
+      refined: "Refined diagnosis",
+      model: "Tamyr AI 2.0",
+      sev: { none: "Healthy", mild: "Mild", moderate: "Moderate", severe: "Severe" },
+      sevTitle: "Severity",
+    },
+    diffTitle: "Possible causes",
+    diffHint: "The AI compared several options",
+    planTitle: "Treatment plan",
+    planDay: (d) => (d === 0 ? "Today" : `Day ${d}`),
+    qTitle: "The AI wants to clarify",
+    qHint: "Answer, and the diagnosis will be more accurate",
+    qBtn: "Refine diagnosis",
+    qBusy: "Re-analyzing…",
+    spotsTitle: "Where the problem is",
+    spotsHint: "The AI marked the affected areas on the photo",
+    spotsToggle: "Hide markers",
+    spotsShow: "Show markers",
+    photoN: (n) => `Photo ${n}`,
+    mood: {
+      thirsty: (n) => `I've been thirsty for ${n} ${n === 1 ? "day" : "days"}!`,
+      today: "I'd love a drink today",
+      hungry: "I'm hungry — time for fertilizer",
+      happy: "I'm doing great, thanks!",
+    },
+    talk: "Talk",
+    talkGroup: "Talk to my plants",
+    plantHi: (n) => `Hi! I'm ${n} 🌿`,
+    plantAsk: "Want to ask me something?",
+    plantQs: ["How are you?", "What do you need?", "When should I water you?", "Tell me about yourself"],
+    symptoms: "Symptoms",
+    causes: "Causes",
+    treatment: "What to do",
+    products: "Products to buy in Kazakhstan",
+    activeIngredient: "Active ingredient",
+    brands: "For example",
+    searchKaspi: "Find on Kaspi",
+    productsNote:
+      "AI product suggestions are only a guide. Take the dose from the label, and if in doubt ask a garden shop consultant.",
+    care: "Care",
+    watering: "Watering",
+    light: "Light",
+    temperature: "Temperature",
+    soil: "Soil and fertilizer",
+    toxicity: "Please note",
+    photoTip: "Photo tip",
+    notPlant: "No plant found in the photo",
+    helpful: "Was this answer helpful?",
+    thanks: "Thanks, your feedback is saved",
+    whatWrong: "What was wrong? (optional)",
+    send: "Send",
+    askAbout: "Ask about this plant",
+    chatTitle: "AI assistant",
+    chatEmpty: "Ask anything about plants, flowers, botany and ecology.",
+    chatAbout: "Conversation topic",
+    chatGeneral: "General questions",
+    chatClear: "New conversation",
+    chatPlaceholder: "Type a question…",
+    chatSuggestPlant: ["How often should I water it?", "Can it spread to other plants?", "Does it need repotting?"],
+    chatSuggestGeneral: [
+      "How does photosynthesis work?",
+      "Which plants are in Kazakhstan's Red Book?",
+      "What would happen to plants without bees?",
+      "Why are the leaves turning yellow?",
+    ],
+    thinking: "Typing…",
+    historyTitle: "History",
+    historyEmpty: "No analyses yet. Upload your first photo.",
+    historyStart: "Go to diagnosis",
+    clear: "Clear history",
+    aboutTitle: "How it works",
+    about: [
+      ["Photo", "The photo is resized in your browser and location data is removed. It isn't stored on the server."],
+      ["Analysis", "A Google Gemini model identifies the species, its condition and the likely disease."],
+      ["Advice", "Care, treatment steps and types of products sold in Kazakhstan."],
+      ["Your feedback", "Rating answers helps make them more accurate."],
+    ],
+    disclaimer:
+      "AI can make mistakes. Advice is for information only. Before using chemical products, read the label and consult a specialist.",
+    statuses: { healthy: "Healthy", needs_attention: "Needs attention", sick: "Sick", unknown: "Unknown" },
+    lowConf: "The AI isn't sure — try sending another photo from a different angle",
+    theme: "Theme",
+  },
 };
 
 const HISTORY_KEY = "osimdik_history_v1";
@@ -900,6 +1329,8 @@ function daysLeft(lastISO, every) {
   return Math.round((last + every * DAY - dayStart()) / DAY);
 }
 const BEST_KEY = "osimdik_best_streak";
+const LANGS = ["kk", "ru", "en"];
+const LANG_LABELS = { kk: "Қаз", ru: "Рус", en: "Eng" };
 const PLANT_CHATS_KEY = "osimdik_plant_chats";
 
 // Суару журналы (ескі өсімдіктерде журнал жоқ — соңғы суаруды аламыз)
@@ -1276,18 +1707,21 @@ function plantDisplayName(p, lang) {
   if (!p?.latin) return p?.name;
   if (!NAME_MAP) {
     NAME_MAP = {};
-    const add = (latin, kk, ru) => {
+    const add = (latin, kk, ru, en) => {
       const k = latin.toLowerCase();
-      NAME_MAP[k] = NAME_MAP[k] || { kk: new Set(), ru: new Set(), main: {} };
-      if (kk) { NAME_MAP[k].kk.add(kk); NAME_MAP[k].main.kk = NAME_MAP[k].main.kk || kk; }
-      if (ru) { NAME_MAP[k].ru.add(ru); NAME_MAP[k].main.ru = NAME_MAP[k].main.ru || ru; }
+      NAME_MAP[k] = NAME_MAP[k] || { all: new Set(), main: {} };
+      for (const [l, n] of [["kk", kk], ["ru", ru], ["en", en]]) {
+        if (!n) continue;
+        NAME_MAP[k].all.add(n);
+        NAME_MAP[k].main[l] = NAME_MAP[k].main[l] || n;
+      }
     };
-    T.kk.quick.forEach(([name, latin], i) => add(latin, name, T.ru.quick[i]?.[0]));
-    PLANTS.forEach((x) => add(x.latin, x.kk.name, x.ru.name));
+    T.kk.quick.forEach(([name, latin], i) => add(latin, name, T.ru.quick[i]?.[0], T.en.quick[i]?.[0]));
+    PLANTS.forEach((x) => add(x.latin, x.kk.name, x.ru.name, x.en?.name));
   }
   const m = NAME_MAP[p.latin.toLowerCase()];
   if (!m || !m.main[lang]) return p.name;
-  const known = m.kk.has(p.name) || m.ru.has(p.name);
+  const known = m.all.has(p.name);
   return known ? m.main[lang] : p.name;
 }
 
@@ -1553,7 +1987,7 @@ export default function Home() {
 
   useEffect(() => {
     const savedLang = store(LANG_KEY);
-    if (savedLang === "kk" || savedLang === "ru") setLang(savedLang);
+    if (savedLang === "kk" || savedLang === "ru" || savedLang === "en") setLang(savedLang);
     const savedTheme = store(THEME_KEY);
     setTheme(savedTheme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
     try {
@@ -2017,9 +2451,9 @@ export default function Home() {
         </button>
         <div className="top-actions">
           <div className="seg" role="group" aria-label="Language">
-            {["kk", "ru"].map((l) => (
+            {LANGS.map((l) => (
               <button key={l} className={lang === l ? "on" : ""} onClick={() => changeLang(l)}>
-                {l === "kk" ? "Қаз" : "Рус"}
+                {LANG_LABELS[l]}
               </button>
             ))}
           </div>
@@ -2909,7 +3343,7 @@ function AlertCard({ t, entry, r, status, conf, onAsk, style }) {
         </span>
         {city && (
           <span>
-            <Icon name="pin" size={14} /> {city[t.locale?.startsWith("kk") ? "kk" : "ru"] || city.ru}
+            <Icon name="pin" size={14} /> {city[t.locale?.startsWith("kk") ? "kk" : t.locale?.startsWith("en") ? "en" : "ru"] || city.ru}
           </span>
         )}
         <span className="ac-model">{a.model}</span>
@@ -3962,7 +4396,7 @@ function Profile({
     rare: history.some((h) => h.result?.red_book_kz),
   };
   const earned = BADGES.filter((b) => b.test(data)).length;
-  const locale = lang === "kk" ? "kk-KZ" : "ru-RU";
+  const locale = t.locale;
 
   const badges = (
     <section className="tile badges-tile">
@@ -4137,9 +4571,9 @@ function Profile({
           <div className="set-row">
             <span>{p.language}</span>
             <div className="seg">
-              {["kk", "ru"].map((l) => (
+              {LANGS.map((l) => (
                 <button key={l} className={lang === l ? "on" : ""} onClick={() => onLang(l)}>
-                  {l === "kk" ? "Қаз" : "Рус"}
+                  {LANG_LABELS[l]}
                 </button>
               ))}
             </div>

@@ -2123,3 +2123,11 @@ html, body { overflow-x: clip; max-width: 100%; }
 img, video { max-width: 100%; }
 .backdrop svg { max-width: none; }
 .leaflet-container img, .leaflet-container svg { max-width: none !important; }
+@media (max-width: 420px) { .topbar .seg button { min-width: 0; padding: 6px 8px; font-size: 13px; } }
+/* Өте тар экран (320–360px): 3 тіл батырмасы + аватар сыйсын */
+@media (max-width: 360px) {
+  .topbar { padding: 0 10px; gap: 6px; }
+  .topbar .brand-name { display: none; }
+  .topbar .seg button { padding: 6px 7px; font-size: 12.5px; }
+  .topbar .icon-btn, .topbar .acct-btn { width: 36px; height: 36px; }
+}

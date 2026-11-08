@@ -23,7 +23,7 @@ export async function POST(req) {
   const mime = meta.slice(5, meta.indexOf(";"));
 
   const prompt = `Transcribe this voice message exactly, word for word.
-The speaker most likely talks in ${lang === "kk" ? "Kazakh (қазақ тілі)" : "Russian"}, but may use Kazakh, Russian or mix them — keep each word in the language it was spoken, using Cyrillic.
+The speaker most likely talks in ${lang === "kk" ? "Kazakh (қазақ тілі)" : lang === "en" ? "English" : "Russian"}, but may use Kazakh, Russian, English or mix them — keep each word in the language it was spoken (Kazakh and Russian in Cyrillic, English in Latin letters).
 The topic is usually plants, gardening, botany or ecology.
 Return ONLY the transcript text, no quotes, no comments. If there is no speech, return an empty string.`;
 

@@ -58,7 +58,7 @@ export async function POST(req) {
     health_status: STATUSES.includes(body?.health_status) ? body.health_status : "unknown",
     diagnosis: clean(body?.diagnosis, 160) || null,
     protected: isProtected,
-    lang: body?.lang === "kk" ? "kk" : "ru",
+    lang: ["kk", "ru", "en"].includes(body?.lang) ? body.lang : "ru",
   });
   if (!row) {
     return Response.json(
