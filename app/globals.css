@@ -2111,3 +2111,15 @@ input, select, textarea { background-color: color-mix(in srgb, var(--paper) 80%,
   :root:not([data-theme="light"]) .chip.warnchip { color: #fdba74; background: rgba(234, 88, 12, 0.16); }
   :root:not([data-theme="light"]) .pv-q.warn .pv-ans { color: #fb923c; }
 }
+
+/* ═════════ Телефонға бейімдеу: көлденең таспаны болдырмау ═════════ */
+html, body { overflow-x: clip; max-width: 100%; }
+@supports not (overflow: clip) { html, body { overflow-x: hidden; } }
+.hist { grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); }
+.hist > li, .bento > *, .stats > *, .plants > li, .enc-grid > *, .quick-grid > * { min-width: 0; }
+.hist-item { width: 100%; min-width: 0; }
+.glass-composer::before { left: -16px !important; right: -16px !important; }
+.chat-page { overflow-x: clip; }
+img, video, svg { max-width: 100%; }
+.backdrop svg { max-width: none; }
+.leaflet-container img, .leaflet-container svg { max-width: none !important; }
