@@ -2120,6 +2120,6 @@ html, body { overflow-x: clip; max-width: 100%; }
 .hist-item { width: 100%; min-width: 0; }
 .glass-composer::before { left: -16px !important; right: -16px !important; }
 .chat-page { overflow-x: clip; }
-img, video, svg { max-width: 100%; }
+img, video { max-width: 100%; }
 .backdrop svg { max-width: none; }
 .leaflet-container img, .leaflet-container svg { max-width: none !important; }
