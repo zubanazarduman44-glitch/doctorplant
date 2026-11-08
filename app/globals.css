@@ -2131,3 +2131,11 @@ img, video { max-width: 100%; }
   .topbar .seg button { padding: 6px 7px; font-size: 12.5px; }
   .topbar .icon-btn, .topbar .acct-btn { width: 36px; height: 36px; }
 }
+/* Жарық нұсқа: монстера фоны айқынырақ (пердесі жұқа, түсі қанығырақ) */
+.pbg-light { filter: saturate(1.18) contrast(1.06); }
+.pbg-veil { background:
+  linear-gradient(90deg, rgba(240, 250, 243, 0.78) 0%, rgba(240, 250, 243, 0.46) 45%, rgba(240, 250, 243, 0.2) 100%),
+  linear-gradient(180deg, rgba(240, 250, 243, 0.1), rgba(236, 247, 239, 0.42)); }
+@media (max-width: 760px) {
+  .pbg-veil { background: linear-gradient(180deg, rgba(240, 250, 243, 0.6), rgba(240, 250, 243, 0.74)); }
+}
