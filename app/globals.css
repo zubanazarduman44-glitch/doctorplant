@@ -1916,3 +1916,120 @@ input, select, textarea { background-color: color-mix(in srgb, var(--paper) 80%,
   .ac-model { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .hud-grid, .hud-reticle, .hud-reticle span, .hud-beam, .hud-dot { animation: none; } }
+
+/* ═════════ Менің жылыжайым ═════════ */
+.gh { padding: 20px 22px 22px; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--card-hi), 0 0 0 1px var(--edge), var(--shadow); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.gh-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.gh-head h3 { font-family: var(--serif); font-size: 22px; font-weight: 700; }
+.gh-head p { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.gh-hint { font-size: 13px; color: var(--muted); }
+.gh-scene {
+  --frame: rgba(255, 255, 255, 0.85); --sky1: #d9f1ff; --sky2: #eefbf1;
+  position: relative; overflow: hidden; border-radius: 26px; padding: 96px 12px 18px; isolation: isolate;
+  background: linear-gradient(180deg, var(--sky1) 0%, #e9f8f4 45%, var(--sky2) 100%);
+  box-shadow: inset 0 0 0 2px var(--frame), inset 0 -40px 60px -40px rgba(120, 80, 40, 0.25);
+}
+.gh-scene::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(16.66% - 2px), var(--frame) calc(16.66% - 2px) 16.66%),
+    linear-gradient(180deg, transparent 54%, var(--frame) 54%, var(--frame) calc(54% + 3px), transparent calc(54% + 3px));
+  opacity: 0.55; }
+.gh-roof { position: absolute; left: -6%; right: -6%; top: -150px; height: 240px; border-radius: 50% / 100%; z-index: -1; pointer-events: none;
+  border: 5px solid var(--frame); background: repeating-conic-gradient(from 270deg at 50% 100%, rgba(255, 255, 255, 0.28) 0 8deg, rgba(255, 255, 255, 0.12) 8deg 16deg); box-shadow: inset 0 -10px 30px rgba(255, 255, 255, 0.5); }
+.gh-rays { position: absolute; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: soft-light;
+  background: repeating-linear-gradient(115deg, rgba(255, 255, 220, 0.0) 0 40px, rgba(255, 250, 200, 0.75) 40px 70px, rgba(255, 255, 220, 0) 70px 150px);
+  mask-image: linear-gradient(160deg, #000 0%, transparent 65%); animation: rays 9s ease-in-out infinite alternate; }
+@keyframes rays { to { transform: translateX(40px); opacity: 0.6; } }
+.gh-lights { display: none; position: absolute; left: 4%; right: 4%; top: 22px; height: 40px; z-index: 0; pointer-events: none; }
+.gh-lights::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 40px; border-bottom: 1.5px solid rgba(200, 220, 200, 0.35); border-radius: 0 0 50% 50%; }
+.gh-lights i { position: absolute; left: calc(var(--k) * 12% + 2%); top: 18px; width: 9px; height: 9px; border-radius: 50%; background: #ffd27a; box-shadow: 0 0 12px 4px rgba(255, 200, 100, 0.65); animation: twinkle 2.4s ease-in-out infinite; animation-delay: calc(var(--k) * 0.3s); }
+.gh-lights i:nth-child(odd) { top: 24px; }
+.gh-lights i:nth-child(1), .gh-lights i:nth-child(9) { top: 6px; }
+.gh-lights i:nth-child(5) { top: 27px; }
+
+.gh-shelf { position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); column-gap: 0; row-gap: 22px; }
+.gh-slot { position: relative; display: flex; flex-direction: column; align-items: center; }
+.gh-slot::before { content: ""; position: absolute; left: 0; right: 0; top: 150px; height: 13px; z-index: 0;
+  background: linear-gradient(180deg, #c99a63, #a5713e 60%, #7d5128); box-shadow: 0 8px 14px -6px rgba(70, 40, 10, 0.55); }
+.gh-plant { position: relative; z-index: 1; width: 116px; height: 152px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; border: 0; background: none; cursor: pointer; padding: 0; }
+.gh-foliage {
+  position: relative; z-index: 1; width: 94px; height: 94px; margin-bottom: -10px; display: grid; place-items: center; overflow: hidden; color: var(--primary);
+  border-radius: 50% 50% 44% 44% / 58% 58% 42% 42%; background: var(--primary-soft); border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 12px 22px -12px rgba(20, 80, 40, 0.6); transform-origin: 50% 100%; animation: sway 4.5s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.9s);
+  transition: filter 0.6s, transform 0.6s;
+}
+.gh-foliage img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+.gh-pot { position: relative; z-index: 2; width: 72px; height: 50px; background: linear-gradient(90deg, #a9492a, #d9774a 40%, #c25a33 75%, #96401f); clip-path: polygon(0 0, 100% 0, 86% 100%, 14% 100%); }
+.gh-pot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12px; background: linear-gradient(90deg, #8f3d1e, #c86a3f 45%, #8f3d1e); }
+.gh-bubble { position: absolute; z-index: 3; top: 2px; right: 0; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; background: rgba(255, 255, 255, 0.85); box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.35); }
+/* Көңіл-күй күйлері */
+.gh-plant.m-late .gh-foliage { filter: grayscale(0.55) sepia(0.45) brightness(0.92); animation: droop 3.2s ease-in-out infinite; }
+.gh-plant.m-due .gh-foliage { filter: saturate(0.7); animation: droopSoft 3.6s ease-in-out infinite; }
+.gh-plant.m-fert .gh-foliage { filter: saturate(0.75) hue-rotate(-12deg); }
+.gh-plant.m-late .gh-bubble, .gh-plant.m-due .gh-bubble { animation: bob 1.6s ease-in-out infinite; }
+.gh-plant.m-late .gh-bubble { box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.35), 0 6px 14px -6px rgba(0, 0, 0, 0.35); }
+@keyframes droop { 0%, 100% { transform: rotate(-16deg) translateY(8px) scaleY(0.93); } 50% { transform: rotate(-12deg) translateY(6px) scaleY(0.95); } }
+@keyframes droopSoft { 0%, 100% { transform: rotate(-7deg) translateY(3px); } 50% { transform: rotate(-3deg) translateY(2px); } }
+@keyframes bob { 50% { transform: translateY(-5px); } }
+.gh-plant.m-ok .gh-foliage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.45) 50%, transparent 60%); animation: leafShine 5s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 0.8s); }
+@keyframes leafShine { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+.gh-plant:hover .gh-foliage { box-shadow: 0 0 0 3px var(--primary), 0 14px 26px -12px rgba(20, 80, 40, 0.7); }
+.gh-plant.on .gh-foliage { box-shadow: 0 0 0 4px var(--primary), 0 0 24px 4px rgba(34, 197, 94, 0.45); }
+.gh-plant.splash .gh-foliage { animation: perk 0.9s cubic-bezier(0.3, 1.6, 0.5, 1) both; filter: none; }
+@keyframes perk { 0% { transform: rotate(-14deg) translateY(8px) scale(0.95); } 60% { transform: rotate(4deg) translateY(-6px) scale(1.06); } 100% { transform: rotate(0) scale(1); } }
+.gh-rain { position: absolute; z-index: 4; left: 50%; top: -6px; width: 80px; height: 90px; transform: translateX(-50%); pointer-events: none; }
+.gh-rain i { position: absolute; top: 0; width: 5px; height: 12px; border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%; background: linear-gradient(#bfe9ff, #3fa7e6); animation: drop 0.8s ease-in infinite; }
+.gh-rain i:nth-child(1) { left: 10%; animation-delay: 0s; }
+.gh-rain i:nth-child(2) { left: 30%; animation-delay: 0.25s; }
+.gh-rain i:nth-child(3) { left: 50%; animation-delay: 0.1s; }
+.gh-rain i:nth-child(4) { left: 70%; animation-delay: 0.35s; }
+.gh-rain i:nth-child(5) { left: 88%; animation-delay: 0.18s; }
+@keyframes drop { from { transform: translateY(0); opacity: 1; } to { transform: translateY(80px); opacity: 0; } }
+.gh-new .gh-foliage { background: rgba(255, 255, 255, 0.35); border: 2.5px dashed color-mix(in srgb, var(--primary) 55%, transparent); box-shadow: none; animation: none; }
+.gh-new .gh-pot { opacity: 0.45; }
+.gh-new:hover .gh-foliage { background: var(--primary-soft); }
+.gh-tag { position: relative; z-index: 1; margin-top: 18px; max-width: 112px; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #5b3a1a; background: #f7e8c9; box-shadow: 0 3px 8px -4px rgba(70, 40, 10, 0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform: rotate(-2deg); }
+.gh-slot.vacant .gh-tag { background: transparent; box-shadow: none; color: var(--muted); }
+.gh-pop { margin-top: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border-radius: 18px; background: var(--paper-2); box-shadow: var(--card-hi), 0 0 0 1px var(--edge); animation: wkIn 0.3s var(--ease); }
+.gh-pop-ph { width: 46px; height: 46px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.gh-pop-ph img { width: 100%; height: 100%; object-fit: cover; }
+.gh-pop-t { flex: 1; min-width: 160px; display: flex; flex-direction: column; line-height: 1.3; }
+.gh-pop-t strong { font-family: var(--serif); font-size: 17px; }
+.gh-pop-t span { font-size: 14px; color: var(--muted); font-style: italic; }
+.gh-pop-a { display: flex; gap: 6px; flex-wrap: wrap; }
+/* Түнгі жылыжай */
+:root[data-theme="dark"] .gh-scene { --frame: rgba(160, 220, 190, 0.28); --sky1: #0a1a2c; --sky2: #0b1d14; background: linear-gradient(180deg, var(--sky1), #0c2120 50%, var(--sky2)); }
+:root[data-theme="dark"] .gh-rays { display: none; }
+:root[data-theme="dark"] .gh-lights { display: block; }
+:root[data-theme="dark"] .gh-bubble { background: rgba(20, 40, 30, 0.85); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gh-scene { --frame: rgba(160, 220, 190, 0.28); --sky1: #0a1a2c; --sky2: #0b1d14; background: linear-gradient(180deg, var(--sky1), #0c2120 50%, var(--sky2)); }
+  :root:not([data-theme="light"]) .gh-rays { display: none; }
+  :root:not([data-theme="light"]) .gh-lights { display: block; }
+  :root:not([data-theme="light"]) .gh-bubble { background: rgba(20, 40, 30, 0.85); }
+}
+@media (max-width: 600px) {
+  .gh { padding: 16px 12px; }
+  .gh-scene { padding: 80px 4px 14px; border-radius: 20px; }
+  .gh-shelf { grid-template-columns: repeat(3, 1fr); }
+  .gh-plant { width: 100px; height: 132px; }
+  .gh-slot::before { top: 130px; }
+  .gh-foliage { width: 78px; height: 78px; }
+  .gh-pot { width: 60px; height: 42px; }
+  .gh-bubble { width: 30px; height: 30px; font-size: 16px; }
+  .gh-tag { max-width: 96px; font-size: 11px; }
+  .gh-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .gh-foliage, .gh-rays, .gh-lights i, .gh-bubble, .gh-rain i, .gh-foliage::after { animation: none !important; } }
+/* Сөре тақтайлары бүкіл қатар бойымен */
+.gh-slot::before { display: none; }
+.gh-slot { height: 196px; }
+.gh-shelf { row-gap: 20px; background:
+  linear-gradient(180deg, transparent 0 150px, #c99a63 150px, #a5713e 157px, #7d5128 163px, rgba(70, 40, 10, 0.28) 163px, transparent 172px) 0 0 / 100% 216px repeat-y; }
+@media (max-width: 600px) {
+  .gh-slot { height: 176px; }
+  .gh-shelf { background-size: 100% 196px; background-image: linear-gradient(180deg, transparent 0 130px, #c99a63 130px, #a5713e 137px, #7d5128 143px, rgba(70, 40, 10, 0.28) 143px, transparent 152px); }
+}
+.gh-shelf { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 600px) { .gh-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

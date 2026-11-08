@@ -241,6 +241,18 @@ const T = {
     ],
     weekTitle: "Апта жоспары",
     weekRest: "суару жоқ",
+    gh: {
+      title: "Менің жылыжайым",
+      sum: (n, bad) => (bad ? `${n} өсімдік · ${bad} күтім күтіп тұр` : `${n} өсімдік · бәрі жайнап тұр 🌿`),
+      empty: "Жылыжай бос — алғашқы өсімдігіңді отырғыз",
+      add: "Отырғызу",
+      water: "Суару",
+      fert: "Тыңайту",
+      talk: "Сөйлесу",
+      card: "Карточкасы",
+      thanks: "Рақмет! 💧",
+      tapHint: "Өсімдікті басып, күтім жаса",
+    },
     shareRes: "Нәтижемен бөлісу",
     shared: "Көшірілді — енді жіберуге болады",
     pasteHint: "Кеңес: суретті Ctrl+V арқылы қоюға да болады",
@@ -623,6 +635,18 @@ const T = {
     ],
     weekTitle: "План на неделю",
     weekRest: "без полива",
+    gh: {
+      title: "Моя оранжерея",
+      sum: (n, bad) => (bad ? `${n} растений · ${bad} ждут ухода` : `${n} растений · все цветут 🌿`),
+      empty: "Оранжерея пуста — посадите первое растение",
+      add: "Посадить",
+      water: "Полить",
+      fert: "Подкормить",
+      talk: "Поговорить",
+      card: "Карточка",
+      thanks: "Спасибо! 💧",
+      tapHint: "Нажмите на растение, чтобы ухаживать",
+    },
     shareRes: "Поделиться результатом",
     shared: "Скопировано — можно отправить",
     pasteHint: "Совет: фото можно вставить через Ctrl+V",
@@ -2990,6 +3014,18 @@ function MyPlants({ t, lang, plants, onSave, onTalk }) {
 
       <Weather t={t} lang={lang} />
 
+      <Greenhouse
+        t={t}
+        plants={plants}
+        onWater={(p) => {
+          const now = todayISO();
+          update(p.id, { lastWatered: now, log: addToLog(p, now) });
+        }}
+        onFert={(p) => update(p.id, { lastFert: todayISO() })}
+        onTalk={onTalk}
+        onAdd={() => setEditing("new")}
+      />
+
       {editing && (
         <PlantForm
           t={t}
@@ -3162,6 +3198,113 @@ function MyPlants({ t, lang, plants, onSave, onTalk }) {
   );
 }
 
+// «Менің жылыжайым»: өсімдіктер шыны жылыжайдағы сөреде тұрады
+function Greenhouse({ t, plants, onWater, onFert, onTalk, onAdd }) {
+  const g = t.gh;
+  const [sel, setSel] = useState(null);
+  const [splash, setSplash] = useState(null);
+  const bad = plants.filter((p) => plantMood(p, t).k !== "ok").length;
+  const cur = plants.find((p) => p.id === sel) || null;
+  // Сөре 6 орыннан тұрады (телефонда 3): бос орындар қатарды толтырады
+  const slots = Math.max(6, Math.ceil((plants.length + 1) / 6) * 6) - plants.length;
+
+  function water(p) {
+    setSplash(p.id);
+    onWater(p);
+    setTimeout(() => setSplash(null), 1600);
+  }
+  return (
+    <section className="gh">
+      <div className="gh-head">
+        <div>
+          <h3>{g.title}</h3>
+          <p>{plants.length ? g.sum(plants.length, bad) : g.empty}</p>
+        </div>
+        {plants.length > 0 && <span className="gh-hint">{g.tapHint}</span>}
+      </div>
+
+      <div className="gh-scene">
+        <span className="gh-roof" aria-hidden="true" />
+        <span className="gh-rays" aria-hidden="true" />
+        <span className="gh-lights" aria-hidden="true">
+          {Array.from({ length: 9 }, (_, k) => (
+            <i key={k} style={{ "--k": k }} />
+          ))}
+        </span>
+        <div className="gh-shelf">
+          {plants.map((p, idx) => {
+            const m = plantMood(p, t);
+            const ph = plantPhoto(p, 320);
+            const k = splash === p.id ? "ok" : m.k;
+            return (
+              <div key={p.id} className="gh-slot">
+                <button
+                  className={`gh-plant m-${k} ${sel === p.id ? "on" : ""} ${splash === p.id ? "splash" : ""}`}
+                  style={{ "--i": idx % 5 }}
+                  onClick={() => setSel(sel === p.id ? null : p.id)}
+                  aria-label={`${p.name}: ${m.text}`}
+                >
+                  <span className="gh-bubble">{splash === p.id ? "💧" : m.e}</span>
+                  <span className="gh-foliage">{ph ? <img src={ph} alt="" loading="lazy" /> : <Icon name="plants" size={34} />}</span>
+                  <span className="gh-pot" />
+                  {splash === p.id && (
+                    <span className="gh-rain" aria-hidden="true">
+                      <i /><i /><i /><i /><i />
+                    </span>
+                  )}
+                </button>
+                <span className="gh-tag">{p.name}</span>
+              </div>
+            );
+          })}
+          {Array.from({ length: slots }, (_, k) => k > 0 ? <div key={`e${k}`} className="gh-slot blank" aria-hidden="true" /> : (
+            <div key={`e${k}`} className="gh-slot vacant">
+              <button className="gh-plant gh-new" onClick={onAdd} aria-label={g.add}>
+                <span className="gh-foliage">
+                  <Icon name="plus" size={26} />
+                </span>
+                <span className="gh-pot" />
+              </button>
+              <span className="gh-tag">{k === 0 ? g.add : "\u00a0"}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {cur && (
+        <div className="gh-pop" key={cur.id}>
+          <span className="gh-pop-ph">{plantPhoto(cur, 160) ? <img src={plantPhoto(cur, 160)} alt="" /> : <Icon name="plants" size={22} />}</span>
+          <div className="gh-pop-t">
+            <strong>{cur.name}</strong>
+            <span>
+              {splash === cur.id ? g.thanks : `${plantMood(cur, t).e} «${plantMood(cur, t).text}»`}
+            </span>
+          </div>
+          <div className="gh-pop-a">
+            <button className="btn primary small" onClick={() => water(cur)}>
+              <Icon name="drop" size={15} /> {g.water}
+            </button>
+            {cur.fertEvery > 0 && (
+              <button className="btn ghost small" onClick={() => onFert(cur)}>
+                <Icon name="sprout" size={15} /> {g.fert}
+              </button>
+            )}
+            <button className="btn ghost small" onClick={() => onTalk?.(cur)}>
+              <Icon name="chat" size={15} /> {g.talk}
+            </button>
+            <button
+              className="btn ghost small"
+              onClick={() => document.getElementById(`plant-${cur.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })}
+            >
+              <Icon name="arrow" size={15} /> {g.card}
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete, onTalk }) {
   const mood = plantMood(plant, t);
   const [confirm, setConfirm] = useState(false);
@@ -3173,7 +3316,7 @@ function PlantCard({ t, plant, onWater, onFert, onEdit, onDelete, onTalk }) {
   const label = left < 0 ? t.overdue(-left) : left === 0 ? t.dueToday : t.dueIn(left);
 
   return (
-    <li className={`plant p-${state}`}>
+    <li className={`plant p-${state}`} id={`plant-${plant.id}`}>
       <div className="plant-main">
         <div className="pring" style={{ "--p": progress }}>
           {plant.thumb ? <img src={plant.thumb} alt="" /> : photoForLatin(plant.latin) ? <img src={photoUrl(photoForLatin(plant.latin), 200, 200)} alt="" loading="lazy" /> : <span className="pring-in"><Icon name="plants" size={26} /></span>}
