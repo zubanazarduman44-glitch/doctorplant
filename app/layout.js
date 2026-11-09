@@ -36,7 +36,16 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Vercel Web Analytics — келушілер статистикасы (cookie-сіз, жеке деректер жинамайды) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};`,
+          }}
+        />
+        <script defer src="/_vercel/insights/script.js" />
+      </body>
     </html>
   );
 }
