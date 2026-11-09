@@ -382,6 +382,17 @@ const T = {
     fPrivText: "Сурет браузерде кішірейтіледі, геолокация өшіріледі. Серверге тек талдау үшін жіберіледі.",
     upload: "Сурет жүктеу",
     uploadSub: "немесе осында сүйреп әкеліңіз",
+    lensTitle: "Өсімдікті суретке түсіріңіз",
+    lensSub: "немесе суретті осында сүйреп әкеліңіз",
+    lensDrop: "Жіберіңіз — талдауға дайынмын!",
+    lensGallery: "Галерея",
+    lensTips: ["Бір жапырақ, жақыннан", "Күндізгі жарық", "Ауру жері анық"],
+    lensChecks: "ЖИ тексереді",
+    lensCheckItems: ["Түрі", "Ауруы", "Дақтар", "Емдеу жоспары", "Улылығы"],
+    qLight: { ok: "Жарық жақсы", dark: "Тым қараңғы", over: "Тым жарық" },
+    qSharp: { ok: "Анық", blur: "Бұлыңғыр" },
+    qGood: "Сурет талдауға дайын",
+    qWarn: "Сурет сапасы төмен — қайта түсірсеңіз, диагноз дәлірек болады",
     camera: "Камера",
     shoot: "Түсіру",
     close: "Жабу",
@@ -846,6 +857,17 @@ const T = {
     fPrivText: "Фото уменьшается в браузере, геолокация удаляется. На сервер оно уходит только для анализа.",
     upload: "Загрузить фото",
     uploadSub: "или перетащите его сюда",
+    lensTitle: "Сфотографируйте растение",
+    lensSub: "или перетащите фото сюда",
+    lensDrop: "Отпускайте — готов к анализу!",
+    lensGallery: "Галерея",
+    lensTips: ["Один лист крупно", "Дневной свет", "Больное место в фокусе"],
+    lensChecks: "ИИ проверит",
+    lensCheckItems: ["Вид", "Болезнь", "Пятна", "План лечения", "Токсичность"],
+    qLight: { ok: "Свет хороший", dark: "Слишком темно", over: "Слишком светло" },
+    qSharp: { ok: "Чётко", blur: "Размыто" },
+    qGood: "Фото готово к анализу",
+    qWarn: "Качество фото низкое — переснимите, и диагноз будет точнее",
     camera: "Камера",
     shoot: "Снять",
     close: "Закрыть",
@@ -1310,6 +1332,17 @@ const T = {
     fPrivText: "The photo is resized in your browser and location data is removed. It is sent to the server only for analysis.",
     upload: "Upload photo",
     uploadSub: "or drag it here",
+    lensTitle: "Snap your plant",
+    lensSub: "or drop a photo here",
+    lensDrop: "Drop it — ready to analyse!",
+    lensGallery: "Gallery",
+    lensTips: ["One leaf, up close", "Daylight", "Damage in focus"],
+    lensChecks: "AI checks",
+    lensCheckItems: ["Species", "Disease", "Spots", "Treatment plan", "Toxicity"],
+    qLight: { ok: "Good light", dark: "Too dark", over: "Too bright" },
+    qSharp: { ok: "Sharp", blur: "Blurry" },
+    qGood: "Photo ready for analysis",
+    qWarn: "Low photo quality — retake it for a more accurate diagnosis",
     camera: "Camera",
     shoot: "Capture",
     close: "Close",
@@ -1698,6 +1731,84 @@ function store(key, value) {
 
 // Суретті кішірейтеміз және EXIF/геолокацияны өшіреміз
 // Сканерлеу HUD: суреттің үстінде технологиялық рамка мен пайыз
+// Суреттің сапасын браузерде тексеру: жарықтығы және анықтығы (Лаплас дисперсиясы)
+function analyzePhoto(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const W = 256;
+        const H = Math.max(1, Math.round((img.naturalHeight / img.naturalWidth) * W));
+        const c = document.createElement("canvas");
+        c.width = W;
+        c.height = H;
+        const x = c.getContext("2d", { willReadFrequently: true });
+        x.drawImage(img, 0, 0, W, H);
+        const d = x.getImageData(0, 0, W, H).data;
+        const g = new Float32Array(W * H);
+        let sum = 0;
+        for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+          g[j] = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+          sum += g[j];
+        }
+        const mean = sum / g.length;
+        // 4×4 бөлікке бөліп, ең анық бөліктерге қараймыз (фоны бұлыңғыр макро суреттер «бұлыңғыр» болып шықпауы үшін)
+        const T = 4;
+        const acc = Array.from({ length: T * T }, () => ({ n: 0, s: 0, s2: 0 }));
+        for (let yy = 1; yy < H - 1; yy++)
+          for (let xx = 1; xx < W - 1; xx++) {
+            const k = yy * W + xx;
+            const lap = g[k - 1] + g[k + 1] + g[k - W] + g[k + W] - 4 * g[k];
+            const a = acc[Math.min(T - 1, Math.floor((yy / H) * T)) * T + Math.min(T - 1, Math.floor((xx / W) * T))];
+            a.n++;
+            a.s += lap;
+            a.s2 += lap * lap;
+          }
+        const vars = acc.filter((a) => a.n).map((a) => a.s2 / a.n - (a.s / a.n) ** 2).sort((p, q) => q - p);
+        const sharp = vars.length ? vars[Math.min(2, vars.length - 1)] : 0;
+        resolve({
+          light: mean < 55 ? "dark" : mean > 215 ? "over" : "ok",
+          sharp: sharp < 45 ? "blur" : "ok",
+          w: img.naturalWidth,
+          h: img.naturalHeight,
+        });
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+function PhotoQuality({ t, src }) {
+  const [q, setQ] = useState(null);
+  useEffect(() => {
+    let off = false;
+    setQ(null);
+    analyzePhoto(src).then((r) => !off && setQ(r));
+    return () => {
+      off = true;
+    };
+  }, [src]);
+  if (!q) return <div className="pq pq-wait" aria-hidden="true" />;
+  const bad = q.light !== "ok" || q.sharp !== "ok";
+  return (
+    <div className={`pq ${bad ? "bad" : "good"}`} role="status">
+      <span className={`pq-chip ${q.light === "ok" ? "ok" : "warn"}`}>
+        <Icon name="sun" size={13} /> {t.qLight[q.light]}
+      </span>
+      <span className={`pq-chip ${q.sharp === "ok" ? "ok" : "warn"}`}>
+        <Icon name={q.sharp === "ok" ? "check" : "alert"} size={13} /> {t.qSharp[q.sharp]}
+      </span>
+      <span className="pq-chip dim">
+        {q.w}×{q.h}
+      </span>
+      <span className="pq-msg">{bad ? t.qWarn : t.qGood}</span>
+    </div>
+  );
+}
+
 function ScanHud({ t }) {
   const [ms, setMs] = useState(0);
   useEffect(() => {
@@ -2952,7 +3063,6 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, tr
     else setWebcam(true);
   }
 
-  const today = new Date().toLocaleDateString();
   const showSheet = !current || image;
 
   return (
@@ -3006,23 +3116,24 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, tr
                   )}
                 </>
               ) : (
-                <>
-                  <button className="btn primary big" onClick={() => fileRef.current?.click()}>
-                    <Icon name="upload" size={19} /> {t.upload}
-                  </button>
-                  <button className="btn ghost" onClick={openCamera}>
-                    <Icon name="camera" size={19} /> {t.camera}
-                  </button>
-                </>
+                <div className="lens-checks">
+                  <span className="lc-label">
+                    <Icon name="sparkle" size={15} /> {t.lensChecks}
+                  </span>
+                  {t.lensCheckItems.map((x, i) => (
+                    <span key={x} className="lc-item" style={{ "--i": i }}>
+                      <Icon name="check" size={13} /> {x}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
-            {!image && <p className="paste-hint"><Icon name="image" size={14} /> {t.pasteHint}</p>}
             {loading && <AnalyzeProgress t={t} />}
           </div>
 
-          {/* Гербарий парағы — сурет жүктелетін орын */}
+          {/* ЖИ линзасы — сурет жүктелетін орын */}
           <div
-            className={`sheet ${drag ? "drag" : ""}`}
+            className={`lens ${drag ? "drag" : ""} ${image ? "has-photo" : ""}`}
             onDragOver={(e) => {
               e.preventDefault();
               setDrag(true);
@@ -3034,59 +3145,70 @@ function Diagnose({ t, image, images = [], onRemove, loading, error, current, tr
               onPick(e.dataTransfer.files?.[0]);
             }}
           >
-            <span className="crop tl" />
-            <span className="crop tr" />
-            <span className="crop bl" />
-            <span className="crop br" />
             {image ? (
-              <div className={`specimen ${loading || refining ? "scanning" : ""}`}>
-                <img src={image} alt="" />
-                {(loading || refining) && <ScanHud t={t} />}
-                <div className="thumbs">
-                  {images.map((src, i) => (
-                    <span key={i} className={`thumb ${i === 0 ? "main" : ""}`}>
-                      <img src={src} alt="" />
-                      {!loading && (
-                        <button onClick={() => onRemove(i)} aria-label={t.removePhoto}>
-                          <Icon name="x" size={12} />
-                        </button>
-                      )}
-                    </span>
-                  ))}
-                  {images.length < 3 && !loading && (
-                    <button className="thumb add" onClick={() => extraRef.current?.click()} aria-label={t.addPhoto} title={t.photosHint}>
-                      <Icon name="plus" size={18} />
-                    </button>
-                  )}
+              <>
+                <div className={`specimen ${loading || refining ? "scanning" : ""}`}>
+                  <img src={image} alt="" />
+                  <span className="lv-corner tl" />
+                  <span className="lv-corner tr" />
+                  <span className="lv-corner bl" />
+                  <span className="lv-corner br" />
+                  {(loading || refining) && <ScanHud t={t} />}
+                  <div className="thumbs">
+                    {images.map((src, i) => (
+                      <span key={i} className={`thumb ${i === 0 ? "lead" : ""}`}>
+                        <img src={src} alt="" />
+                        {!loading && (
+                          <button onClick={() => onRemove(i)} aria-label={t.removePhoto}>
+                            <Icon name="x" size={12} />
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                    {images.length < 3 && !loading && (
+                      <button className="thumb add" onClick={() => extraRef.current?.click()} aria-label={t.addPhoto} title={t.photosHint}>
+                        <Icon name="plus" size={18} />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+                {!loading && <PhotoQuality t={t} src={image} />}
+              </>
             ) : (
-              <button className="sheet-empty" onClick={() => fileRef.current?.click()}>
-                <svg className="sprig" viewBox="0 0 120 200" aria-hidden="true">
-                  <path d="M60 196 C 58 150 62 90 60 14" />
-                  {[0, 1, 2, 3, 4, 5].map((k) => {
-                    const y = 170 - k * 26;
-                    const w = 38 - k * 4;
-                    return (
-                      <g key={k}>
-                        <path d={`M60 ${y} C ${60 - w * 0.6} ${y - 6} ${60 - w} ${y - 20} ${60 - w} ${y - 28} C ${60 - w * 0.5} ${y - 22} ${60 - w * 0.2} ${y - 10} 60 ${y}`} />
-                        <path d={`M60 ${y - 12} C ${60 + w * 0.6} ${y - 18} ${60 + w} ${y - 32} ${60 + w} ${y - 40} C ${60 + w * 0.5} ${y - 34} ${60 + w * 0.2} ${y - 22} 60 ${y - 12}`} />
-                      </g>
-                    );
-                  })}
-                  <ellipse cx="60" cy="12" rx="5" ry="9" />
-                </svg>
-                <span>{t.uploadSub}</span>
-              </button>
+              <>
+                <button type="button" className="lens-view" onClick={() => fileRef.current?.click()} aria-label={t.upload}>
+                  <span className="lv-grid" aria-hidden="true" />
+                  <span className="lv-beam" aria-hidden="true" />
+                  <span className="lv-corner tl" />
+                  <span className="lv-corner tr" />
+                  <span className="lv-corner bl" />
+                  <span className="lv-corner br" />
+                  <span className="lens-orb" aria-hidden="true">
+                    <Icon name={drag ? "upload" : "camera"} size={30} />
+                  </span>
+                  <strong className="lens-title">{drag ? t.lensDrop : t.lensTitle}</strong>
+                  <span className="lens-sub">{t.lensSub}</span>
+                  <span className="lens-keys">
+                    <kbd>Ctrl</kbd>+<kbd>V</kbd>
+                  </span>
+                </button>
+                <div className="lens-btns">
+                  <button className="btn primary" onClick={openCamera}>
+                    <Icon name="camera" size={18} /> {t.camera}
+                  </button>
+                  <button className="btn ghost" onClick={() => fileRef.current?.click()}>
+                    <Icon name="image" size={18} /> {t.lensGallery}
+                  </button>
+                </div>
+                <ul className="lens-tips">
+                  {t.lensTips.map((x, i) => (
+                    <li key={x}>
+                      <Icon name={["leaf", "sun", "search"][i]} size={14} /> {x}
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
-            <div className="tag">
-              <span>
-                <em>{t.sheetSpecies}</em> {loading ? "…" : t.sheetPending}
-              </span>
-              <span>
-                <em>{t.sheetDate}</em> {today}
-              </span>
-            </div>
           </div>
         </section>
       )}

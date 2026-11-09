@@ -647,7 +647,7 @@ a { color: inherit; }
 .thumbs { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 6px; }
 .thumb { position: relative; width: 52px; height: 52px; border-radius: 10px; overflow: visible; background: var(--paper); box-shadow: 0 0 0 2px var(--paper), 0 4px 12px rgba(0, 0, 0, 0.25); }
 .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
-.thumb.main { box-shadow: 0 0 0 2px var(--amber), 0 4px 12px rgba(0, 0, 0, 0.25); }
+.thumb.lead { box-shadow: 0 0 0 2px var(--amber), 0 4px 12px rgba(0, 0, 0, 0.25); }
 .thumb > button { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); }
 .thumb.add { display: grid; place-items: center; color: var(--primary); background: color-mix(in srgb, var(--paper) 88%, transparent); border: 1.5px dashed var(--primary); box-shadow: none; }
 
@@ -2339,3 +2339,131 @@ img, video { max-width: 100%; }
 .map-box { background: #eef2ec; }
 :root[data-theme="dark"] .map-box { background: #0d1a12; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .map-box { background: #0d1a12; } }
+
+/* ═════════ ЖИ линзасы — сурет жүктеу орны ═════════ */
+.lens {
+  position: relative; display: flex; flex-direction: column; gap: 12px; padding: 14px;
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--paper) 72%, transparent);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  box-shadow: var(--card-hi), 0 0 0 1px var(--edge, var(--line)), 0 30px 60px -32px rgba(10, 60, 30, 0.45);
+  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.lens.drag { transform: scale(1.012); box-shadow: var(--card-hi), 0 0 0 2.5px var(--primary), 0 30px 60px -28px rgba(21, 128, 61, 0.55); }
+
+/* Іздеу терезесі */
+.lens-view {
+  position: relative; overflow: hidden; isolation: isolate;
+  aspect-ratio: 4 / 3.6; width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px;
+  border-radius: 20px; color: var(--ink); text-align: center;
+  background:
+    radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--paper-2) 80%, transparent), color-mix(in srgb, var(--paper) 60%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 18%, transparent);
+  cursor: pointer;
+}
+.lv-grid {
+  position: absolute; inset: 0; z-index: -1; opacity: 0.55;
+  background-image: radial-gradient(color-mix(in srgb, var(--primary) 35%, transparent) 1px, transparent 1.4px);
+  background-size: 18px 18px;
+  -webkit-mask: radial-gradient(75% 70% at 50% 50%, #000 30%, transparent 100%);
+  mask: radial-gradient(75% 70% at 50% 50%, #000 30%, transparent 100%);
+}
+.lv-beam {
+  position: absolute; left: 8%; right: 8%; top: 0; height: 38%; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--primary) 14%, transparent) 85%, color-mix(in srgb, var(--primary) 55%, transparent) 99%, transparent);
+  border-radius: 0 0 50% 50% / 0 0 8px 8px;
+  animation: lvBeam 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes lvBeam { 0% { transform: translateY(-100%); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(260%); opacity: 0; } }
+.lv-corner {
+  position: absolute; width: 30px; height: 30px; border: 3px solid var(--primary); pointer-events: none; z-index: 2;
+  animation: lvBreath 2.8s ease-in-out infinite;
+}
+.lv-corner.tl { top: 14px; left: 14px; border-right: 0; border-bottom: 0; border-top-left-radius: 12px; }
+.lv-corner.tr { top: 14px; right: 14px; border-left: 0; border-bottom: 0; border-top-right-radius: 12px; }
+.lv-corner.bl { bottom: 14px; left: 14px; border-right: 0; border-top: 0; border-bottom-left-radius: 12px; }
+.lv-corner.br { bottom: 14px; right: 14px; border-left: 0; border-top: 0; border-bottom-right-radius: 12px; }
+@keyframes lvBreath { 50% { transform: scale(0.88); opacity: 0.7; } }
+.lv-corner.tl, .lv-corner.tr, .lv-corner.bl, .lv-corner.br { transform-origin: center; }
+.lens-view:hover .lv-corner, .lens.drag .lv-corner { animation-play-state: paused; transform: scale(1.06); }
+
+.lens-orb {
+  position: relative; display: grid; place-items: center; width: 78px; height: 78px; margin-bottom: 8px; border-radius: 50%;
+  color: #fff; background: radial-gradient(circle at 32% 28%, #4ade80, #15803d 62%, #0f5a2c);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), 0 14px 30px -10px rgba(21, 128, 61, 0.7);
+  transition: transform 0.3s var(--ease);
+}
+.lens-orb::before, .lens-orb::after {
+  content: ""; position: absolute; inset: -10px; border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  animation: orbRing 2.4s ease-out infinite;
+}
+.lens-orb::after { animation-delay: 1.2s; }
+@keyframes orbRing { from { transform: scale(0.85); opacity: 0.9; } to { transform: scale(1.45); opacity: 0; } }
+.lens-view:hover .lens-orb, .lens.drag .lens-orb { transform: scale(1.08); }
+.lens-title { font-family: var(--serif); font-size: clamp(20px, 2.2vw, 26px); line-height: 1.2; }
+.lens-sub { color: var(--muted); font-size: 14px; }
+.lens-keys { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.lens-keys kbd {
+  padding: 2px 7px; border-radius: 6px; font: 600 11.5px var(--sans); color: var(--ink);
+  background: var(--paper); box-shadow: inset 0 -1.5px 0 var(--line), 0 0 0 1px var(--line);
+}
+@media (hover: none) { .lens-keys { display: none; } }
+
+.lens-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lens-btns .btn { justify-content: center; min-height: 50px; font-size: 15.5px; }
+.lens-tips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 0; padding: 0 4px 2px; list-style: none; }
+.lens-tips li { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.lens-tips li svg { color: var(--primary); }
+
+/* Фото жүктелгенде */
+.lens.has-photo .specimen { aspect-ratio: 4 / 4.2; border-radius: 20px; height: auto; }
+.lens.has-photo .specimen > img { position: absolute; inset: 0; }
+.lens.has-photo .lv-corner { border-color: #fff; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4)); }
+.specimen.scanning .lv-corner { border-color: #4ade80; animation-duration: 1.2s; }
+
+/* Сурет сапасы */
+.pq { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 2px 4px; min-height: 30px; }
+.pq-wait { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary) 12%, transparent), transparent); background-size: 200% 100%; animation: pqWait 1.2s linear infinite; border-radius: 12px; }
+@keyframes pqWait { to { background-position: -200% 0; } }
+.pq-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; animation: hintIn 0.35s var(--ease) both; }
+.pq-chip.ok { background: var(--primary-soft); color: var(--primary); }
+.pq-chip.warn { background: var(--amber-soft); color: var(--warn); }
+.pq-chip.dim { background: var(--paper-2); color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+.pq-msg { flex: 1 1 100%; font-size: 13px; color: var(--muted); padding-left: 2px; }
+.pq.bad .pq-msg { color: var(--warn); font-weight: 600; }
+
+/* Сол жақтағы «ЖИ тексереді» тізімі */
+.lens-checks { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lc-label { display: inline-flex; align-items: center; gap: 6px; margin-right: 4px; font-size: 13px; font-weight: 800; letter-spacing: 0.02em; color: var(--primary); text-transform: uppercase; }
+.lc-item {
+  display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  background: color-mix(in srgb, var(--paper) 75%, transparent); box-shadow: 0 0 0 1px var(--edge, var(--line));
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  animation: hintIn 0.5s var(--ease) both; animation-delay: calc(var(--i) * 70ms + 0.5s);
+}
+.lc-item svg { color: var(--primary); }
+
+@media (max-width: 860px) {
+  .lens { padding: 10px; border-radius: 24px; }
+  .lens-view { aspect-ratio: 4 / 3.3; }
+  .lens-orb { width: 66px; height: 66px; }
+  .lens-checks { gap: 6px; }
+  .lc-item { padding: 6px 11px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-beam, .lv-corner, .lens-orb::before, .lens-orb::after { animation: none; }
+}
+.lens .thumbs { left: 50%; bottom: 14px; transform: translateX(-50%); align-items: flex-end; z-index: 3; }
+.lens .thumb { flex: none; height: 52px; width: 52px; }
+.lens .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; }
+@media (max-width: 860px) { .lens .thumb { width: 46px; height: 46px; } }
+/* Сканер сызығы: жұқа жарқыраған сызық */
+.lv-beam {
+  left: 0; right: 0; height: 26%; border-radius: 0;
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--primary) 10%, transparent) 70%, color-mix(in srgb, var(--primary) 60%, transparent) 98%, transparent 100%);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
